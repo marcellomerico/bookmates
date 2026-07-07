@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "dart.lineLength": 80,
+  "dart.previewFlutterUiGuides": true,
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code"
+  }
+}
