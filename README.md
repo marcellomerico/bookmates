@@ -56,3 +56,26 @@ bookmates/
 ## Status
 
 🚧 In Entwicklung — Phase 0: Repository & Entwicklungsumgebung
+
+## Phase 1 – Aktueller Stand
+
+- Flutter-Projekt mit iOS + Android
+- Riverpod, go_router, supabase_flutter
+- Auth-Screens (Login, Register, Onboarding)
+- Main Shell mit 5 Tabs (Home, Entdecken, Post, Gruppen, Profil)
+- Supabase SQL-Migration unter `supabase/migrations/`
+
+### App starten
+
+```bash
+cd ~/Developer/bookmates
+flutter pub get
+flutter run
+```
+
+### Supabase einrichten
+
+1. Projekt auf [supabase.com](https://supabase.com) erstellen
+2. SQL aus `supabase/migrations/20260707180000_initial_schema.sql` im SQL Editor ausführen
+3. URL + Anon Key in `.env` eintragen
+4. App neu starten

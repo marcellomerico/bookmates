@@ -1,0 +1,17 @@
+const List<String> kBookGenres = [
+  'Fantasy',
+  'Science Fiction',
+  'Krimi',
+  'Thriller',
+  'Romance',
+  'Historisch',
+  'Biografie',
+  'Sachbuch',
+  'Young Adult',
+  'Horror',
+  'Klassiker',
+  'Poetry',
+  'Graphic Novel',
+  'Self-Help',
+  'Philosophie',
+];
