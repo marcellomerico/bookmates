@@ -38,10 +38,10 @@ class _MainShellState extends State<MainShell> {
 
 List<StatefulShellBranch> buildMainShellBranches() {
   return [
-    StatefulShellBranch(routes: [GoRoute(path: '/home', builder: (_, __) => const HomeScreen())]),
-    StatefulShellBranch(routes: [GoRoute(path: '/discover', builder: (_, __) => const DiscoverScreen())]),
-    StatefulShellBranch(routes: [GoRoute(path: '/create', builder: (_, __) => const CreatePostScreen())]),
-    StatefulShellBranch(routes: [GoRoute(path: '/groups', builder: (_, __) => const GroupsScreen())]),
-    StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen())]),
+    StatefulShellBranch(routes: [GoRoute(path: '/home', builder: (_, _) => const HomeScreen())]),
+    StatefulShellBranch(routes: [GoRoute(path: '/discover', builder: (_, _) => const DiscoverScreen())]),
+    StatefulShellBranch(routes: [GoRoute(path: '/create', builder: (_, _) => const CreatePostScreen())]),
+    StatefulShellBranch(routes: [GoRoute(path: '/groups', builder: (_, _) => const GroupsScreen())]),
+    StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen())]),
   ];
 }

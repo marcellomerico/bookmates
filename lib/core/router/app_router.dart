@@ -6,7 +6,10 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/books/presentation/book_search_screen.dart';
 import '../../features/feed/presentation/main_shell.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
+import '../../models/user_book.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -32,6 +35,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         return completed ? '/home' : '/onboarding';
       }
 
+      // Routes allowed before onboarding is finished (nested flows).
+      final onboardingAllowed = state.matchedLocation == '/onboarding' ||
+          state.matchedLocation == '/books/search';
+
       if (state.matchedLocation == '/onboarding') {
         if (profile.isLoading) return null;
         final completed = profile.valueOrNull?.onboardingCompleted ?? false;
@@ -41,16 +48,30 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (profile.isLoading) return null;
       final completed = profile.valueOrNull?.onboardingCompleted ?? false;
-      if (!completed) return '/onboarding';
+      if (!completed && !onboardingAllowed) return '/onboarding';
 
       return null;
     },
     routes: [
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
+      GoRoute(path: '/profile/edit', builder: (_, _) => const EditProfileScreen()),
+      GoRoute(
+        path: '/books/search',
+        builder: (context, state) {
+          final statusParam = state.uri.queryParameters['status'];
+          final fromOnboarding = state.uri.queryParameters['onboarding'] == 'true';
+          return BookSearchScreen(
+            initialStatus: statusParam != null
+                ? BookStatus.fromDb(statusParam)
+                : BookStatus.wantToRead,
+            fromOnboarding: fromOnboarding,
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
-        builder: (_, __, navigationShell) => MainShell(navigationShell: navigationShell),
+        builder: (_, _, navigationShell) => MainShell(navigationShell: navigationShell),
         branches: buildMainShellBranches(),
       ),
     ],
@@ -59,8 +80,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 class _RouterRefresh extends ChangeNotifier {
   _RouterRefresh(this._ref) {
-    _ref.listen(authStateProvider, (_, __) => notifyListeners());
-    _ref.listen(currentProfileProvider, (_, __) => notifyListeners());
+    _ref.listen(authStateProvider, (_, _) => notifyListeners());
+    _ref.listen(currentProfileProvider, (_, _) => notifyListeners());
   }
 
   final Ref _ref;

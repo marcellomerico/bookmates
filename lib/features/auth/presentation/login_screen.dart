@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import 'social_sign_in_buttons.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -37,7 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text,
           );
     } catch (e) {
-      setState(() => _error = 'Anmeldung fehlgeschlagen. Bitte Daten prüfen.');
+      setState(() => _error = authErrorMessage(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -101,6 +102,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 onPressed: () => context.go('/register'),
                 child: const Text('Noch kein Konto? Registrieren'),
               ),
+              const SizedBox(height: 24),
+              const SocialSignInButtons(),
               const Spacer(),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
+import 'social_sign_in_buttons.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -40,7 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           );
       if (mounted) context.go('/onboarding');
     } catch (e) {
-      setState(() => _error = 'Registrierung fehlgeschlagen. Bitte erneut versuchen.');
+      setState(() => _error = authErrorMessage(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -92,6 +93,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 onPressed: () => context.go('/login'),
                 child: const Text('Zurück zur Anmeldung'),
               ),
+              const SizedBox(height: 24),
+              const SocialSignInButtons(),
             ],
           ),
         ),
