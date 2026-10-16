@@ -6,6 +6,7 @@ import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/books/presentation/book_search_screen.dart';
 import '../../features/feed/presentation/activity_screen.dart';
@@ -16,53 +17,33 @@ import '../../features/profile/presentation/follow_list_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
 import '../../features/groups/presentation/group_detail_screen.dart';
 import '../../models/user_book.dart';
+import 'auth_redirect.dart';
 import 'bookmates_page_transitions.dart';
+import 'splash_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-  final profile = ref.watch(currentProfileProvider);
-
-  return GoRouter(
-    initialLocation: '/login',
-    refreshListenable: _RouterRefresh(ref),
-    redirect: (context, state) {
-      if (authState.isLoading) return null;
-
-      final session = authState.valueOrNull?.session;
-      final isLoggedIn = session != null;
-      final onAuthRoute =
-          state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
-
-      if (!isLoggedIn) {
-        return onAuthRoute ? null : '/login';
-      }
-
-      if (onAuthRoute) {
-        if (profile.isLoading) return null;
-        final completed = profile.valueOrNull?.onboardingCompleted ?? false;
-        return completed ? '/home' : '/onboarding';
-      }
-
-      // Routes allowed before onboarding is finished (nested flows).
-      final onboardingAllowed =
-          state.matchedLocation == '/onboarding' ||
-          state.matchedLocation == '/books/search';
-
-      if (state.matchedLocation == '/onboarding') {
-        if (profile.isLoading) return null;
-        final completed = profile.valueOrNull?.onboardingCompleted ?? false;
-        if (completed) return '/home';
-        return null;
-      }
-
-      if (profile.isLoading) return null;
-      final completed = profile.valueOrNull?.onboardingCompleted ?? false;
-      if (!completed && !onboardingAllowed) return '/onboarding';
-
-      return null;
-    },
+  final refresh = _RouterRefresh(ref);
+  final router = GoRouter(
+    initialLocation: '/splash',
+    refreshListenable: refresh,
+    // Read (not watch) so auth/profile changes re-run redirect instead of rebuilding the router.
+    redirect: (context, state) => authRedirect(
+      location: state.matchedLocation,
+      auth: ref.read(authStateProvider),
+      profile: ref.read(currentProfileProvider),
+      recoveringPassword: ref.read(passwordRecoveryProvider),
+    ),
     routes: [
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (context, state) =>
+            fadeSlidePage(key: state.pageKey, child: const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        pageBuilder: (context, state) =>
+            fadeSlidePage(key: state.pageKey, child: const ResetPasswordScreen()),
+      ),
       GoRoute(
         path: '/login',
         pageBuilder: (context, state) =>
@@ -162,13 +143,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.onDispose(() {
+    router.dispose();
+    refresh.dispose();
+  });
+  return router;
 });
 
 class _RouterRefresh extends ChangeNotifier {
-  _RouterRefresh(this._ref) {
-    _ref.listen(authStateProvider, (_, _) => notifyListeners());
-    _ref.listen(currentProfileProvider, (_, _) => notifyListeners());
+  _RouterRefresh(Ref ref) {
+    // First: instantiates passwordRecoveryProvider at startup (no recovery event missed)
+    // and lets it react to auth events before the router refresh below runs.
+    ref.listen(passwordRecoveryProvider, (_, _) => notifyListeners());
+    ref.listen(authStateProvider, (_, _) => notifyListeners());
+    ref.listen(currentProfileProvider, (_, _) => notifyListeners());
   }
-
-  final Ref _ref;
 }

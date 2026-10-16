@@ -80,6 +80,17 @@
 				<string>com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bookmates</string>
+			</array>
+		</dict>
 	</array>
+	<!-- supabase_flutter handles auth deep links; keep go_router from routing them. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 </dict>
 </plist>

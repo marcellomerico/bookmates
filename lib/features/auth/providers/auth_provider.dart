@@ -9,6 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/constants/app_config.dart';
 import '../../../models/profile.dart';
 
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -138,6 +139,7 @@ class AuthRepository {
     final response = await _client.auth.signUp(
       email: trimmedEmail,
       password: password,
+      emailRedirectTo: AppConfig.authRedirectUrl,
       data: {'username': trimmedUsername, 'display_name': trimmedUsername},
     );
 
@@ -238,7 +240,14 @@ class AuthRepository {
   }
 
   Future<void> resetPassword(String email) async {
-    await _client.auth.resetPasswordForEmail(email.trim());
+    await _client.auth.resetPasswordForEmail(
+      email.trim(),
+      redirectTo: AppConfig.authRedirectUrl,
+    );
+  }
+
+  Future<void> updatePassword(String password) async {
+    await _client.auth.updateUser(UserAttributes(password: password));
   }
 
   Future<void> deleteAccount() async {

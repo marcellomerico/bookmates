@@ -7,6 +7,10 @@ class AppConfig {
   static const termsUrl = 'https://bookmates.app/terms';
   static const imprintUrl = 'https://bookmates.app/impressum';
 
+  /// Deep link Supabase redirects to after e-mail confirmation / password reset.
+  /// Must also be listed under Auth → URL Configuration → Redirect URLs.
+  static const authRedirectUrl = 'bookmates://auth-callback';
+
   static Uri get supportMailto => Uri(
         scheme: 'mailto',
         path: supportEmail,
