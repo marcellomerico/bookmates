@@ -43,10 +43,11 @@ android {
 
     buildTypes {
         release {
+            // No debug fallback: an unsigned release build fails loudly instead of shipping a debug key.
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug")
+                null
             }
         }
     }
