@@ -257,18 +257,19 @@ class AuthRepository {
     }
 
     try {
-      await _client.rpc('delete_own_account');
-    } on PostgrestException catch (e) {
-      if (e.code == 'PGRST202' || (e.message).contains('delete_own_account')) {
-        throw const AppAuthException(
-          'Konto konnte nicht gelöscht werden. Bitte später erneut versuchen.',
-        );
-      }
-      rethrow;
+      await _client.functions.invoke('delete-account', method: HttpMethod.post);
+    } on FunctionException catch (e) {
+      debugPrint('delete-account failed: ${e.status} ${e.details}');
+      throw const AppAuthException(
+        'Konto konnte nicht gelöscht werden. Bitte später erneut versuchen.',
+      );
     }
-
-    await _googleSignIn?.signOut();
-    await _client.auth.signOut(scope: SignOutScope.global);
+    try {
+      await _googleSignIn?.signOut();
+    } finally {
+      // The server-side user is gone; always clear the local session.
+      await _client.auth.signOut(scope: SignOutScope.local);
+    }
   }
 
   String _generateNonce([int length = 32]) {
