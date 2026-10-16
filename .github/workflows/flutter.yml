@@ -2,7 +2,7 @@ name: Flutter CI
 
 on:
   push:
-    branches: [main, master, 'cursor/**']
+    branches: [main, master, 'cursor/**', 'phase-*/**']
   pull_request:
 
 jobs:
@@ -13,6 +13,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: 3.44.5
+      # .env is a bundled asset but gitignored; placeholder values keep Env.isConfigured false.
+      - run: cp .env.example .env
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
