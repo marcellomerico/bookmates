@@ -20,8 +20,32 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 });
 
 final currentUserProvider = Provider<User?>((ref) {
+  // Recompute only when the signed-in user changes, not on every token refresh.
+  // hasValue also re-runs on the first event so the persisted-session fallback is dropped.
+  ref.watch(authStateProvider.select((s) => (s.hasValue, s.valueOrNull?.session?.user.id)));
+  final auth = ref.read(authStateProvider);
+  if (auth.hasValue) return auth.value!.session?.user;
+  // Before the first auth event: fall back to the persisted session.
   return ref.watch(supabaseClientProvider).auth.currentUser;
 });
+
+/// True after the user opened a password-reset link until a new password is set.
+class PasswordRecovery extends Notifier<bool> {
+  @override
+  bool build() {
+    ref.listen(authStateProvider, (_, next) {
+      final event = next.valueOrNull?.event;
+      if (event == AuthChangeEvent.passwordRecovery) state = true;
+      if (event == AuthChangeEvent.signedOut) state = false;
+    });
+    return false;
+  }
+
+  void done() => state = false;
+}
+
+final passwordRecoveryProvider =
+    NotifierProvider<PasswordRecovery, bool>(PasswordRecovery.new);
 
 final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   final user = ref.watch(currentUserProvider);
