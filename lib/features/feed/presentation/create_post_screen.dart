@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_sanitizer.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../../../models/post.dart';
 import '../../../models/user_book.dart';
@@ -59,10 +60,24 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   }
 
   Future<void> _pickImage() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 85,
+      requestFullMetadata: false,
+    );
     if (file == null) return;
-    final bytes = await file.readAsBytes();
-    setState(() => _imageBytes = bytes);
+    try {
+      final bytes = await sanitizeImage(await file.readAsBytes());
+      if (!mounted) return;
+      setState(() => _imageBytes = bytes);
+    } on FormatException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bild konnte nicht gelesen werden.')),
+      );
+    }
   }
 
   Future<void> _share() async {

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/genres.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_sanitizer.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
@@ -96,11 +97,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _pickAvatar() async {
     final image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
       imageQuality: 85,
+      requestFullMetadata: false,
     );
     if (image == null) return;
-    final bytes = await image.readAsBytes();
-    if (mounted) setState(() => _avatarBytes = bytes);
+    try {
+      final bytes = await sanitizeImage(await image.readAsBytes(), maxEdge: 512);
+      if (mounted) setState(() => _avatarBytes = bytes);
+    } on FormatException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bild konnte nicht gelesen werden.')),
+      );
+    }
   }
 
   @override
