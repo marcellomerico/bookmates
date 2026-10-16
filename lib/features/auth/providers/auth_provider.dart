@@ -62,22 +62,41 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   return Profile.fromJson(data);
 });
 
+/// Auth error raised by Bookmates itself; its message is user-facing German text.
+class AppAuthException extends AuthException {
+  const AppAuthException(super.message);
+}
+
 String authErrorMessage(Object error) {
   if (error is AuthException) {
+    if (error is AppAuthException) return error.message;
     final message = error.message.toLowerCase();
     if (message.contains('invalid login') ||
         message.contains('invalid credentials')) {
       return 'E-Mail oder Passwort falsch.';
     }
     if (message.contains('user already registered')) {
-      return 'Diese E-Mail ist bereits registriert. '
-          'Falls du den Account gelöscht hast, prüfe in Supabase ob die '
-          'Löschung vollständig war (siehe TESTING.md → Troubleshooting).';
+      return 'Diese E-Mail ist bereits registriert.';
     }
     if (message.contains('email not confirmed')) {
       return 'Bitte bestätige zuerst deine E-Mail-Adresse.';
     }
-    return error.message;
+    if (error is AuthWeakPasswordException || error.code == 'weak_password') {
+      return 'Das Passwort ist zu schwach. Bitte wähle ein längeres Passwort.';
+    }
+    if (error.statusCode == '429' ||
+        error.code == 'over_email_send_rate_limit' ||
+        error.code == 'over_request_rate_limit') {
+      return 'Zu viele Versuche. Bitte später erneut versuchen.';
+    }
+    if (error.code == 'email_address_invalid') {
+      return 'Bitte gib eine gültige E-Mail-Adresse ein.';
+    }
+    if (error is AuthRetryableFetchException && error.statusCode == null) {
+      return 'Keine Verbindung. Bitte prüfe deine Internetverbindung.';
+    }
+    debugPrint('Auth error: ${error.message}');
+    return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
   }
   if (error is PostgrestException) {
     final message = error.message.toLowerCase();
@@ -86,10 +105,10 @@ String authErrorMessage(Object error) {
     }
     if (message.contains('could not be deleted') ||
         message.contains('account could not')) {
-      return 'Account konnte nicht vollständig gelöscht werden. '
-          'Bitte Migration 4 in Supabase ausführen (TESTING.md Teil A.5).';
+      return 'Konto konnte nicht gelöscht werden. Bitte später erneut versuchen.';
     }
-    return error.message;
+    debugPrint('Auth error: ${error.message}');
+    return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
   }
   if (error is SignInWithAppleAuthorizationException &&
       error.code == AuthorizationErrorCode.canceled) {
@@ -133,7 +152,7 @@ class AuthRepository {
     final trimmedUsername = username.trim();
 
     if (trimmedUsername.isEmpty) {
-      throw const AuthException('Bitte gib einen Benutzernamen ein.');
+      throw const AppAuthException('Bitte gib einen Benutzernamen ein.');
     }
 
     final response = await _client.auth.signUp(
@@ -145,27 +164,9 @@ class AuthRepository {
 
     final user = response.user;
     if (user == null) {
-      throw const AuthException(
+      throw const AppAuthException(
         'Registrierung fehlgeschlagen. Ist die E-Mail bereits registriert?',
       );
-    }
-
-    // Trigger may have created a profile — update with chosen username.
-    try {
-      await _client.from('profiles').upsert({
-        'id': user.id,
-        'username': trimmedUsername,
-        'display_name': trimmedUsername,
-        'onboarding_completed': false,
-      });
-    } on PostgrestException catch (e) {
-      // Username taken by another account — remove orphan auth user if possible.
-      if (e.code == '23505') {
-        throw const AuthException(
-          'Dieser Benutzername ist bereits vergeben. Bitte wähle einen anderen.',
-        );
-      }
-      rethrow;
     }
 
     return SignUpResult(needsEmailConfirmation: response.session == null);
@@ -174,18 +175,18 @@ class AuthRepository {
   Future<void> signInWithGoogle() async {
     final googleSignIn = _googleSignIn;
     if (googleSignIn == null) {
-      throw const AuthException('Google Sign-In ist nicht konfiguriert.');
+      throw const AppAuthException('Google Sign-In ist nicht konfiguriert.');
     }
 
     final googleUser = await googleSignIn.signIn();
     if (googleUser == null) {
-      throw const AuthException('Anmeldung abgebrochen.');
+      throw const AppAuthException('Anmeldung abgebrochen.');
     }
 
     final googleAuth = await googleUser.authentication;
     final idToken = googleAuth.idToken;
     if (idToken == null) {
-      throw const AuthException('Google ID Token fehlt.');
+      throw const AppAuthException('Anmeldung fehlgeschlagen. Bitte erneut versuchen.');
     }
 
     await _client.auth.signInWithIdToken(
@@ -209,7 +210,7 @@ class AuthRepository {
 
     final idToken = credential.identityToken;
     if (idToken == null) {
-      throw const AuthException('Apple ID Token fehlt.');
+      throw const AppAuthException('Anmeldung fehlgeschlagen. Bitte erneut versuchen.');
     }
 
     await _client.auth.signInWithIdToken(
@@ -252,15 +253,15 @@ class AuthRepository {
 
   Future<void> deleteAccount() async {
     if (_client.auth.currentUser == null) {
-      throw const AuthException('Nicht angemeldet.');
+      throw const AppAuthException('Nicht angemeldet.');
     }
 
     try {
       await _client.rpc('delete_own_account');
     } on PostgrestException catch (e) {
       if (e.code == 'PGRST202' || (e.message).contains('delete_own_account')) {
-        throw const AuthException(
-          'Account-Löschung ist nicht eingerichtet. Bitte Migration 3+4 in Supabase ausführen.',
+        throw const AppAuthException(
+          'Konto konnte nicht gelöscht werden. Bitte später erneut versuchen.',
         );
       }
       rethrow;

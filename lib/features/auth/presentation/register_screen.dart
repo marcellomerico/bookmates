@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/utils/validators.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
@@ -32,12 +33,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _signUp() async {
-    final username = _usernameController.text.trim();
+    final username = _usernameController.text.trim().toLowerCase();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
       setState(() => _error = 'Bitte alle Felder ausfüllen.');
+      return;
+    }
+    _usernameController.text = username;
+    final usernameError = validateUsername(username);
+    if (usernameError != null) {
+      setState(() => _error = usernameError);
+      return;
+    }
+    if (password.length < 8) {
+      setState(() => _error = 'Passwort: mindestens 8 Zeichen.');
       return;
     }
 
@@ -88,8 +99,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       context.go('/onboarding');
     } on AuthException catch (e) {
       setState(() => _error = authErrorMessage(e));
-    } on PostgrestException catch (e) {
-      setState(() => _error = e.message);
     } catch (e) {
       setState(() => _error = authErrorMessage(e));
     } finally {

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/utils/validators.dart';
 import '../models/profile.dart';
 import '../models/profile_stats.dart';
 
@@ -55,15 +56,14 @@ class ProfileRepository {
   }
 
   Future<bool> isUsernameAvailable(String username) async {
-    final trimmed = username.trim();
+    final trimmed = username.trim().toLowerCase();
     if (trimmed.isEmpty) return false;
 
-    final row = await _client
-        .from('profiles')
-        .select('id')
-        .eq('username', trimmed)
-        .maybeSingle();
-    return row == null;
+    final result = await _client.rpc(
+      'username_available',
+      params: {'p_username': trimmed},
+    );
+    return result == true;
   }
 
   Future<Profile?> getProfile(String userId) async {
@@ -128,7 +128,7 @@ class ProfileRepository {
     String? excludeUserId,
     int limit = 20,
   }) async {
-    final trimmed = query.trim();
+    final trimmed = sanitizeSearchTerm(query);
     if (trimmed.isEmpty) return [];
 
     var request = _client
