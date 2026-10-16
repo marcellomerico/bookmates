@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
@@ -66,6 +67,47 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     ref.invalidate(groupsProvider(_query));
   }
 
+  Future<void> _joinWithCode() async {
+    // Controller is not disposed on purpose: disposing right after showDialog
+    // returns breaks the closing animation (same as _createGroup).
+    final controller = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Mit Code beitreten'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Einladungscode'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Beitreten'),
+          ),
+        ],
+      ),
+    );
+    if (code == null || code.trim().isEmpty || !mounted) return;
+    try {
+      final groupId = await ref.read(groupRepositoryProvider).joinWithCode(code);
+      ref.invalidate(groupsProvider(_query));
+      if (mounted) context.push('/groups/$groupId');
+    } on PostgrestException catch (e) {
+      _showJoinError(
+        e.code == 'P0002' ? 'Ungültiger Einladungscode.' : 'Beitritt fehlgeschlagen. Bitte erneut versuchen.',
+      );
+    } catch (_) {
+      _showJoinError('Beitritt fehlgeschlagen. Bitte erneut versuchen.');
+    }
+  }
+
+  void _showJoinError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final groups = ref.watch(groupsProvider(_query));
@@ -77,6 +119,8 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           Row(
             children: [
               Expanded(child: Text('Gruppen', style: Theme.of(context).textTheme.headlineMedium)),
+              TextButton(onPressed: _joinWithCode, child: const Text('Code')),
+              const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _createGroup,
                 style: ElevatedButton.styleFrom(minimumSize: const Size(76, 38)),

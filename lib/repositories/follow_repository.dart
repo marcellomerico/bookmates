@@ -25,10 +25,10 @@ class FollowRepository {
     required String followingId,
   }) async {
     if (followerId == followingId) return;
-    await _client.from('follows').upsert({
-      'follower_id': followerId,
-      'following_id': followingId,
-    });
+    await _client.from('follows').upsert(
+      {'follower_id': followerId, 'following_id': followingId},
+      ignoreDuplicates: true,
+    );
   }
 
   Future<void> unfollow({

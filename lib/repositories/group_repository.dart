@@ -74,7 +74,7 @@ class GroupRepository {
         .select(_select)
         .single();
 
-    await _client.from('group_members').upsert({
+    await _client.from('group_members').insert({
       'group_id': inserted['id'],
       'user_id': creatorId,
       'role': 'admin',
@@ -90,11 +90,20 @@ class GroupRepository {
     required String groupId,
     required String userId,
   }) async {
-    await _client.from('group_members').upsert({
-      'group_id': groupId,
-      'user_id': userId,
-      'role': 'member',
-    });
+    // ON CONFLICT DO NOTHING: RLS has no UPDATE policy on memberships.
+    await _client.from('group_members').upsert(
+      {'group_id': groupId, 'user_id': userId, 'role': 'member'},
+      ignoreDuplicates: true,
+    );
+  }
+
+  /// Joins a (private) group by invite code; returns the group id.
+  Future<String> joinWithCode(String code) async {
+    final result = await _client.rpc(
+      'join_group_with_code',
+      params: {'code': code},
+    );
+    return result as String;
   }
 
   Future<void> leaveGroup({

@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/post.dart';
@@ -98,14 +97,32 @@ class PostRepository {
   }
 
   Future<void> deletePost(String postId) async {
+    final row = await _client
+        .from('posts')
+        .select('image_url')
+        .eq('id', postId)
+        .maybeSingle();
     await _client.from('posts').delete().eq('id', postId);
+
+    final imageUrl = row?['image_url'] as String?;
+    final path = imageUrl == null ? null : postImagePathFromUrl(imageUrl);
+    if (path != null) {
+      try {
+        await _client.storage.from('post-images').remove([path]);
+      } catch (e) {
+        debugPrint('post image cleanup failed: $e');
+      }
+    }
   }
 
   Future<void> likePost({
     required String postId,
     required String userId,
   }) async {
-    await _client.from('likes').upsert({'post_id': postId, 'user_id': userId});
+    await _client.from('likes').upsert(
+      {'post_id': postId, 'user_id': userId},
+      ignoreDuplicates: true,
+    );
   }
 
   Future<void> unlikePost({
@@ -169,4 +186,16 @@ class PostRepository {
 
     return _client.storage.from('post-images').getPublicUrl(path);
   }
+}
+
+/// Object path inside the 'post-images' bucket for a public URL, or null.
+String? postImagePathFromUrl(String url) {
+  final segments = Uri.parse(url).pathSegments;
+  final i = segments.indexOf('post-images');
+  // Bucket segment must follow the storage access mode, e.g. .../object/public/post-images/...
+  if (i < 1 || !const {'public', 'sign', 'authenticated'}.contains(segments[i - 1])) {
+    return null;
+  }
+  final path = segments.skip(i + 1).join('/');
+  return path.isEmpty ? null : path;
 }

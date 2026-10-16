@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -72,6 +73,25 @@ class GroupDetailScreen extends ConsumerWidget {
                       padding: const EdgeInsets.only(top: 8),
                       child: Text('${item.memberCount} Mitglieder'),
                     ),
+                    if (isCreator && item.isPrivate && item.inviteCode != null)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.key_outlined),
+                        title: const Text('Einladungscode'),
+                        subtitle: SelectableText(item.inviteCode!),
+                        trailing: IconButton(
+                          tooltip: 'Code kopieren',
+                          icon: const Icon(Icons.copy),
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: item.inviteCode!));
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Code kopiert')),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     const SizedBox(height: 10),
                     if (!item.isMember)
                       OutlinedButton(

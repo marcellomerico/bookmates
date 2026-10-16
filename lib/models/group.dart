@@ -12,6 +12,7 @@ class BookGroup {
     this.memberCount = 0,
     this.isMember = false,
     this.creator,
+    this.inviteCode,
   });
 
   final String id;
@@ -24,6 +25,7 @@ class BookGroup {
   final int memberCount;
   final bool isMember;
   final Profile? creator;
+  final String? inviteCode;
 
   BookGroup copyWith({int? memberCount, bool? isMember}) {
     return BookGroup(
@@ -37,6 +39,7 @@ class BookGroup {
       memberCount: memberCount ?? this.memberCount,
       isMember: isMember ?? this.isMember,
       creator: creator,
+      inviteCode: inviteCode,
     );
   }
 
@@ -74,6 +77,7 @@ class BookGroup {
       creator: creatorJson is Map<String, dynamic>
           ? Profile.fromJson(creatorJson)
           : null,
+      inviteCode: json['invite_code'] as String?,
     );
   }
 }
