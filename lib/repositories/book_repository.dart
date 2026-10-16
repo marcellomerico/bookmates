@@ -79,15 +79,23 @@ class BookRepository {
         .eq('user_id', userId)
         .order('id');
 
-    return (rows as List).map((row) => UserBook.fromJson(row as Map<String, dynamic>)).toList();
+    return (rows as List)
+        .map((row) => UserBook.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> updateStatus(String userBookId, BookStatus status) async {
-    await _client.from('user_books').update({'status': status.dbValue}).eq('id', userBookId);
+    await _client
+        .from('user_books')
+        .update({'status': status.dbValue})
+        .eq('id', userBookId);
   }
 
   Future<void> updateRating(String userBookId, int? rating) async {
-    await _client.from('user_books').update({'rating': rating}).eq('id', userBookId);
+    await _client
+        .from('user_books')
+        .update({'rating': rating})
+        .eq('id', userBookId);
   }
 
   Future<void> removeFromShelf(String userBookId) async {

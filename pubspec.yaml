@@ -19,6 +19,9 @@ dependencies:
   crypto: ^3.0.6
   http: ^1.2.2
   cached_network_image: ^3.4.1
+  google_fonts: ^6.2.1
+  image_picker: ^1.2.3
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

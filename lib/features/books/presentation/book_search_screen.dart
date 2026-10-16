@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/bookmates_ui.dart';
 import '../../../models/user_book.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -46,7 +47,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     });
 
     try {
-      final results = await ref.read(openLibraryRepositoryProvider).search(query);
+      final results = await ref
+          .read(openLibraryRepositoryProvider)
+          .search(query);
       setState(() => _results = results);
     } catch (_) {
       setState(() {
@@ -65,7 +68,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     setState(() => _addingId = book.openLibraryId);
 
     try {
-      await ref.read(bookRepositoryProvider).addToShelf(
+      await ref
+          .read(bookRepositoryProvider)
+          .addToShelf(
             userId: user.id,
             result: book,
             status: widget.initialStatus,
@@ -73,9 +78,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       ref.invalidate(bookshelfProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('„${book.title}" hinzugefügt')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('„${book.title}" hinzugefügt')));
         if (widget.fromOnboarding) {
           context.pop(true);
         }
@@ -83,7 +88,9 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Buch konnte nicht hinzugefügt werden.')),
+          const SnackBar(
+            content: Text('Buch konnte nicht hinzugefügt werden.'),
+          ),
         );
       }
     } finally {
@@ -94,20 +101,18 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buch suchen'),
-      ),
+      appBar: AppBar(title: const Text('Buch suchen')),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _searchController,
                     decoration: const InputDecoration(
-                      hintText: 'Titel, Autor oder ISBN',
+                      hintText: 'z. B. Harry Potter',
                       prefixIcon: Icon(Icons.search),
                     ),
                     textInputAction: TextInputAction.search,
@@ -115,15 +120,22 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton.filled(
-                  onPressed: _searching ? null : _search,
-                  icon: _searching
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.arrow_forward),
+                SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: IconButton.filled(
+                    onPressed: _searching ? null : _search,
+                    icon: _searching
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.arrow_forward, size: 18),
+                  ),
                 ),
               ],
             ),
@@ -149,22 +161,59 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                       final book = _results[index];
                       final isAdding = _addingId == book.openLibraryId;
 
-                      return Card(
-                        child: ListTile(
-                          leading: _BookCover(url: book.coverUrl),
-                          title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                          subtitle: book.author != null ? Text(book.author!) : null,
-                          trailing: isAdding
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : IconButton(
-                                  icon: const Icon(Icons.add_circle_outline),
-                                  color: AppColors.burgundy,
-                                  onPressed: () => _addBook(book),
-                                ),
+                      return SoftCard(
+                        child: Row(
+                          children: [
+                            _BookCover(url: book.coverUrl),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    book.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  if (book.author != null)
+                                    Text(
+                                      book.author!,
+                                      style: const TextStyle(
+                                        color: AppColors.muted,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            isAdding
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : InkWell(
+                                    onTap: () => _addBook(book),
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.burgundy,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                          ],
                         ),
                       );
                     },
@@ -189,27 +238,24 @@ class _BookCover extends StatelessWidget {
         height: 56,
         decoration: BoxDecoration(
           color: AppColors.parchment,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.menu_book, color: AppColors.muted, size: 20),
       );
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(8),
       child: CachedNetworkImage(
         imageUrl: url!,
-        width: 40,
-        height: 56,
+        width: 42,
+        height: 60,
         fit: BoxFit.cover,
-        placeholder: (_, _) => Container(
-          width: 40,
-          height: 56,
-          color: AppColors.parchment,
-        ),
+        placeholder: (_, _) =>
+            Container(width: 42, height: 60, color: AppColors.parchment),
         errorWidget: (_, _, _) => Container(
-          width: 40,
-          height: 56,
+          width: 42,
+          height: 60,
           color: AppColors.parchment,
           child: const Icon(Icons.menu_book, color: AppColors.muted, size: 20),
         ),

@@ -40,14 +40,29 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
 String authErrorMessage(Object error) {
   if (error is AuthException) {
     final message = error.message.toLowerCase();
-    if (message.contains('invalid login') || message.contains('invalid credentials')) {
+    if (message.contains('invalid login') ||
+        message.contains('invalid credentials')) {
       return 'E-Mail oder Passwort falsch.';
     }
     if (message.contains('user already registered')) {
-      return 'Diese E-Mail ist bereits registriert.';
+      return 'Diese E-Mail ist bereits registriert. '
+          'Falls du den Account gelöscht hast, prüfe in Supabase ob die '
+          'Löschung vollständig war (siehe TESTING.md → Troubleshooting).';
     }
     if (message.contains('email not confirmed')) {
       return 'Bitte bestätige zuerst deine E-Mail-Adresse.';
+    }
+    return error.message;
+  }
+  if (error is PostgrestException) {
+    final message = error.message.toLowerCase();
+    if (message.contains('not authenticated')) {
+      return 'Nicht angemeldet.';
+    }
+    if (message.contains('could not be deleted') ||
+        message.contains('account could not')) {
+      return 'Account konnte nicht vollständig gelöscht werden. '
+          'Bitte Migration 4 in Supabase ausführen (TESTING.md Teil A.5).';
     }
     return error.message;
   }
@@ -58,6 +73,14 @@ String authErrorMessage(Object error) {
   return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
 }
 
+/// Result of email/password registration.
+class SignUpResult {
+  const SignUpResult({required this.needsEmailConfirmation});
+
+  /// True when Supabase requires e-mail confirmation before first login.
+  final bool needsEmailConfirmation;
+}
+
 class AuthRepository {
   AuthRepository(this._client);
 
@@ -66,7 +89,9 @@ class AuthRepository {
   GoogleSignIn? get _googleSignIn {
     if (!Env.isGoogleConfigured) return null;
     return GoogleSignIn(
-      clientId: defaultTargetPlatform == TargetPlatform.iOS && Env.googleIosClientId.isNotEmpty
+      clientId:
+          defaultTargetPlatform == TargetPlatform.iOS &&
+              Env.googleIosClientId.isNotEmpty
           ? Env.googleIosClientId
           : null,
       serverClientId: Env.googleWebClientId,
@@ -78,21 +103,46 @@ class AuthRepository {
     return _client.auth.signInWithPassword(email: email, password: password);
   }
 
-  Future<void> signUp(String email, String password, String username) async {
-    final response = await _client.auth.signUp(
-      email: email,
-      password: password,
-      data: {'username': username, 'display_name': username},
-    );
-    final user = response.user;
-    if (user == null) return;
+  Future<SignUpResult> signUp(String email, String password, String username) async {
+    final trimmedEmail = email.trim();
+    final trimmedUsername = username.trim();
 
-    await _client.from('profiles').upsert({
-      'id': user.id,
-      'username': username,
-      'display_name': username,
-      'onboarding_completed': false,
-    });
+    if (trimmedUsername.isEmpty) {
+      throw const AuthException('Bitte gib einen Benutzernamen ein.');
+    }
+
+    final response = await _client.auth.signUp(
+      email: trimmedEmail,
+      password: password,
+      data: {'username': trimmedUsername, 'display_name': trimmedUsername},
+    );
+
+    final user = response.user;
+    if (user == null) {
+      throw const AuthException(
+        'Registrierung fehlgeschlagen. Ist die E-Mail bereits registriert?',
+      );
+    }
+
+    // Trigger may have created a profile — update with chosen username.
+    try {
+      await _client.from('profiles').upsert({
+        'id': user.id,
+        'username': trimmedUsername,
+        'display_name': trimmedUsername,
+        'onboarding_completed': false,
+      });
+    } on PostgrestException catch (e) {
+      // Username taken by another account — remove orphan auth user if possible.
+      if (e.code == '23505') {
+        throw const AuthException(
+          'Dieser Benutzername ist bereits vergeben. Bitte wähle einen anderen.',
+        );
+      }
+      rethrow;
+    }
+
+    return SignUpResult(needsEmailConfirmation: response.session == null);
   }
 
   Future<void> signInWithGoogle() async {
@@ -151,9 +201,10 @@ class AuthRepository {
     ].where((part) => part != null && part.isNotEmpty).join(' ');
 
     if (displayName.isNotEmpty) {
-      await _client.from('profiles').update({
-        'display_name': displayName,
-      }).eq('id', user.id);
+      await _client
+          .from('profiles')
+          .update({'display_name': displayName})
+          .eq('id', user.id);
     }
   }
 
@@ -162,10 +213,38 @@ class AuthRepository {
     await _client.auth.signOut();
   }
 
+  Future<void> resetPassword(String email) async {
+    await _client.auth.resetPasswordForEmail(email.trim());
+  }
+
+  Future<void> deleteAccount() async {
+    if (_client.auth.currentUser == null) {
+      throw const AuthException('Nicht angemeldet.');
+    }
+
+    try {
+      await _client.rpc('delete_own_account');
+    } on PostgrestException catch (e) {
+      if (e.code == 'PGRST202' || (e.message).contains('delete_own_account')) {
+        throw const AuthException(
+          'Account-Löschung ist nicht eingerichtet. Bitte Migration 3+4 in Supabase ausführen.',
+        );
+      }
+      rethrow;
+    }
+
+    await _googleSignIn?.signOut();
+    await _client.auth.signOut(scope: SignOutScope.global);
+  }
+
   String _generateNonce([int length = 32]) {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 }
 

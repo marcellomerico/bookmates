@@ -1,36 +1,199 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
-class CreatePostScreen extends StatelessWidget {
-  const CreatePostScreen({super.key});
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/bookmates_ui.dart';
+import '../../../models/post.dart';
+import '../../../models/user_book.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../books/providers/books_provider.dart';
+import '../../social/providers/social_providers.dart';
+
+class CreatePostScreen extends ConsumerStatefulWidget {
+  const CreatePostScreen({super.key, this.groupId});
+
+  final String? groupId;
+
+  @override
+  ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
+}
+
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
+  final _contentController = TextEditingController();
+  final _picker = ImagePicker();
+  PostType _postType = PostType.discussion;
+  UserBook? _selectedBook;
+  Uint8List? _imageBytes;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _chooseBook() async {
+    final books = await ref.read(bookshelfProvider.future);
+    if (!mounted) return;
+    final selected = await showModalBottomSheet<UserBook>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => ListView(
+        children: [
+          const ListTile(title: Text('Buch aus deinem Regal')),
+          ...books.where((entry) => entry.book != null).map(
+                (entry) => ListTile(
+                  title: Text(entry.book!.title),
+                  subtitle: Text(entry.book!.author ?? ''),
+                  onTap: () => Navigator.pop(context, entry),
+                ),
+              ),
+        ],
+      ),
+    );
+    if (selected != null) setState(() => _selectedBook = selected);
+  }
+
+  Future<void> _pickImage() async {
+    final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    setState(() => _imageBytes = bytes);
+  }
+
+  Future<void> _share() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null || _contentController.text.trim().isEmpty) return;
+    setState(() => _saving = true);
+    try {
+      String? imageUrl;
+      if (_imageBytes != null) {
+        imageUrl = await ref.read(postRepositoryProvider).uploadPostImage(
+              userId: user.id,
+              bytes: _imageBytes!,
+              contentType: 'image/jpeg',
+            );
+      }
+
+      await ref.read(postRepositoryProvider).createPost(
+            authorId: user.id,
+            content: _contentController.text,
+            postType: _postType,
+            bookId: _selectedBook?.bookId,
+            groupId: widget.groupId,
+            imageUrl: imageUrl,
+          );
+      ref.invalidate(feedProvider);
+      ref.invalidate(currentProfileProvider);
+      ref.invalidate(profileStatsProvider(user.id));
+      if (widget.groupId != null) {
+        ref.invalidate(groupPostsProvider(widget.groupId!));
+        ref.invalidate(groupDetailProvider(widget.groupId!));
+      }
+      if (!mounted) return;
+      if (widget.groupId != null) {
+        context.go('/groups/${widget.groupId}');
+      } else {
+        context.go('/home');
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Beitrag konnte nicht geteilt werden.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Neuer Beitrag', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          const TextField(
-            maxLines: 6,
-            decoration: InputDecoration(
-              hintText: 'Was liest du gerade? Teile eine Rezension oder Empfehlung...',
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.menu_book_outlined),
-            label: const Text('Buch verknüpfen'),
-          ),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text('Beitrag veröffentlichen'),
-          ),
-        ],
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        18 + MediaQuery.viewInsetsOf(context).bottom,
       ),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text('Neuer Beitrag', style: Theme.of(context).textTheme.headlineMedium),
+            ),
+            TextButton(
+              onPressed: _saving ? null : _share,
+              child: const Text('Teilen'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        SoftCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _contentController,
+                maxLines: 8,
+                decoration: const InputDecoration(
+                  hintText:
+                      'Was liest du gerade? Teile Gedanken, Zitate oder eine kleine Rezension...',
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                ),
+              ),
+              if (_imageBytes != null) ...[
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(_imageBytes!, height: 160, width: double.infinity, fit: BoxFit.cover),
+                ),
+              ],
+              const Divider(color: AppColors.line),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<PostType>(
+                initialValue: _postType,
+                decoration: const InputDecoration(labelText: 'Beitragsart'),
+                items: PostType.values
+                    .map((type) => DropdownMenuItem(value: type, child: Text(type.label)))
+                    .toList(),
+                onChanged: _saving ? null : (type) => setState(() => _postType = type ?? _postType),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _saving ? null : _chooseBook,
+                icon: const Icon(Icons.menu_book_outlined),
+                label: Text(_selectedBook?.book?.title ?? 'Buch verknüpfen'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _saving ? null : _pickImage,
+                icon: const Icon(Icons.image_outlined),
+                label: Text(_imageBytes == null ? 'Bild hinzufügen' : 'Bild ersetzen'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: _saving ? null : _share,
+          child: _saving
+              ? const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                )
+              : const Text('Teilen'),
+        ),
+      ],
     );
   }
 }

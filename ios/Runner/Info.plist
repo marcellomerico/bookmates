@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Bookmates benötigt die Kamera, um ein Profilbild aufzunehmen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Bookmates benötigt Zugriff auf deine Fotomediathek, um ein Profilbild auszuwählen.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

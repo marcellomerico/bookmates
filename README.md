@@ -1,81 +1,49 @@
 # Bookmates
 
-Social Media App für Bücherfreunde — connecten nach Genre, Interessen und Leselisten.
+Social App für Bücherfreunde — Profile, Feed, Gruppen, Bücherregal.
 
-## Vision
+## Features (Client)
 
-Leser können:
-- Profile mit Lieblingsgenres und Bücherregalen pflegen
-- Beiträge teilen (Rezensionen, Empfehlungen, Diskussionen)
-- anderen Lesern folgen und einen personalisierten Feed sehen
-- Gruppen nach Genre oder Thema erstellen und beitreten
-- neue Leser mit ähnlichen Interessen entdecken
+- Auth: E-Mail, Passwort vergessen, Account löschen, Google/Apple (Config nötig)
+- Onboarding, Profil + Avatar, Bücherregal (Open Library)
+- Feed, Beiträge (Text, Bild, Buch), Likes, Comments
+- Folgen, Entdecken, Aktivität
+- Gruppen (öffentlich/privat), Moderation (Melden/Blockieren)
 
-## Tech-Stack
-
-| Schicht | Technologie |
-|---------|-------------|
-| Mobile | Flutter (iOS + Android) |
-| State Management | Riverpod |
-| Navigation | go_router |
-| Backend | Supabase (Auth, Postgres, Realtime, Storage) |
-| Buchdaten | Open Library API |
-
-## Voraussetzungen
-
-- Flutter SDK 3.x
-- Xcode (für iOS)
-- Android Studio (für Android)
-- Supabase-Konto
+## Quick Start
 
 ```bash
-flutter doctor
-```
-
-## Setup
-
-```bash
-git clone https://github.com/<dein-user>/bookmates.git
+git clone https://github.com/<user>/bookmates.git
 cd bookmates
 flutter pub get
-cp .env.example .env   # Supabase-Keys eintragen
+cp .env.example .env   # Supabase-Keys
 flutter run
 ```
 
-## Projektstruktur
+## Supabase
 
-```
-bookmates/
-├── lib/           # Flutter App-Code
-├── supabase/      # DB-Migrationen
-├── android/
-├── ios/
-└── pubspec.yaml
-```
+Migrationen in dieser Reihenfolge — siehe [`supabase/APPLY_MIGRATIONS.md`](supabase/APPLY_MIGRATIONS.md):
 
-## Status
+1. `20260707180000_initial_schema.sql`
+2. `20260731120000_storage_and_policies.sql`
+3. `20260731140000_moderation_and_privacy.sql`
 
-🚧 In Entwicklung — Phase 0: Repository & Entwicklungsumgebung
+## Docs
 
-## Phase 1 – Aktueller Stand
+| Datei | Inhalt |
+|-------|--------|
+| [`TESTING.md`](TESTING.md) | Test-Checkliste |
+| [`ROADMAP.md`](ROADMAP.md) | Feature-Stand |
+| [`PUBLISH_PLAN.md`](PUBLISH_PLAN.md) | Store-Launch |
+| [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md) | Prod-Backend |
+| [`docs/RELEASE.md`](docs/RELEASE.md) | Android/iOS Builds |
+| [`docs/GOOGLE_APPLE_AUTH.md`](docs/GOOGLE_APPLE_AUTH.md) | OAuth Setup |
+| [`docs/legal/`](docs/legal/) | Datenschutz, AGB, Impressum (Entwürfe) |
 
-- Flutter-Projekt mit iOS + Android
-- Riverpod, go_router, supabase_flutter
-- Auth-Screens (Login, Register, Onboarding)
-- Main Shell mit 5 Tabs (Home, Entdecken, Post, Gruppen, Profil)
-- Supabase SQL-Migration unter `supabase/migrations/`
+## Tech
 
-### App starten
+Flutter · Riverpod · go_router · Supabase · Open Library
 
-```bash
-cd ~/Developer/bookmates
-flutter pub get
-flutter run
-```
+## CI
 
-### Supabase einrichten
-
-1. Projekt auf [supabase.com](https://supabase.com) erstellen
-2. SQL aus `supabase/migrations/20260707180000_initial_schema.sql` im SQL Editor ausführen
-3. URL + Anon Key in `.env` eintragen
-4. App neu starten
+GitHub Actions: `flutter analyze` + `flutter test` bei Push/PR.
