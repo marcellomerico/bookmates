@@ -1,5 +1,7 @@
 # Release Builds
 
+Was vor dem Release zu tun ist und wer es macht: [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Store-Texte: [`STORE_LISTING.md`](STORE_LISTING.md).
+
 ## Versionierung
 
 `version: <marketing>+<build>` in `pubspec.yaml`, z. B. `1.0.0+1`.
