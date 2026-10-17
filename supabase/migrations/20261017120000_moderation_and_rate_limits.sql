@@ -6,6 +6,8 @@ create table if not exists private.admins (
   created_at timestamptz not null default now()
 );
 revoke all on private.admins from public, anon, authenticated;
+-- No policies: only definer code (is_admin) reads it.
+alter table private.admins enable row level security;
 
 create or replace function private.is_admin()
 returns boolean language sql stable security definer set search_path = public as $$
@@ -67,6 +69,9 @@ $$;
 drop trigger if exists posts_protect_hidden_at on public.posts;
 create trigger posts_protect_hidden_at before update on public.posts
   for each row execute function private.protect_hidden_at();
+drop trigger if exists comments_protect_hidden_at on public.comments;
+create trigger comments_protect_hidden_at before update on public.comments
+  for each row execute function private.protect_hidden_at();
 
 create or replace function private.clear_hidden_on_insert()
 returns trigger language plpgsql set search_path = public as $$
@@ -92,24 +97,73 @@ alter table public.reports
 alter table public.reports
   add constraint reports_status_valid check (status in ('open', 'dismissed', 'actioned'));
 
--- One report per reporter and target (keeps auto-hide counts honest).
-create unique index if not exists reports_unique_post on public.reports (reporter_id, post_id) where post_id is not null;
-create unique index if not exists reports_unique_comment on public.reports (reporter_id, comment_id) where comment_id is not null;
+-- What was reported, fixed at insert: post_id/comment_id are nulled when content is deleted,
+-- and comment reports also carry post_id (the app sends both).
+alter table public.reports add column if not exists target_type text;
+update public.reports
+set target_type = case when comment_id is not null then 'comment'
+                       when post_id is not null then 'post' else 'user' end
+where target_type is null;
+alter table public.reports alter column target_type set not null;
+alter table public.reports
+  add constraint reports_target_type_valid check (target_type in ('post', 'comment', 'user'));
+
+-- Fires for every caller. Named so it sorts before reports_rate_limit (BEFORE triggers run
+-- alphabetically); the two do not depend on each other either way.
+create or replace function private.set_report_defaults()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  new.target_type := case when new.comment_id is not null then 'comment'
+                          when new.post_id is not null then 'post' else 'user' end;
+  if new.target_type = 'user' and new.reported_user_id is null then
+    raise exception 'Report has no target' using errcode = '23514';
+  end if;
+  if coalesce(current_setting('role', true), 'none') in ('authenticated', 'anon') then
+    new.status := 'open';
+    new.resolved_at := null;
+    new.resolved_by := null;
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists reports_defaults on public.reports;
+create trigger reports_defaults before insert on public.reports
+  for each row execute function private.set_report_defaults();
+
+-- Users may only report content they can see; a comment must belong to the given post.
+-- (Unqualified names in the subquery would bind to comments, hence reports.*.)
+drop policy if exists "Users create reports" on public.reports;
+create policy "Users create reports" on public.reports for insert to authenticated
+  with check (
+    reporter_id = auth.uid()
+    and (reports.post_id is null or private.can_view_post(reports.post_id))
+    and (reports.comment_id is null or exists (
+          select 1 from public.comments c
+          where c.id = reports.comment_id
+            and (reports.post_id is null or c.post_id = reports.post_id)))
+  );
+
+-- One report per reporter and target (keeps auto-hide counts honest). Rows whose content was
+-- deleted keep their target_type with a NULL id, which never conflicts.
+create unique index if not exists reports_unique_post on public.reports (reporter_id, post_id)
+  where target_type = 'post';
+create unique index if not exists reports_unique_comment on public.reports (reporter_id, comment_id)
+  where target_type = 'comment';
 create unique index if not exists reports_unique_user on public.reports (reporter_id, reported_user_id)
-  where post_id is null and comment_id is null and reported_user_id is not null;
+  where target_type = 'user';
 create index if not exists reports_open_idx on public.reports (created_at) where status = 'open';
 
 create or replace function private.auto_hide_reported()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if new.post_id is not null and (
+  if new.target_type = 'post' and new.post_id is not null and (
     select count(distinct reporter_id) from public.reports
-    where post_id = new.post_id and status = 'open') >= 3 then
+    where target_type = 'post' and post_id = new.post_id and status = 'open') >= 3 then
     update public.posts set hidden_at = now() where id = new.post_id and hidden_at is null;
   end if;
-  if new.comment_id is not null and (
+  if new.target_type = 'comment' and new.comment_id is not null and (
     select count(distinct reporter_id) from public.reports
-    where comment_id = new.comment_id and status = 'open') >= 3 then
+    where target_type = 'comment' and comment_id = new.comment_id and status = 'open') >= 3 then
     update public.comments set hidden_at = now() where id = new.comment_id and hidden_at is null;
   end if;
   return new;
@@ -131,8 +185,8 @@ language sql stable security definer set search_path = public as $$
   select r.id, r.created_at, r.reason, rp.username,
          coalesce(r.reported_user_id, c.author_id, p.author_id), tu.username,
          r.post_id, r.comment_id,
-         coalesce(c.content, p.content),
-         coalesce(c.hidden_at, p.hidden_at) is not null
+         case when r.target_type = 'comment' then c.content else p.content end,
+         case when r.target_type = 'comment' then c.hidden_at else p.hidden_at end is not null
   from public.reports r
   left join public.profiles rp on rp.id = r.reporter_id
   left join public.comments c on c.id = r.comment_id
@@ -161,25 +215,48 @@ begin
     raise exception 'Report not found' using errcode = 'P0002';
   end if;
 
+  if p_action <> 'dismiss' and r.target_type = 'user' then
+    raise exception 'No content target' using errcode = '22023';
+  end if;
+
   -- Resolve first: deleting content nulls reports.post_id/comment_id (on delete set null).
   update public.reports
   set status = case when p_action = 'dismiss' then 'dismissed' else 'actioned' end,
       resolved_at = now(), resolved_by = auth.uid()
   where id = r.id
-     or (status = 'open' and (
-           (r.comment_id is not null and comment_id = r.comment_id)
-        or (r.comment_id is null and r.post_id is not null and post_id = r.post_id and comment_id is null)));
+     or (status = 'open' and target_type = r.target_type and (
+           (r.target_type = 'post' and post_id = r.post_id)
+        or (r.target_type = 'comment' and comment_id = r.comment_id)
+        or (r.target_type = 'user' and reported_user_id = r.reported_user_id)));
 
   if p_action = 'hide' then
-    update public.comments set hidden_at = coalesce(hidden_at, now()) where id = r.comment_id;
-    update public.posts set hidden_at = coalesce(hidden_at, now())
-      where id = r.post_id and r.comment_id is null;
+    if r.target_type = 'comment' then
+      update public.comments set hidden_at = coalesce(hidden_at, now()) where id = r.comment_id;
+    else
+      update public.posts set hidden_at = coalesce(hidden_at, now()) where id = r.post_id;
+    end if;
   elsif p_action = 'delete' then
-    delete from public.comments where id = r.comment_id;
-    delete from public.posts where id = r.post_id and r.comment_id is null;
-  else
-    update public.comments set hidden_at = null where id = r.comment_id;
-    update public.posts set hidden_at = null where id = r.post_id and r.comment_id is null;
+    if r.target_type = 'comment' then
+      delete from public.comments where id = r.comment_id;
+    else
+      -- The cascade removes the post's comments; close their open reports too.
+      update public.reports
+      set status = 'actioned', resolved_at = now(), resolved_by = auth.uid()
+      where status = 'open' and target_type = 'comment'
+        and comment_id in (select c.id from public.comments c where c.post_id = r.post_id);
+      delete from public.posts where id = r.post_id;
+    end if;
+  -- dismiss: restore only if no admin ever actioned this target (keeps admin hides in place).
+  elsif r.target_type = 'comment' then
+    if not exists (select 1 from public.reports
+                   where target_type = 'comment' and comment_id = r.comment_id and status = 'actioned') then
+      update public.comments set hidden_at = null where id = r.comment_id;
+    end if;
+  elsif r.target_type = 'post' then
+    if not exists (select 1 from public.reports
+                   where target_type = 'post' and post_id = r.post_id and status = 'actioned') then
+      update public.posts set hidden_at = null where id = r.post_id;
+    end if;
   end if;
 end;
 $$;
@@ -192,24 +269,29 @@ returns trigger language plpgsql security definer set search_path = public as $$
 declare
   n int;
 begin
-  if current_user not in ('authenticated', 'anon') then
+  -- current_user is the owner inside SECURITY DEFINER; the session role tells API callers apart.
+  if coalesce(current_setting('role', true), 'none') not in ('authenticated', 'anon') then
     return new;
   end if;
+  -- Clients must not backdate rows out of the window; count by the caller, not the row.
+  new.created_at := now();
+  -- Serialize concurrent inserts per caller and table so parallel requests cannot all pass.
+  perform pg_advisory_xact_lock(hashtext(tg_table_name || coalesce(auth.uid()::text, '')));
   if tg_table_name = 'posts' then
     select count(*) into n from public.posts
-    where author_id = new.author_id and created_at > now() - interval '10 minutes';
+    where author_id = auth.uid() and created_at > now() - interval '10 minutes';
     if n >= 10 then raise exception 'rate_limit' using hint = 'posts'; end if;
   elsif tg_table_name = 'comments' then
     select count(*) into n from public.comments
-    where author_id = new.author_id and created_at > now() - interval '10 minutes';
+    where author_id = auth.uid() and created_at > now() - interval '10 minutes';
     if n >= 30 then raise exception 'rate_limit' using hint = 'comments'; end if;
   elsif tg_table_name = 'reports' then
     select count(*) into n from public.reports
-    where reporter_id = new.reporter_id and created_at > now() - interval '1 day';
+    where reporter_id = auth.uid() and created_at > now() - interval '1 day';
     if n >= 20 then raise exception 'rate_limit' using hint = 'reports'; end if;
   elsif tg_table_name = 'groups' then
     select count(*) into n from public.groups
-    where creator_id = new.creator_id and created_at > now() - interval '1 day';
+    where creator_id = auth.uid() and created_at > now() - interval '1 day';
     if n >= 5 then raise exception 'rate_limit' using hint = 'groups'; end if;
   end if;
   return new;
@@ -226,3 +308,8 @@ create trigger groups_rate_limit before insert on public.groups for each row exe
 
 create index if not exists posts_author_created_idx on public.posts (author_id, created_at);
 create index if not exists comments_author_created_idx on public.comments (author_id, created_at);
+
+-- Trigger functions fire regardless of EXECUTE; nobody should call them via RPC.
+revoke all on function private.protect_hidden_at(), private.clear_hidden_on_insert(),
+  private.auto_hide_reported(), private.enforce_rate_limit(), private.set_report_defaults()
+  from public, anon, authenticated;
