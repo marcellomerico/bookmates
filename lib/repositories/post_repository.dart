@@ -3,6 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/post.dart';
 
+/// Keyset position: the last post already loaded (newest-first order).
+typedef PostCursor = ({DateTime createdAt, String id});
+
 class PostRepository {
   PostRepository(this._client);
 
@@ -41,7 +44,7 @@ class PostRepository {
     List<String>? authorIds,
     String? groupId,
     String? bookId,
-    DateTime? before,
+    PostCursor? after,
     int limit = 20,
   }) async {
     var query = _client.from('posts').select(_select);
@@ -55,11 +58,9 @@ class PostRepository {
       }
     }
     if (bookId != null) query = query.eq('book_id', bookId);
-    if (before != null) {
-      query = query.lt('created_at', before.toUtc().toIso8601String());
-    }
+    if (after != null) query = query.or(_olderThan(after));
 
-    final rows = await query.order('created_at', ascending: false).limit(limit);
+    final rows = await _newestFirst(query).limit(limit);
     return _withLikedByMe(_parse(rows, currentUserId), currentUserId);
   }
 
@@ -77,7 +78,7 @@ class PostRepository {
   Future<List<Post>> getPostsByAuthor(
     String authorId, {
     String? currentUserId,
-    DateTime? before,
+    PostCursor? after,
     int limit = 20,
   }) async {
     var query = _client
@@ -85,12 +86,21 @@ class PostRepository {
         .select(_select)
         .eq('author_id', authorId)
         .filter('group_id', 'is', null);
-    if (before != null) {
-      query = query.lt('created_at', before.toUtc().toIso8601String());
-    }
-    final rows = await query.order('created_at', ascending: false).limit(limit);
+    if (after != null) query = query.or(_olderThan(after));
+    final rows = await _newestFirst(query).limit(limit);
     return _withLikedByMe(_parse(rows, currentUserId), currentUserId);
   }
+
+  /// Rows strictly after [c] in (created_at desc, id desc) order; id breaks ties.
+  static String _olderThan(PostCursor c) {
+    // Quoted: ISO timestamps contain '.' and ':', reserved inside or().
+    final ts = '"${c.createdAt.toUtc().toIso8601String()}"';
+    return 'created_at.lt.$ts,and(created_at.eq.$ts,id.lt.${c.id})';
+  }
+
+  static PostgrestTransformBuilder<PostgrestList> _newestFirst(
+    PostgrestFilterBuilder<PostgrestList> q,
+  ) => q.order('created_at', ascending: false).order('id', ascending: false);
 
   List<Post> _parse(List rows, String? currentUserId) => rows
       .map((r) => Post.fromJson(r as Map<String, dynamic>, currentUserId: currentUserId))

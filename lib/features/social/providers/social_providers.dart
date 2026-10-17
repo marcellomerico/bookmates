@@ -168,11 +168,11 @@ final onboardingSuggestionsProvider =
     FutureProvider.autoDispose<OnboardingSuggestions>((ref) async {
       final user = ref.watch(currentUserProvider);
       if (user == null) return const OnboardingSuggestions();
+      final groupRepo = ref.watch(groupRepositoryProvider);
 
       final results = await Future.wait([
         ref.watch(profileRepositoryProvider).recommendByGenres(user.id),
         ref.watch(followRepositoryProvider).getFollowingIds(user.id),
-        ref.watch(groupRepositoryProvider).listGroups(currentUserId: user.id),
         ref.watch(profileRepositoryProvider).getUserGenreNames(user.id),
         ref.watch(supabaseClientProvider).from('genres').select('id, name'),
       ]);
@@ -182,21 +182,11 @@ final onboardingSuggestionsProvider =
           .take(10)
           .toList();
 
-      final myGenreNames = (results[3] as List<String>).toSet();
+      final myGenreNames = (results[2] as List<String>).toSet();
       final myGenreIds = {
-        for (final row in results[4] as List)
+        for (final row in results[3] as List)
           if (myGenreNames.contains(row['name'])) row['id'] as String,
       };
-      // Stable sort keeps newest-first order within each bucket.
-      final groups = (results[2] as List<BookGroup>)
-          .where((g) => !g.isPrivate && !g.isMember)
-          .toList()
-        ..sort((a, b) {
-          int rank(BookGroup g) => myGenreIds.contains(g.genreId) ? 0 : 1;
-          return rank(a).compareTo(rank(b));
-        });
-      return OnboardingSuggestions(
-        people: people,
-        groups: groups.take(5).toList(),
-      );
+      final groups = await groupRepo.suggestPublicGroups(userId: user.id, genreIds: myGenreIds);
+      return OnboardingSuggestions(people: people, groups: groups);
     });

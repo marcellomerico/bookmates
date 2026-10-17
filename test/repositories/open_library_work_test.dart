@@ -53,4 +53,30 @@ void main() {
       throwsA(isA<OpenLibraryException>()),
     );
   });
+
+  test('follows a /type/redirect stub once', () async {
+    final paths = <String>[];
+    final w = await OpenLibraryRepository(
+      client: MockClient((req) async {
+        paths.add(req.url.path);
+        final body = req.url.path == '/works/OL1W.json'
+            ? {
+                'type': {'key': '/type/redirect'},
+                'location': '/works/OL2W',
+              }
+            : {'title': 'Merged'};
+        return http.Response(jsonEncode(body), 200);
+      }),
+    ).getWork('OL1W');
+    expect(paths, ['/works/OL1W.json', '/works/OL2W.json']);
+    expect(w.id, 'OL2W');
+    expect(w.title, 'Merged');
+  });
+
+  test('network failure becomes OpenLibraryException', () {
+    final r = OpenLibraryRepository(
+      client: MockClient((_) => throw http.ClientException('offline')),
+    );
+    expect(r.getWork('OL1W'), throwsA(isA<OpenLibraryException>()));
+  });
 }

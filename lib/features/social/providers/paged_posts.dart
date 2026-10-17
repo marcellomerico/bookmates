@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models/post.dart';
+import '../../../repositories/post_repository.dart';
 import '../../auth/providers/auth_provider.dart';
+import 'like_overrides.dart';
 import 'social_providers.dart';
 
 enum _Kind { feed, group, author, book }
@@ -35,19 +37,30 @@ class PagedPosts {
     required this.items,
     required this.hasMore,
     this.loadingMore = false,
+  }) : _feedAuthors = null;
+
+  const PagedPosts._({
+    required this.items,
+    required this.hasMore,
+    this.loadingMore = false,
+    this._feedAuthors,
   });
 
   final List<Post> items;
   final bool hasMore;
   final bool loadingMore;
+
+  /// Feed authors resolved with the first page; null = global feed.
+  /// Kept on the state so a stale refresh can't leak them into later pages.
+  final List<String>? _feedAuthors;
 }
 
 class PagedPostsNotifier
     extends AutoDisposeFamilyAsyncNotifier<PagedPosts, PostSource> {
   static const pageSize = 20;
 
-  /// Feed authors resolved on first page; null = global feed.
-  List<String>? _feedAuthors;
+  /// Bumped by every refresh; older in-flight requests compare and bail.
+  int _token = 0;
 
   @override
   Future<PagedPosts> build(PostSource arg) {
@@ -57,36 +70,45 @@ class PagedPostsNotifier
   }
 
   Future<PagedPosts> _firstPage() async {
+    List<String>? authors;
     if (arg._kind == _Kind.feed) {
       final user = ref.read(currentUserProvider);
       if (user == null) return const PagedPosts(items: [], hasMore: false);
       final following =
           await ref.read(followRepositoryProvider).getFollowingIds(user.id);
-      _feedAuthors =
-          following.isEmpty ? null : {...following, user.id}.toList();
+      authors = following.isEmpty ? null : {...following, user.id}.toList();
     }
-    final page = await _fetch(null);
-    return PagedPosts(items: page, hasMore: page.length == pageSize);
+    final page = await _fetch(null, authors);
+    _reconcileLikes(page);
+    return PagedPosts._(
+      items: page,
+      hasMore: page.length == pageSize,
+      feedAuthors: authors,
+    );
   }
 
-  Future<List<Post>> _fetch(DateTime? before) async {
+  // Drops optimistic like overrides that this fresh server data confirms.
+  void _reconcileLikes(List<Post> page) =>
+      ref.read(likeOverridesProvider.notifier).reconcile(page);
+
+  Future<List<Post>> _fetch(PostCursor? after, List<String>? authors) async {
     final userId = ref.read(currentUserProvider)?.id;
     final repo = ref.read(postRepositoryProvider);
     if (arg._kind == _Kind.author) {
       return repo.getPostsByAuthor(
         arg.id!,
         currentUserId: userId,
-        before: before,
+        after: after,
         limit: pageSize,
       );
     }
     if (userId == null) return const [];
     return repo.getFeed(
       currentUserId: userId,
-      authorIds: arg._kind == _Kind.feed ? _feedAuthors : null,
+      authorIds: arg._kind == _Kind.feed ? authors : null,
       groupId: arg._kind == _Kind.group ? arg.id : null,
       bookId: arg._kind == _Kind.book ? arg.id : null,
-      before: before,
+      after: after,
       limit: pageSize,
     );
   }
@@ -100,23 +122,32 @@ class PagedPostsNotifier
         current.loadingMore) {
       return;
     }
-    final loading = PagedPosts(
+    final token = _token;
+    final loading = PagedPosts._(
       items: current.items,
       hasMore: true,
       loadingMore: true,
+      feedAuthors: current._feedAuthors,
     );
     state = AsyncData(loading);
+    bool stale() => token != _token || !identical(state.valueOrNull, loading);
     final link = ref.keepAlive(); // don't dispose mid-request
     try {
-      final page = await _fetch(current.items.last.createdAt);
-      if (!identical(state.valueOrNull, loading)) return; // refreshed meanwhile
+      final last = current.items.last;
+      final page = await _fetch(
+        (createdAt: last.createdAt, id: last.id),
+        current._feedAuthors,
+      );
+      if (stale()) return; // refreshed meanwhile
+      _reconcileLikes(page);
       final seen = {for (final p in current.items) p.id};
-      state = AsyncData(PagedPosts(
+      state = AsyncData(PagedPosts._(
         items: [...current.items, ...page.where((p) => seen.add(p.id))],
         hasMore: page.length == pageSize,
+        feedAuthors: current._feedAuthors,
       ));
     } catch (_) {
-      if (identical(state.valueOrNull, loading)) state = AsyncData(current);
+      if (!stale()) state = AsyncData(current);
       rethrow;
     } finally {
       link.close();
@@ -124,9 +155,17 @@ class PagedPostsNotifier
   }
 
   /// Reloads the first page, keeping the current items visible meanwhile.
+  /// Only the newest refresh may write its result.
   Future<void> refresh() async {
+    final token = ++_token;
     state = const AsyncLoading<PagedPosts>().copyWithPrevious(state);
-    state = await AsyncValue.guard(_firstPage);
+    final link = ref.keepAlive();
+    try {
+      final next = await AsyncValue.guard(_firstPage);
+      if (token == _token) state = next;
+    } finally {
+      link.close();
+    }
   }
 }
 

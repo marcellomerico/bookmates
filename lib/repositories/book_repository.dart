@@ -4,6 +4,8 @@ import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
 
+final _workId = RegExp(r'^OL\d+W$');
+
 String _clip(String s, int max) => s.length > max ? s.substring(0, max) : s;
 
 class BookRepository {
@@ -12,20 +14,18 @@ class BookRepository {
   final SupabaseClient _client;
 
   Future<Book> upsertFromOpenLibrary(OpenLibraryBook result) async {
-    final existing = await _client
-        .from('books')
-        .select()
-        .eq('open_library_id', result.openLibraryId)
-        .maybeSingle();
-
-    if (existing != null) {
-      return Book.fromJson(existing);
+    final id = normalizeWorkId(result.openLibraryId);
+    if (!_workId.hasMatch(id)) {
+      throw ArgumentError.value(result.openLibraryId, 'openLibraryId');
     }
+    // Rows may store either 'OL1W' or '/works/OL1W'; match both.
+    final existing = await getByOpenLibraryId(id);
+    if (existing != null) return existing;
 
     final inserted = await _client
         .from('books')
         .insert({
-          'open_library_id': result.openLibraryId,
+          'open_library_id': id,
           'title': _clip(result.title, 500),
           'author': result.author == null ? null : _clip(result.author!, 300),
           'cover_url': result.coverUrl,
@@ -39,7 +39,7 @@ class BookRepository {
 
   Future<Book?> getByOpenLibraryId(String workId) async {
     final id = normalizeWorkId(workId);
-    if (!RegExp(r'^OL\d+W$').hasMatch(id)) return null;
+    if (!_workId.hasMatch(id)) return null;
     final rows = await _client
         .from('books')
         .select()

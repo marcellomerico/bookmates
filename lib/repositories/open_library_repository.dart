@@ -65,22 +65,42 @@ class OpenLibraryRepository {
   };
   static const _timeout = Duration(seconds: 10);
 
-  Future<OpenLibraryWork> getWork(String workId) async {
-    final id = normalizeWorkId(workId);
-    final uri = Uri.https('openlibrary.org', '/works/$id.json');
-    final http.Response response;
+  /// GET with timeout; network failures become [OpenLibraryException].
+  Future<http.Response> _get(Uri uri) async {
     try {
-      response = await _client.get(uri, headers: _headers).timeout(_timeout);
+      return await _client.get(uri, headers: _headers).timeout(_timeout);
     } on TimeoutException {
       throw const OpenLibraryException('Open Library antwortet nicht.');
+    } on http.ClientException {
+      // IOClient wraps SocketException in a ClientException.
+      throw const OpenLibraryException('Keine Verbindung zu Open Library.');
     }
+  }
+
+  Future<Map<String, dynamic>> _getWorkJson(String id) async {
+    final response = await _get(Uri.https('openlibrary.org', '/works/$id.json'));
     if (response.statusCode != 200) {
       throw OpenLibraryException(
         'Buchdetails konnten nicht geladen werden.',
         response.statusCode,
       );
     }
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  Future<OpenLibraryWork> getWork(String workId) async {
+    var id = normalizeWorkId(workId);
+    var data = await _getWorkJson(id);
+    // Merged works are redirect stubs; follow once (no loops).
+    final location = data['location'];
+    final type = data['type'];
+    if (type is Map &&
+        type['key'] == '/type/redirect' &&
+        location is String &&
+        RegExp(r'^/works/OL\d+W$').hasMatch(location)) {
+      id = normalizeWorkId(location);
+      data = await _getWorkJson(id);
+    }
     final rawDesc = data['description'];
     final desc = (rawDesc is Map ? rawDesc['value'] : rawDesc);
     final description = desc is String && desc.trim().isNotEmpty
@@ -110,12 +130,7 @@ class OpenLibraryRepository {
       'fields': 'key,title,author_name,cover_i,isbn',
     });
 
-    final http.Response response;
-    try {
-      response = await _client.get(uri, headers: _headers).timeout(_timeout);
-    } on TimeoutException {
-      throw const OpenLibraryException('Open Library antwortet nicht.');
-    }
+    final response = await _get(uri);
     if (response.statusCode != 200) {
       throw Exception('Open Library Suche fehlgeschlagen.');
     }

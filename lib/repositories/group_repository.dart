@@ -17,7 +17,9 @@ class GroupRepository {
   }) async {
     var request = _client.from('groups').select(_listSelect);
     final term = sanitizeSearchTerm(query ?? '');
-    if (term.isNotEmpty) request = request.ilike('name', '%$term%');
+    if (term.isNotEmpty) {
+      request = request.or('name.ilike.%$term%,description.ilike.%$term%');
+    }
 
     // RLS already hides private groups the user may not see.
     final results = await Future.wait([
@@ -32,6 +34,44 @@ class GroupRepository {
     return (results[0] as List)
         .map((row) => BookGroup.fromJson(row as Map<String, dynamic>))
         .map((g) => g.copyWith(isMember: memberOf.contains(g.id)))
+        .toList();
+  }
+
+  /// Up to [limit] public circles the user hasn't joined: ones in [genreIds]
+  /// first, then filled with the newest.
+  Future<List<BookGroup>> suggestPublicGroups({
+    required String userId,
+    required Set<String> genreIds,
+    int limit = 5,
+  }) async {
+    final memberRows = await _client
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', userId);
+    final joined = [for (final r in memberRows) r['group_id'] as String];
+    PostgrestFilterBuilder<PostgrestList> base() {
+      var q = _client.from('groups').select(_listSelect).eq('is_private', false);
+      if (joined.isNotEmpty) q = q.not('id', 'in', joined);
+      return q;
+    }
+
+    final matched = genreIds.isEmpty
+        ? const <Map<String, dynamic>>[]
+        : await base()
+              .inFilter('genre_id', genreIds.toList())
+              .order('created_at', ascending: false)
+              .limit(limit);
+    // Overlap with [matched] is at most matched.length rows.
+    final newest = matched.length >= limit
+        ? const <Map<String, dynamic>>[]
+        : await base()
+              .order('created_at', ascending: false)
+              .limit(limit + matched.length);
+    final seen = <Object?>{};
+    return [...matched, ...newest]
+        .where((r) => seen.add(r['id']))
+        .take(limit)
+        .map(BookGroup.fromJson)
         .toList();
   }
 

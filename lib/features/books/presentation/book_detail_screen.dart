@@ -31,12 +31,13 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     BookStatus.read: 'Gelesen',
   };
 
-  void _invalidateShelf(String? bookId) {
-    ref.invalidate(bookshelfProvider);
-    ref.invalidate(bookByWorkIdProvider(widget.workId));
+  // Takes the container so it still works after the screen was popped.
+  void _invalidateShelf(ProviderContainer container, String? bookId) {
+    container.invalidate(bookshelfProvider);
+    container.invalidate(bookByWorkIdProvider(widget.workId));
     if (bookId != null) {
-      ref.invalidate(myShelfEntryProvider(bookId));
-      ref.invalidate(bookReaderCountProvider(bookId));
+      container.invalidate(myShelfEntryProvider(bookId));
+      container.invalidate(bookReaderCountProvider(bookId));
     }
   }
 
@@ -48,17 +49,19 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   ) async {
     final user = ref.read(currentUserProvider);
     if (user == null || _busy) return;
+    final container = ProviderScope.containerOf(context, listen: false);
     setState(() => _busy = true);
     try {
       final repo = ref.read(bookRepositoryProvider);
+      String? bookId = book?.id;
       if (entry != null) {
         await repo.updateStatus(entry.id, status);
       } else {
         // addToShelf upserts the book row when it does not exist yet.
-        await repo.addToShelf(
+        final added = await repo.addToShelf(
           userId: user.id,
           result: OpenLibraryBook(
-            openLibraryId: widget.workId,
+            openLibraryId: book?.openLibraryId ?? widget.workId,
             title: book?.title ?? work.title,
             author: book?.author,
             coverId: work.coverId,
@@ -66,12 +69,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
           ),
           status: status,
         );
+        bookId = added.bookId;
       }
-      // The book row may have just been created, so look its id up again.
-      final id =
-          book?.id ??
-          (await ref.refresh(bookByWorkIdProvider(widget.workId).future))?.id;
-      _invalidateShelf(id);
+      _invalidateShelf(container, bookId);
     } catch (e) {
       _showError(e);
     } finally {
@@ -98,10 +98,11 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    final container = ProviderScope.containerOf(context, listen: false);
     setState(() => _busy = true);
     try {
       await ref.read(bookRepositoryProvider).removeFromShelf(entry.id);
-      _invalidateShelf(entry.bookId);
+      _invalidateShelf(container, entry.bookId);
     } catch (e) {
       _showError(e);
     } finally {

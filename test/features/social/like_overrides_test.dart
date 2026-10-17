@@ -98,4 +98,40 @@ void main() {
     ]);
     expect(override(), isNull);
   });
+
+  test('reconcile drops overrides confirmed by server data only', () async {
+    await likes().toggle(_post, userId: 'me');
+    expect(override(), (liked: true, count: 4));
+
+    likes().reconcile([_post]); // stale server data: keep the override
+    expect(override(), (liked: true, count: 4));
+
+    likes().reconcile([_post.copyWith(likedByMe: true, likeCount: 4)]);
+    expect(override(), isNull);
+  });
+
+  test('reconcile keeps overrides while a request is in flight', () async {
+    repo.gate = Completer();
+    final f = likes().toggle(_post, userId: 'me');
+    likes().reconcile([_post.copyWith(likedByMe: true, likeCount: 4)]);
+    expect(override(), (liked: true, count: 4));
+    repo.gate!.complete();
+    await f;
+  });
+
+  test('failure after a user switch does not roll back into new state', () async {
+    await likes().toggle(_post, userId: 'me'); // override (true, 4)
+    repo
+      ..gate = Completer()
+      ..fail = true;
+    final f = likes().toggle(_post, userId: 'me');
+    container.updateOverrides([
+      currentUserProvider.overrideWithValue(testUser('other')),
+      postRepositoryProvider.overrideWithValue(repo),
+    ]);
+    expect(override(), isNull);
+    repo.gate!.complete();
+    await expectLater(f, throwsException);
+    expect(override(), isNull);
+  });
 }

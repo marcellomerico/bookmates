@@ -19,6 +19,8 @@ class FollowSuggestionsStep extends ConsumerStatefulWidget {
 class _FollowSuggestionsStepState extends ConsumerState<FollowSuggestionsStep> {
   final Set<String> _followed = {};
   final Set<String> _joined = {};
+  // Ids with a request in flight; taps on them are ignored.
+  final Set<String> _pending = {};
 
   // Optimistic toggle: flip first, revert + SnackBar on error.
   Future<void> _toggle(
@@ -27,7 +29,7 @@ class _FollowSuggestionsStepState extends ConsumerState<FollowSuggestionsStep> {
     Future<void> Function(String userId, bool on) call,
   ) async {
     final user = ref.read(currentUserProvider);
-    if (user == null) return;
+    if (user == null || !_pending.add(id)) return;
     final on = !set.contains(id);
     setState(() => on ? set.add(id) : set.remove(id));
     try {
@@ -38,6 +40,8 @@ class _FollowSuggestionsStepState extends ConsumerState<FollowSuggestionsStep> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+    } finally {
+      _pending.remove(id);
     }
   }
 

@@ -38,5 +38,8 @@ check "user_books?select=id&book_id=eq.$z"
 check "user_genres?select=genres(name)&user_id=eq.$z"
 check "books?select=*&or=(open_library_id.eq.OL1W,open_library_id.eq./works/OL1W)&limit=1"
 check "genres?select=id,name"
+check "posts?select=id&or=(created_at.lt.%222026-01-01T00:00:00.000Z%22,and(created_at.eq.%222026-01-01T00:00:00.000Z%22,id.lt.$z))&order=created_at.desc,id.desc&limit=20"
+check "groups?select=*,profiles!creator_id(*),group_members(count)&or=(name.ilike.*krimi*,description.ilike.*krimi*)&limit=50"
+check "groups?select=*,profiles!creator_id(*),group_members(count)&is_private=eq.false&genre_id=in.($z)&id=not.in.($z)&order=created_at.desc&limit=5"
 
 exit $failed
