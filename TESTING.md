@@ -416,6 +416,19 @@ select id, username from public.profiles where username = 'extra_test_user';
 
 # TEIL J — UI & Stabilität
 
+**UI-Checks seit Phase 3** (am besten auf einem echten iPhone und einem Android-Gerät):
+
+| ID | Schritte | Erwartung | ✅ / ❌ |
+|----|----------|-----------|--------|
+| U1 | iOS: Beitrag öffnen, vom linken Rand nach rechts wischen | Zurück zum Feed (Back-Swipe) | |
+| U2 | Kommentar schreiben | Eingabefeld bleibt über der Tastatur sichtbar | |
+| U3 | Systemschrift auf größte Stufe (iOS: Bedienungshilfen → Größerer Text) | Nichts abgeschnitten, Regal und Profil scrollen normal | |
+| U4 | VoiceOver/TalkBack: Feed durchwischen | Like-, Kommentar- und Optionen-Buttons werden vorgelesen | |
+| U5 | Login mit Passwort-Manager | E-Mail und Passwort werden vorgeschlagen und eingefüllt | |
+| U6 | In einem Lesekreis „Beitrag“ → posten | Chip „Wird gepostet in: …“, danach zurück im Lesekreis, Formular leer | |
+| U7 | Profil → Zahnrad | Einstellungen mit Rechtlichem, Lizenzen, Abmelden, Konto löschen | |
+| U8 | Flugmodus an, Feed aktualisieren | Fehlerzustand mit „Erneut versuchen“ statt leerer Seite | |
+
 | ID | Schritte | Erwartung | ✅ / ❌ |
 |----|----------|-----------|--------|
 | J1 | Notch / Dynamic Island | Nicht verdeckt | |
