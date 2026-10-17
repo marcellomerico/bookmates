@@ -1,46 +1,61 @@
 # Supabase Production Setup
 
-## 1. Projekt
+Reihenfolge einhalten. Schritte mit **(Claude)** kann Claude per Supabase-MCP erledigen, sobald das Projekt existiert.
 
-- Eigenes **Production-Projekt** auf [supabase.com](https://supabase.com) anlegen
-- Dev- und Prod-Keys getrennt halten (`.env` lokal, Secrets in CI)
+## 1. Projekt anlegen (Marcello, kostet Geld)
 
-## 2. Migrationen (Reihenfolge)
+- Neues Projekt, Region **Frankfurt (eu-central-1)**, Plan **Pro** (tägliche Backups, kein Pausieren bei Inaktivität)
+- Datenbank-Passwort im Passwort-Manager speichern
+- **AVV/DPA** mit Supabase abschließen (Dashboard → Organization → Legal Documents)
+- Dev- und Prod-Keys getrennt halten. Die App liest `.env`, Release-Builds brauchen die **Prod**-Werte (siehe `docs/RELEASE.md`)
 
-Im SQL Editor ausführen:
+## 2. Schema einspielen (Claude oder SQL Editor)
 
-1. `supabase/migrations/20260707180000_initial_schema.sql`
-2. `supabase/migrations/20260731120000_storage_and_policies.sql`
-3. `supabase/migrations/20260731140000_moderation_and_privacy.sql`
-4. `supabase/migrations/20260731150000_fix_account_deletion.sql` (optional, von 5 überholt)
-5. `supabase/migrations/20261016120000_security_hardening.sql`
-6. `supabase/migrations/20261017090000_private_helpers_and_indexes.sql`
-7. `supabase/migrations/20261017120000_moderation_and_rate_limits.sql`
-8. `supabase/migrations/20261017150000_moderation_followups.sql`
-9. `supabase/migrations/20261017180000_feed_indexes.sql`
+`supabase/prod_setup.sql` enthält alle Pflicht-Migrationen in Reihenfolge, in **einer** Transaktion (alles oder nichts). Erzeugt von `tool/build_prod_setup.sh`; nach jeder neuen Migration neu erzeugen und committen.
 
-Danach Edge Function deployen (JWT-Verifikation an): `supabase functions deploy delete-account` oder Dashboard → Edge Functions.
+- SQL Editor → New query → gesamten Inhalt von `supabase/prod_setup.sql` → Run, **oder**
+- Claude wendet die Migrationen einzeln per MCP an (`apply_migration`), damit sie in der Migrations-Historie stehen
 
-> `supabase/tests/rls_smoke.sql` **nie auf Prod** ausführen — nur auf einem DEV-Projekt.
+Getestet: Die Datei läuft auf einer frischen Postgres-16-Datenbank fehlerfrei durch und ergibt dieselben Objekte wie Dev (13 Tabellen, 40 Policies, 10 Funktionen in `private`, 2 Buckets, 15 Genres).
 
-## 3. Auth
+Migration `20260731150000_fix_account_deletion.sql` ist bewusst nicht enthalten (von `20261016120000` überholt).
 
-- **Site URL:** deine App-URL oder `bookmates://` Deep Link
-- **Redirect URLs:** iOS/Android OAuth Callbacks + `bookmates://auth-callback` (Passwort-Reset, E-Mail-Bestätigung)
-- **E-Mail:** Bestätigung aktivieren + Template anpassen
-- **Google Provider:** Web Client ID + Secret
-- **Apple Provider:** Service ID + Key
+> `supabase/tests/rls_smoke.sql` **nie auf Prod** ausführen, nur auf Dev.
 
-## 4. Storage
+## 3. Edge Function (Claude oder CLI)
 
-Buckets prüfen: `avatars`, `post-images` (public read, authed write; max. 5 MB, jpeg/png/webp; Listing nur im eigenen Ordner)
+`delete-account` deployen, **JWT-Verifikation an**:
+`supabase functions deploy delete-account --project-ref <prod-ref>`
 
-## 5. Sicherheit
+Prüfen: Aufruf ohne Token → `401`.
 
-- RLS auf allen Tabellen aktiv lassen
-- Anon Key nur im Client; Service Role **nie** in der App
-- Rate Limits im Dashboard prüfen
+## 4. Auth (Marcello, Dashboard → Authentication)
 
-## 6. Backup
+- **E-Mail-Bestätigung:** an. Templates auf Deutsch anpassen (Bestätigen, Passwort zurücksetzen)
+- **Site URL:** `bookmates://auth-callback`
+- **Redirect URLs:** `bookmates://auth-callback`
+- **Leaked Password Protection:** an (Settings → Password Security)
+- **Mindestlänge Passwort:** 8
+- **SMTP:** eigener Absender (z. B. Resend, Postmark). Der eingebaute Supabase-Mailer ist auf wenige Mails pro Stunde begrenzt und für Prod ungeeignet
+- **Rate Limits / CAPTCHA:** Standardwerte prüfen. Bei Spam-Registrierungen hCaptcha oder Turnstile aktivieren
+- **Google Provider:** Web Client ID + Secret (siehe `docs/GOOGLE_APPLE_AUTH.md`)
+- **Apple Provider:** Service ID, Team ID, Key ID, Private Key
 
-- Point-in-Time Recovery (Pro Plan) oder regelmäßige DB-Exports
+## 5. Admin setzen (Claude, nachdem du dich in der Prod-App registriert hast)
+
+```sql
+insert into private.admins (user_id)
+select id from auth.users where email = '<deine-mail>';
+```
+
+## 6. Abschluss-Checks (Claude)
+
+- `get_advisors` (Security + Performance): Es bleiben nur die bekannten, gewollten Hinweise (öffentliche RPCs `username_available`, `join_group_with_code`, `am_i_admin` und die Admin-RPCs mit interner Prüfung)
+- `.env` auf Prod umstellen, dann `tool/check_queries.sh`: Alle Abfragen müssen `ok` liefern
+- Storage: Buckets `avatars` und `post-images` (5 MB, jpeg/png/webp)
+
+## 7. Betrieb
+
+- Backups: täglich (Pro). Point-in-Time Recovery bei Bedarf als Add-on
+- Service-Role-Key **nie** in die App oder ins Repo
+- Meldungen: Moderations-Queue in der App (Einstellungen → Meldungen prüfen). Benachrichtigung per Webhook ist ein offener Punkt (siehe `supabase/APPLY_MIGRATIONS.md`)
