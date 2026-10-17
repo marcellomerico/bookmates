@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/utils/validators.dart';
 import '../models/group.dart';
 
 class GroupRepository {
@@ -8,42 +9,30 @@ class GroupRepository {
   final SupabaseClient _client;
 
   static const _select = '*, profiles!creator_id(*), group_members(user_id)';
+  static const _listSelect = '*, profiles!creator_id(*), group_members(count)';
 
   Future<List<BookGroup>> listGroups({
     String? currentUserId,
     String? query,
   }) async {
-    var request = _client
-        .from('groups')
-        .select(_select)
-        .order('created_at', ascending: false);
+    var request = _client.from('groups').select(_listSelect);
+    final term = sanitizeSearchTerm(query ?? '');
+    if (term.isNotEmpty) request = request.ilike('name', '%$term%');
 
-    final rows = await request;
-    var groups = (rows as List)
-        .map(
-          (row) => BookGroup.fromJson(
-            row as Map<String, dynamic>,
-            currentUserId: currentUserId,
-          ),
-        )
-        .where((g) =>
-            !g.isPrivate ||
-            g.isMember ||
-            (currentUserId != null && g.creatorId == currentUserId))
+    // RLS already hides private groups the user may not see.
+    final results = await Future.wait([
+      request.order('created_at', ascending: false).limit(50),
+      if (currentUserId != null)
+        _client.from('group_members').select('group_id').eq('user_id', currentUserId),
+    ]);
+    final memberOf = currentUserId == null
+        ? <String>{}
+        : {for (final r in results[1] as List) r['group_id'] as String};
+
+    return (results[0] as List)
+        .map((row) => BookGroup.fromJson(row as Map<String, dynamic>))
+        .map((g) => g.copyWith(isMember: memberOf.contains(g.id)))
         .toList();
-
-    final trimmed = query?.trim().toLowerCase();
-    if (trimmed != null && trimmed.isNotEmpty) {
-      groups = groups
-          .where(
-            (g) =>
-                g.name.toLowerCase().contains(trimmed) ||
-                (g.description?.toLowerCase().contains(trimmed) ?? false),
-          )
-          .toList();
-    }
-
-    return groups;
   }
 
   Future<BookGroup?> getGroup(String groupId, {String? currentUserId}) async {

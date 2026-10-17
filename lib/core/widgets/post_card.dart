@@ -12,6 +12,9 @@ import '../utils/time_ago.dart';
 import 'moderation_actions.dart';
 import 'user_avatar.dart';
 
+int _memWidth(BuildContext context, double logical, int cap) =>
+    (logical * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, cap);
+
 class PostCard extends ConsumerWidget {
   const PostCard({super.key, required this.post});
 
@@ -131,6 +134,7 @@ class PostCard extends ConsumerWidget {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 180,
+                    memCacheWidth: _memWidth(context, MediaQuery.sizeOf(context).width, 1080),
                   ),
                 ),
               ),
@@ -241,6 +245,7 @@ class _BookChip extends StatelessWidget {
                 width: 42,
                 height: 58,
                 fit: BoxFit.cover,
+                memCacheWidth: _memWidth(context, 42, 300),
               ),
             )
           else

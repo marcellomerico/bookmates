@@ -299,6 +299,7 @@ class _Cover extends StatelessWidget {
         width: 40,
         height: 56,
         fit: BoxFit.cover,
+        memCacheWidth: (40 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300),
         errorWidget: (_, _, _) => Container(
           width: 40,
           height: 56,

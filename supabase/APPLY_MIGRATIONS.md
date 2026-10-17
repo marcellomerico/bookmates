@@ -16,6 +16,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 6 | `20261017090000_private_helpers_and_indexes.sql` | **Pflicht:** RLS-Helfer ins Schema `private` (nicht per RPC aufrufbar), Trigger-Funktionen gesperrt, Indizes für Fremdschlüssel |
 | 7 | `20261017120000_moderation_and_rate_limits.sql` | **Pflicht:** Moderation (Admins in `private.admins`, ausgeblendete Inhalte, Meldungs-Status, Auto-Ausblenden ab 3 Meldungen, Admin-RPCs), Rate-Limits |
 | 8 | `20261017150000_moderation_followups.sql` | **Pflicht:** Bild-URL in der Admin-Queue (Bild wird beim Löschen entfernt), Admins dürfen Post-Bilder löschen, Kommentar-Meldungen brauchen die Post-ID |
+| 9 | `20261017180000_feed_indexes.sql` | Indizes für seitenweise Feeds und Like-Status |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 

@@ -9,7 +9,8 @@ class PostRepository {
   final SupabaseClient _client;
 
   static const _select =
-      '*, profiles(*), books(*), likes(user_id), comments(id)';
+      // Explicit FK: likes/comments also link posts to profiles (PGRST201 otherwise).
+      '*, profiles!posts_author_id_fkey(*), books(*), likes(count), comments(count)';
 
   Future<Post> createPost({
     required String authorId,
@@ -39,30 +40,27 @@ class PostRepository {
     required String currentUserId,
     List<String>? authorIds,
     String? groupId,
-    int limit = 40,
+    String? bookId,
+    DateTime? before,
+    int limit = 20,
   }) async {
     var query = _client.from('posts').select(_select);
 
     if (groupId != null) {
       query = query.eq('group_id', groupId);
-    } else if (authorIds != null && authorIds.isNotEmpty) {
-      query = query
-          .inFilter('author_id', authorIds)
-          .filter('group_id', 'is', null);
     } else {
       query = query.filter('group_id', 'is', null);
+      if (authorIds != null && authorIds.isNotEmpty) {
+        query = query.inFilter('author_id', authorIds);
+      }
+    }
+    if (bookId != null) query = query.eq('book_id', bookId);
+    if (before != null) {
+      query = query.lt('created_at', before.toUtc().toIso8601String());
     }
 
     final rows = await query.order('created_at', ascending: false).limit(limit);
-
-    return (rows as List)
-        .map(
-          (row) => Post.fromJson(
-            row as Map<String, dynamic>,
-            currentUserId: currentUserId,
-          ),
-        )
-        .toList();
+    return _withLikedByMe(_parse(rows, currentUserId), currentUserId);
   }
 
   Future<Post?> getPost(String postId, {String? currentUserId}) async {
@@ -72,27 +70,42 @@ class PostRepository {
         .eq('id', postId)
         .maybeSingle();
     if (row == null) return null;
-    return Post.fromJson(row, currentUserId: currentUserId);
+    final post = Post.fromJson(row, currentUserId: currentUserId);
+    return (await _withLikedByMe([post], currentUserId)).first;
   }
 
   Future<List<Post>> getPostsByAuthor(
     String authorId, {
     String? currentUserId,
+    DateTime? before,
+    int limit = 20,
   }) async {
-    final rows = await _client
+    var query = _client
         .from('posts')
         .select(_select)
         .eq('author_id', authorId)
-        .filter('group_id', 'is', null)
-        .order('created_at', ascending: false);
+        .filter('group_id', 'is', null);
+    if (before != null) {
+      query = query.lt('created_at', before.toUtc().toIso8601String());
+    }
+    final rows = await query.order('created_at', ascending: false).limit(limit);
+    return _withLikedByMe(_parse(rows, currentUserId), currentUserId);
+  }
 
-    return (rows as List)
-        .map(
-          (row) => Post.fromJson(
-            row as Map<String, dynamic>,
-            currentUserId: currentUserId,
-          ),
-        )
+  List<Post> _parse(List rows, String? currentUserId) => rows
+      .map((r) => Post.fromJson(r as Map<String, dynamic>, currentUserId: currentUserId))
+      .toList();
+
+  Future<List<Post>> _withLikedByMe(List<Post> posts, String? userId) async {
+    if (userId == null || posts.isEmpty) return posts;
+    final rows = await _client
+        .from('likes')
+        .select('post_id')
+        .eq('user_id', userId)
+        .inFilter('post_id', posts.map((p) => p.id).toList());
+    final liked = {for (final r in rows as List) r['post_id'] as String};
+    return posts
+        .map((p) => liked.contains(p.id) ? p.copyWith(likedByMe: true) : p)
         .toList();
   }
 

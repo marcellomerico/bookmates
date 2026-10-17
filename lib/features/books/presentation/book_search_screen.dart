@@ -273,6 +273,7 @@ class _BookCover extends StatelessWidget {
         width: 42,
         height: 60,
         fit: BoxFit.cover,
+        memCacheWidth: (42 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300),
         placeholder: (_, _) =>
             Container(width: 42, height: 60, color: AppColors.parchment),
         errorWidget: (_, _, _) => Container(

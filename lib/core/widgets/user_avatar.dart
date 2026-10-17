@@ -21,6 +21,7 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final px = (radius * 2 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300);
     final label = semanticLabel ??
         ((name == null || name!.trim().isEmpty)
             ? 'Profilbild'
@@ -29,11 +30,11 @@ class UserAvatar extends StatelessWidget {
       label: label,
       image: true,
       excludeSemantics: true,
-      child: _build(),
+      child: _build(px),
     );
   }
 
-  Widget _build() {
+  Widget _build(int px) {
     final initial = (name == null || name!.trim().isEmpty)
         ? '?'
         : name!.trim().characters.first.toUpperCase();
@@ -42,7 +43,7 @@ class UserAvatar extends StatelessWidget {
       return CircleAvatar(
         radius: radius,
         backgroundColor: AppColors.parchment,
-        backgroundImage: CachedNetworkImageProvider(url!),
+        backgroundImage: CachedNetworkImageProvider(url!, maxWidth: px),
       );
     }
 
