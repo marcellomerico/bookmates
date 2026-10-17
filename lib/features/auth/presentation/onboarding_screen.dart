@@ -8,6 +8,7 @@ import '../../../core/theme/bookmates_ui.dart';
 import '../../books/presentation/bookshelf_widget.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
+import 'follow_suggestions_step.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -62,23 +63,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         throw Exception('Profil konnte nicht aktualisiert werden.');
       }
 
-      if (_selectedGenres.isNotEmpty) {
-        final genreRows = await client.from('genres').select('id, name');
-        final genreMap = {
-          for (final row in genreRows as List)
-            row['name'] as String: row['id'] as String,
-        };
-
-        final rows = _selectedGenres
-            .where(genreMap.containsKey)
-            .map((genre) => {'user_id': user.id, 'genre_id': genreMap[genre]})
-            .toList();
-
-        await client.from('user_genres').delete().eq('user_id', user.id);
-        if (rows.isNotEmpty) {
-          await client.from('user_genres').insert(rows);
-        }
-      }
+      await _saveGenres(user.id);
 
       ref.invalidate(currentProfileProvider);
       ref.invalidate(userGenresProvider);
@@ -102,12 +87,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  Future<void> _saveGenres(String userId) async {
+    if (_selectedGenres.isEmpty) return;
+    final client = ref.read(supabaseClientProvider);
+    final genreRows = await client.from('genres').select('id, name');
+    final genreMap = {
+      for (final row in genreRows as List)
+        row['name'] as String: row['id'] as String,
+    };
+
+    final rows = _selectedGenres
+        .where(genreMap.containsKey)
+        .map((genre) => {'user_id': userId, 'genre_id': genreMap[genre]})
+        .toList();
+
+    await client.from('user_genres').delete().eq('user_id', userId);
+    if (rows.isNotEmpty) {
+      await client.from('user_genres').insert(rows);
+    }
+  }
+
   Future<void> _openBookSearch() async {
     await context.push('/books/search?onboarding=true');
     if (mounted) ref.invalidate(bookshelfProvider);
   }
 
-  void _next() {
+  Future<void> _next() async {
     setState(() => _error = null);
 
     if (_step == 0) {
@@ -124,7 +129,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         setState(() => _error = 'Wähle mindestens ein Genre.');
         return;
       }
-      setState(() => _step = 2);
+      // Genres must be saved before the follow step recommends by them.
+      final user = ref.read(currentUserProvider);
+      if (user == null) {
+        setState(() => _error = 'Keine aktive Sitzung. Bitte erneut anmelden.');
+        return;
+      }
+      setState(() => _loading = true);
+      try {
+        await _saveGenres(user.id);
+        if (mounted) setState(() => _step = 2);
+      } catch (e) {
+        if (mounted) {
+          setState(() => _error = 'Genres konnten nicht gespeichert werden. ${authErrorMessage(e)}');
+        }
+      } finally {
+        if (mounted) setState(() => _loading = false);
+      }
+      return;
+    }
+
+    if (_step == 2) {
+      setState(() => _step = 3);
       return;
     }
 
@@ -136,7 +162,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text('Einrichtung (${_step + 1}/3)'),
+        title: Text('Einrichtung (${_step + 1}/4)'),
         leading: _step > 0
             ? IconButton(
                 tooltip: 'Zurück',
@@ -192,8 +218,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(_step == 2 ? 'Fertig' : 'Weiter'),
+                        : Text(_step == 3 ? 'Fertig' : 'Weiter'),
                   ),
+                  if (_step == 2)
+                    TextButton(
+                      onPressed: _loading ? null : _next,
+                      child: const Text('Überspringen'),
+                    ),
                 ],
               ),
             ),
@@ -270,6 +301,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ],
         );
+      case 2:
+        return const FollowSuggestionsStep();
       default:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

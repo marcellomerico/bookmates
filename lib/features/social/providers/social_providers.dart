@@ -152,3 +152,51 @@ final openReportsProvider = FutureProvider.autoDispose<List<ModerationReport>>((
 ) {
   return ref.watch(moderationRepositoryProvider).openReports();
 });
+
+class OnboardingSuggestions {
+  const OnboardingSuggestions({this.people = const [], this.groups = const []});
+
+  final List<Profile> people;
+  final List<BookGroup> groups;
+
+  bool get isEmpty => people.isEmpty && groups.isEmpty;
+}
+
+/// Onboarding: up to 10 not-yet-followed readers and 5 public circles
+/// (circles matching the user's genres first, then newest).
+final onboardingSuggestionsProvider =
+    FutureProvider.autoDispose<OnboardingSuggestions>((ref) async {
+      final user = ref.watch(currentUserProvider);
+      if (user == null) return const OnboardingSuggestions();
+
+      final results = await Future.wait([
+        ref.watch(profileRepositoryProvider).recommendByGenres(user.id),
+        ref.watch(followRepositoryProvider).getFollowingIds(user.id),
+        ref.watch(groupRepositoryProvider).listGroups(currentUserId: user.id),
+        ref.watch(profileRepositoryProvider).getUserGenreNames(user.id),
+        ref.watch(supabaseClientProvider).from('genres').select('id, name'),
+      ]);
+      final following = (results[1] as List<String>).toSet();
+      final people = (results[0] as List<Profile>)
+          .where((p) => p.id != user.id && !following.contains(p.id))
+          .take(10)
+          .toList();
+
+      final myGenreNames = (results[3] as List<String>).toSet();
+      final myGenreIds = {
+        for (final row in results[4] as List)
+          if (myGenreNames.contains(row['name'])) row['id'] as String,
+      };
+      // Stable sort keeps newest-first order within each bucket.
+      final groups = (results[2] as List<BookGroup>)
+          .where((g) => !g.isPrivate && !g.isMember)
+          .toList()
+        ..sort((a, b) {
+          int rank(BookGroup g) => myGenreIds.contains(g.genreId) ? 0 : 1;
+          return rank(a).compareTo(rank(b));
+        });
+      return OnboardingSuggestions(
+        people: people,
+        groups: groups.take(5).toList(),
+      );
+    });
