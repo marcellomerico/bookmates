@@ -96,7 +96,7 @@ Future<void> _blockUser(
 Future<bool> _confirmDelete(BuildContext context, String title, String body) async {
   final confirmed = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => AlertDialog.adaptive(
       title: Text(title),
       content: Text(body),
       actions: [

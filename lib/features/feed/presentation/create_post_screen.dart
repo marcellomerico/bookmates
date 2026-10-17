@@ -121,6 +121,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         ref.invalidate(groupDetailProvider(widget.groupId!));
       }
       if (!mounted) return;
+      _contentController.clear();
+      setState(() {
+        _imageBytes = null;
+        _selectedBook = null;
+        _postType = PostType.discussion;
+      });
       if (widget.groupId != null) {
         context.go('/groups/${widget.groupId}');
       } else {
@@ -162,12 +168,22 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
-            TextButton(
-              onPressed: _saving ? null : _share,
-              child: const Text('Teilen'),
-            ),
           ],
         ),
+        if (widget.groupId != null) ...[
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: InputChip(
+              label: Text(
+                'Wird gepostet in: ${ref.watch(groupDetailProvider(widget.groupId!)).value?.name ?? '…'}',
+              ),
+              deleteIcon: const Icon(Icons.close, size: 18),
+              deleteButtonTooltipMessage: 'Lesekreis entfernen',
+              onDeleted: _saving ? null : () => context.go('/create'),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
         SoftCard(
           child: Column(

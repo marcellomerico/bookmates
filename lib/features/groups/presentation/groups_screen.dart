@@ -23,6 +23,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     final name = TextEditingController();
     final description = TextEditingController();
     var isPrivate = false;
+    var nameError = false;
 
     final created = await showDialog<bool>(
       context: context,
@@ -35,14 +36,17 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               TextField(
                 controller: name,
                 maxLength: AppLimits.groupName,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  errorText: nameError ? 'Bitte gib einen Namen ein.' : null,
+                ),
               ),
               TextField(
                 controller: description,
                 maxLength: AppLimits.groupDescription,
                 decoration: const InputDecoration(labelText: 'Beschreibung'),
               ),
-              SwitchListTile(
+              SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Private Gruppe'),
                 subtitle: const Text('Nur fur Mitglieder sichtbar'),
@@ -57,7 +61,13 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               child: const Text('Abbrechen'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: () {
+                if (name.text.trim().isEmpty) {
+                  setDialogState(() => nameError = true);
+                  return;
+                }
+                Navigator.pop(context, true);
+              },
               child: const Text('Erstellen'),
             ),
           ],
@@ -258,7 +268,7 @@ class _GroupRow extends ConsumerWidget {
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
-                    builder: (context) => AlertDialog(
+                    builder: (context) => AlertDialog.adaptive(
                       title: const Text('Gruppe löschen?'),
                       content: const Text(
                         'Alle Beiträge in dieser Gruppe werden entfernt.',

@@ -18,7 +18,7 @@ class ProfileScreen extends ConsumerWidget {
   Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AlertDialog.adaptive(
         title: const Text('Account löschen?'),
         content: const Text(
           'Dein Profil, Beiträge und Daten werden dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',

@@ -22,7 +22,7 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
     if (action == 'delete') {
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AlertDialog.adaptive(
           title: const Text('Inhalt löschen?'),
           content: const Text('Der gemeldete Inhalt wird dauerhaft entfernt.'),
           actions: [
