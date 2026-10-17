@@ -2,6 +2,21 @@ import 'package:bookmates/models/group.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('BookGroup parses aggregate member count', () {
+    final group = BookGroup.fromJson({
+      'id': 'g1',
+      'creator_id': 'u1',
+      'name': 'Zirkel',
+      'created_at': '2026-10-16T10:00:00Z',
+      'group_members': [
+        {'count': 7},
+      ],
+    }, currentUserId: 'u2');
+
+    expect(group.memberCount, 7);
+    expect(group.isMember, isFalse);
+  });
+
   test('BookGroup parses invite code and membership', () {
     final group = BookGroup.fromJson({
       'id': 'g1',

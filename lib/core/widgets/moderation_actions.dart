@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../constants/app_config.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/social/providers/paged_posts.dart';
 import '../../features/social/providers/social_providers.dart';
 import '../../models/post.dart';
 
@@ -80,7 +81,7 @@ Future<void> _blockUser(
     await ref
         .read(moderationRepositoryProvider)
         .blockUser(blockerId: blockerId, blockedId: blockedId);
-    ref.invalidate(feedProvider);
+    ref.invalidate(pagedPostsProvider);
     if (postId != null) {
       ref.invalidate(commentsProvider(postId));
       ref.invalidate(postDetailProvider(postId));
@@ -178,7 +179,7 @@ Future<void> showPostActionsMenu(
       }
       return;
     }
-    ref.invalidate(feedProvider);
+    ref.invalidate(pagedPostsProvider);
     if (context.mounted) {
       if (context.canPop()) context.pop();
       ScaffoldMessenger.of(

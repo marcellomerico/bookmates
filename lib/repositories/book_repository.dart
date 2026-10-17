@@ -4,6 +4,8 @@ import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
 
+final _workId = RegExp(r'^OL\d+W$');
+
 String _clip(String s, int max) => s.length > max ? s.substring(0, max) : s;
 
 class BookRepository {
@@ -12,20 +14,18 @@ class BookRepository {
   final SupabaseClient _client;
 
   Future<Book> upsertFromOpenLibrary(OpenLibraryBook result) async {
-    final existing = await _client
-        .from('books')
-        .select()
-        .eq('open_library_id', result.openLibraryId)
-        .maybeSingle();
-
-    if (existing != null) {
-      return Book.fromJson(existing);
+    final id = normalizeWorkId(result.openLibraryId);
+    if (!_workId.hasMatch(id)) {
+      throw ArgumentError.value(result.openLibraryId, 'openLibraryId');
     }
+    // Rows may store either 'OL1W' or '/works/OL1W'; match both.
+    final existing = await getByOpenLibraryId(id);
+    if (existing != null) return existing;
 
     final inserted = await _client
         .from('books')
         .insert({
-          'open_library_id': result.openLibraryId,
+          'open_library_id': id,
           'title': _clip(result.title, 500),
           'author': result.author == null ? null : _clip(result.author!, 300),
           'cover_url': result.coverUrl,
@@ -35,6 +35,39 @@ class BookRepository {
         .single();
 
     return Book.fromJson(inserted);
+  }
+
+  Future<Book?> getByOpenLibraryId(String workId) async {
+    final id = normalizeWorkId(workId);
+    if (!_workId.hasMatch(id)) return null;
+    final rows = await _client
+        .from('books')
+        .select()
+        .or('open_library_id.eq.$id,open_library_id.eq./works/$id')
+        .limit(1);
+    return rows.isEmpty ? null : Book.fromJson(rows.first);
+  }
+
+  Future<int> readerCount(String bookId) async {
+    final res = await _client
+        .from('user_books')
+        .select('id')
+        .eq('book_id', bookId)
+        .count(CountOption.exact);
+    return res.count;
+  }
+
+  Future<UserBook?> myEntry({
+    required String userId,
+    required String bookId,
+  }) async {
+    final row = await _client
+        .from('user_books')
+        .select('*, books(*)')
+        .eq('user_id', userId)
+        .eq('book_id', bookId)
+        .maybeSingle();
+    return row == null ? null : UserBook.fromJson(row);
   }
 
   Future<UserBook> addToShelf({

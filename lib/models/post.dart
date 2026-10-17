@@ -29,6 +29,15 @@ DateTime? _parseHiddenAt(Map<String, dynamic> json) {
   return v is String ? DateTime.parse(v) : null;
 }
 
+/// PostgREST aggregate embed: `[{count: n}]`; null for any other shape.
+int? _aggregateCount(Object? v) {
+  if (v is List && v.length == 1) {
+    final row = v.first;
+    if (row is Map && row['count'] is int) return row['count'] as int;
+  }
+  return null;
+}
+
 class Post {
   const Post({
     required this.id,
@@ -89,7 +98,9 @@ class Post {
 
     var likeCount = 0;
     var likedByMe = false;
-    if (likes is List) {
+    if (_aggregateCount(likes) case final n?) {
+      likeCount = n;
+    } else if (likes is List) {
       likeCount = likes.length;
       if (currentUserId != null) {
         likedByMe = likes.any(
@@ -102,7 +113,9 @@ class Post {
     }
 
     var commentCount = 0;
-    if (comments is List) {
+    if (_aggregateCount(comments) case final n?) {
+      commentCount = n;
+    } else if (comments is List) {
       commentCount = comments.length;
     } else if (json['comment_count'] is int) {
       commentCount = json['comment_count'] as int;

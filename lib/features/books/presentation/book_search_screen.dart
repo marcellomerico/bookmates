@@ -173,7 +173,14 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                       final isAdding = _addingId == book.openLibraryId;
 
                       return SoftCard(
-                        child: Row(
+                        child: Semantics(
+                          button: true,
+                          label: 'Buchdetails öffnen: ${book.title}',
+                          child: InkWell(
+                            onTap: () => context.push(
+                              '/books/${normalizeWorkId(book.openLibraryId)}',
+                            ),
+                            child: Row(
                           children: [
                             _BookCover(url: book.coverUrl),
                             const SizedBox(width: 12),
@@ -237,6 +244,8 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                                   ),
                           ],
                         ),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -273,6 +282,7 @@ class _BookCover extends StatelessWidget {
         width: 42,
         height: 60,
         fit: BoxFit.cover,
+        memCacheWidth: (42 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300),
         placeholder: (_, _) =>
             Container(width: 42, height: 60, color: AppColors.parchment),
         errorWidget: (_, _, _) => Container(

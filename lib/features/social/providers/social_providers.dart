@@ -34,51 +34,6 @@ final activityRepositoryProvider = Provider<ActivityRepository>((ref) {
   return ActivityRepository(ref.watch(supabaseClientProvider));
 });
 
-Future<List<Post>> _filterBlockedPosts(
-  Ref ref,
-  String userId,
-  List<Post> posts,
-) async {
-  final blocked = await ref
-      .read(moderationRepositoryProvider)
-      .getBlockedUserIds(userId);
-  if (blocked.isEmpty) return posts;
-  return posts.where((post) => !blocked.contains(post.authorId)).toList();
-}
-
-final feedProvider = FutureProvider.autoDispose<List<Post>>((ref) async {
-  final user = ref.watch(currentUserProvider);
-  if (user == null) return [];
-
-  final followRepo = ref.watch(followRepositoryProvider);
-  final postRepo = ref.watch(postRepositoryProvider);
-  final followingIds = await followRepo.getFollowingIds(user.id);
-  final authorIds = {...followingIds, user.id}.toList();
-
-  List<Post> posts;
-  if (followingIds.isNotEmpty) {
-    posts = await postRepo.getFeed(
-      currentUserId: user.id,
-      authorIds: authorIds,
-    );
-  } else {
-    posts = await postRepo.getFeed(currentUserId: user.id);
-  }
-
-  return _filterBlockedPosts(ref, user.id, posts);
-});
-
-final userPostsProvider = FutureProvider.autoDispose.family<List<Post>, String>(
-  (ref, userId) async {
-    final current = ref.watch(currentUserProvider);
-    final posts = await ref
-        .watch(postRepositoryProvider)
-        .getPostsByAuthor(userId, currentUserId: current?.id);
-    if (current == null) return posts;
-    return _filterBlockedPosts(ref, current.id, posts);
-  },
-);
-
 final activityProvider = FutureProvider.autoDispose<List<ActivityItem>>((
   ref,
 ) async {
@@ -181,16 +136,6 @@ final groupDetailProvider = FutureProvider.autoDispose
           .getGroup(groupId, currentUserId: user?.id);
     });
 
-final groupPostsProvider = FutureProvider.autoDispose
-    .family<List<Post>, String>((ref, groupId) async {
-      final user = ref.watch(currentUserProvider);
-      if (user == null) return [];
-      final posts = await ref
-          .watch(postRepositoryProvider)
-          .getFeed(currentUserId: user.id, groupId: groupId);
-      return _filterBlockedPosts(ref, user.id, posts);
-    });
-
 // autoDispose: a transient failure (cached as false) is retried when the profile is reopened.
 final isAdminProvider = FutureProvider.autoDispose<bool>((ref) async {
   final user = ref.watch(currentUserProvider);
@@ -207,3 +152,41 @@ final openReportsProvider = FutureProvider.autoDispose<List<ModerationReport>>((
 ) {
   return ref.watch(moderationRepositoryProvider).openReports();
 });
+
+class OnboardingSuggestions {
+  const OnboardingSuggestions({this.people = const [], this.groups = const []});
+
+  final List<Profile> people;
+  final List<BookGroup> groups;
+
+  bool get isEmpty => people.isEmpty && groups.isEmpty;
+}
+
+/// Onboarding: up to 10 not-yet-followed readers and 5 public circles
+/// (circles matching the user's genres first, then newest).
+final onboardingSuggestionsProvider =
+    FutureProvider.autoDispose<OnboardingSuggestions>((ref) async {
+      final user = ref.watch(currentUserProvider);
+      if (user == null) return const OnboardingSuggestions();
+      final groupRepo = ref.watch(groupRepositoryProvider);
+
+      final results = await Future.wait([
+        ref.watch(profileRepositoryProvider).recommendByGenres(user.id),
+        ref.watch(followRepositoryProvider).getFollowingIds(user.id),
+        ref.watch(profileRepositoryProvider).getUserGenreNames(user.id),
+        ref.watch(supabaseClientProvider).from('genres').select('id, name'),
+      ]);
+      final following = (results[1] as List<String>).toSet();
+      final people = (results[0] as List<Profile>)
+          .where((p) => p.id != user.id && !following.contains(p.id))
+          .take(10)
+          .toList();
+
+      final myGenreNames = (results[2] as List<String>).toSet();
+      final myGenreIds = {
+        for (final row in results[3] as List)
+          if (myGenreNames.contains(row['name'])) row['id'] as String,
+      };
+      final groups = await groupRepo.suggestPublicGroups(userId: user.id, genreIds: myGenreIds);
+      return OnboardingSuggestions(people: people, groups: groups);
+    });

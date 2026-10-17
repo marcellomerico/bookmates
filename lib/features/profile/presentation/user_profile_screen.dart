@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/moderation_actions.dart';
-import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/presentation/bookshelf_widget.dart';
 import '../../books/providers/books_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class UserProfileScreen extends ConsumerWidget {
@@ -32,7 +33,7 @@ class UserProfileScreen extends ConsumerWidget {
       }
       ref.invalidate(isFollowingProvider(userId));
       ref.invalidate(profileStatsProvider(userId));
-      ref.invalidate(feedProvider);
+      ref.invalidate(pagedPostsProvider);
       ref.invalidate(activityProvider);
     } catch (e) {
       if (!context.mounted) return;
@@ -49,7 +50,6 @@ class UserProfileScreen extends ConsumerWidget {
     final genres = ref.watch(userGenresByIdProvider(userId));
     final following = ref.watch(isFollowingProvider(userId));
     final blocked = ref.watch(isBlockedProvider(userId));
-    final posts = ref.watch(userPostsProvider(userId));
     final ownProfile = currentUser?.id == userId;
 
     return Scaffold(
@@ -105,8 +105,10 @@ class UserProfileScreen extends ConsumerWidget {
                 onRefresh: () async {
                   ref.invalidate(profileByIdProvider(userId));
                   ref.invalidate(profileStatsProvider(userId));
-                  ref.invalidate(userPostsProvider(userId));
                   ref.invalidate(bookshelfByUserProvider(userId));
+                  await ref
+                      .read(pagedPostsProvider(PostSource.author(userId)).notifier)
+                      .refresh();
                 },
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -182,27 +184,14 @@ class UserProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     Text('Beiträge', style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
-                    ...posts.when(
-                      loading: () => const [Center(child: CircularProgressIndicator())],
-                      error: (_, _) => [
-                        ErrorState(
-                          message: 'Beiträge konnten nicht geladen werden.',
-                          onRetry: () => ref.invalidate(userPostsProvider(userId)),
-                        ),
-                      ],
-                      data: (items) => items.isEmpty
-                          ? const [
-                              EmptyState(
-                                icon: Icons.edit_note,
-                                title: 'Noch keine Beiträge',
-                              ),
-                            ]
-                          : items
-                              .map((post) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: PostCard(post: post),
-                                  ))
-                              .toList(),
+                    ...pagedPostListItems(
+                      ref,
+                      PostSource.author(userId),
+                      errorMessage: 'Beiträge konnten nicht geladen werden.',
+                      empty: const EmptyState(
+                        icon: Icons.edit_note,
+                        title: 'Noch keine Beiträge',
+                      ),
                     ),
                     const SizedBox(height: 24),
                     BookshelfWidget(userId: userId),

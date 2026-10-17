@@ -103,23 +103,16 @@ class ProfileRepository {
   }
 
   Future<ProfileStats> getStats(String userId) async {
-    final posts = await _client
-        .from('posts')
-        .select('id')
-        .eq('author_id', userId);
-    final followers = await _client
-        .from('follows')
-        .select('follower_id')
-        .eq('following_id', userId);
-    final following = await _client
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', userId);
+    final counts = await Future.wait([
+      _client.from('posts').select('id').eq('author_id', userId).count(CountOption.exact),
+      _client.from('follows').select('follower_id').eq('following_id', userId).count(CountOption.exact),
+      _client.from('follows').select('following_id').eq('follower_id', userId).count(CountOption.exact),
+    ]);
 
     return ProfileStats(
-      postCount: (posts as List).length,
-      followerCount: (followers as List).length,
-      followingCount: (following as List).length,
+      postCount: counts[0].count,
+      followerCount: counts[1].count,
+      followingCount: counts[2].count,
     );
   }
 

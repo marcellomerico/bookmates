@@ -52,7 +52,13 @@ class BookGroup {
 
     var memberCount = 0;
     var isMember = false;
-    if (members is List) {
+    if (members is List &&
+        members.length == 1 &&
+        members.first is Map &&
+        (members.first as Map)['count'] is int) {
+      // Aggregate format; membership comes from a separate query.
+      memberCount = (members.first as Map)['count'] as int;
+    } else if (members is List) {
       memberCount = members.length;
       if (currentUserId != null) {
         isMember = members.any(

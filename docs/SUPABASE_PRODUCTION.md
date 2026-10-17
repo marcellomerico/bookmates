@@ -17,6 +17,7 @@ Im SQL Editor ausführen:
 6. `supabase/migrations/20261017090000_private_helpers_and_indexes.sql`
 7. `supabase/migrations/20261017120000_moderation_and_rate_limits.sql`
 8. `supabase/migrations/20261017150000_moderation_followups.sql`
+9. `supabase/migrations/20261017180000_feed_indexes.sql`
 
 Danach Edge Function deployen (JWT-Verifikation an): `supabase functions deploy delete-account` oder Dashboard → Edge Functions.
 

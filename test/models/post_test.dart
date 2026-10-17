@@ -18,6 +18,26 @@ void main() {
   });
 
   group('Post.fromJson', () {
+    test('parses aggregate count format', () {
+      final post = Post.fromJson({
+        'id': 'p1',
+        'author_id': 'u1',
+        'content': 'Hello',
+        'post_type': 'discussion',
+        'created_at': '2026-01-01T12:00:00Z',
+        'likes': [
+          {'count': 5},
+        ],
+        'comments': [
+          {'count': 3},
+        ],
+      }, currentUserId: 'u1');
+
+      expect(post.likeCount, 5);
+      expect(post.commentCount, 3);
+      expect(post.likedByMe, isFalse);
+    });
+
     test('parses like and comment counts', () {
       final post = Post.fromJson({
         'id': 'p1',

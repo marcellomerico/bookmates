@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../models/book.dart';
 import '../../../models/user_book.dart';
 import '../../../repositories/book_repository.dart';
 import '../../../repositories/open_library_repository.dart';
@@ -36,3 +37,31 @@ final userGenresProvider = FutureProvider<List<String>>((ref) async {
 
   return ref.watch(profileRepositoryProvider).getUserGenreNames(user.id);
 });
+
+final openLibraryWorkProvider = FutureProvider.autoDispose
+    .family<OpenLibraryWork, String>((ref, workId) {
+      return ref.watch(openLibraryRepositoryProvider).getWork(workId);
+    });
+
+final bookByWorkIdProvider = FutureProvider.autoDispose.family<Book?, String>((
+  ref,
+  workId,
+) {
+  return ref.watch(bookRepositoryProvider).getByOpenLibraryId(workId);
+});
+
+final bookReaderCountProvider = FutureProvider.autoDispose.family<int, String>((
+  ref,
+  bookId,
+) {
+  return ref.watch(bookRepositoryProvider).readerCount(bookId);
+});
+
+final myShelfEntryProvider = FutureProvider.autoDispose
+    .family<UserBook?, String>((ref, bookId) async {
+      final user = ref.watch(currentUserProvider);
+      if (user == null) return null;
+      return ref
+          .watch(bookRepositoryProvider)
+          .myEntry(userId: user.id, bookId: bookId);
+    });
