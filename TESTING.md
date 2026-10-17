@@ -439,7 +439,21 @@ select id, username from public.profiles where username = 'extra_test_user';
 
 ---
 
+# TEIL F2 — Feed & Bücher (seit Phase 4)
+
+| ID | Schritte | Erwartung | ✅ / ❌ |
+|----|----------|-----------|--------|
+| F2-1 | Feed mit > 20 Beiträgen nach unten scrollen | Weitere Beiträge laden automatisch nach, unten erscheint kurz ein Ladekreis | |
+| F2-2 | Beitrag liken | Herz und Zahl ändern sich sofort, ohne dass der Feed neu lädt | |
+| F2-3 | Flugmodus an, liken | Like springt zurück, Fehlermeldung erscheint | |
+| F2-4 | Buch im Beitrag, im Regal oder in der Suche antippen | Buch-Detailseite mit Beschreibung, Themen und Leserzahl | |
+| F2-5 | Auf der Buch-Detailseite den Status wählen | Buch landet im Regal; Status wechseln oder entfernen funktioniert | |
+| F2-6 | Neuer Account: Onboarding bis zu „Leser, die deinen Geschmack teilen“ | Vorschläge oder freundlicher Leerzustand; Folgen und Beitreten reagieren sofort | |
+
 # TEIL K — Automatisierte Tests
+
+**Abfragen gegen das Backend prüfen:** `tool/check_queries.sh` testet alle Datenbank-Abfragen der App mit dem Anon-Key gegen das in `.env` eingetragene Projekt (z. B. nach Migrationen). Alles muss `ok` sein.
+
 
 ```bash
 flutter analyze    # Erwartung: No issues found
