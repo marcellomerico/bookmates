@@ -207,20 +207,31 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : InkWell(
-                                    onTap: () => _addBook(book),
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.burgundy,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 18,
+                                : Semantics(
+                                    button: true,
+                                    label: 'Zum Regal hinzufügen',
+                                    excludeSemantics: true,
+                                    child: InkWell(
+                                      onTap: () => _addBook(book),
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: SizedBox(
+                                        width: 48,
+                                        height: 48,
+                                        child: Center(
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.burgundy,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

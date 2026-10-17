@@ -86,9 +86,10 @@ class _BookshelfWidgetState extends ConsumerState<BookshelfWidget> {
                 ),
                 const Spacer(),
                 if (!compact && !readOnly)
-                  GestureDetector(
+                  TinyPill(
+                    label: 'Hinzufügen',
+                    filled: true,
                     onTap: () => context.push('/books/search'),
-                    child: const TinyPill(label: 'Hinzufügen', filled: true),
                   ),
               ],
             ),
@@ -206,14 +207,17 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
           if (book.author != null) Text(book.author!),
           if (widget.entry.status == BookStatus.read) ...[
             const SizedBox(height: 4),
-            Row(
+            Semantics(
+              label: '${widget.entry.rating ?? 0} von 5 Sternen',
+              child: Wrap(
               children: List.generate(5, (index) {
                 final star = index + 1;
                 return IconButton(
+                  tooltip: 'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'} setzen',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
-                    minWidth: 28,
-                    minHeight: 28,
+                    minWidth: 48,
+                    minHeight: 48,
                   ),
                   onPressed: _updating || widget.readOnly
                       ? null
@@ -227,7 +231,7 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
                   ),
                 );
               }),
-            ),
+            )),
           ],
         ],
       ),
@@ -240,6 +244,7 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : PopupMenuButton<String>(
+              tooltip: 'Optionen',
               onSelected: (value) {
                 if (value == 'remove') {
                   _remove();

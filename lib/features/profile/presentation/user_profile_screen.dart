@@ -58,6 +58,7 @@ class UserProfileScreen extends ConsumerWidget {
         actions: [
           if (!ownProfile && currentUser != null)
             IconButton(
+              tooltip: 'Optionen',
               icon: const Icon(Icons.more_horiz),
               onPressed: () => profile.whenOrNull(
                 data: (data) => data == null

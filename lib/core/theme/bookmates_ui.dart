@@ -75,29 +75,50 @@ class TinyPill extends StatelessWidget {
     required this.label,
     this.selected = false,
     this.filled = false,
+    this.onTap,
   });
 
   final String label;
   final bool selected;
   final bool filled;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final bg = selected || filled ? AppColors.burgundy : Colors.white;
     final fg = selected || filled ? Colors.white : AppColors.ink;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
+    final pill = Material(
+      color: bg,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
+        side: BorderSide(
           color: selected || filled ? AppColors.burgundy : AppColors.line,
         ),
       ),
-      child: Text(
-        label,
-        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: fg,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (onTap == null) return pill;
+    // Visual size stays; the hit area is padded up to 48 tall.
+    return Semantics(
+      button: true,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Center(widthFactor: 1, child: pill),
       ),
     );
   }

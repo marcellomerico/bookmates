@@ -52,19 +52,21 @@ class PostCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                GestureDetector(
+                InkWell(
                   onTap: author == null
                       ? null
                       : () => context.push('/users/${author.id}'),
+                  customBorder: const CircleBorder(),
                   child: UserAvatar(
                     url: author?.avatarUrl,
                     name: displayName,
                     radius: 16,
+                    semanticLabel: 'Profil von $displayName',
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: GestureDetector(
+                  child: InkWell(
                     onTap: author == null
                         ? null
                         : () => context.push('/users/${author.id}'),
@@ -90,17 +92,13 @@ class PostCard extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Optionen',
                   icon: const Icon(
                     Icons.more_horiz,
                     color: AppColors.muted,
                     size: 20,
                   ),
                   onPressed: () => showPostActionsMenu(context, ref, post),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
                 ),
               ],
             ),
@@ -125,26 +123,35 @@ class PostCard extends ConsumerWidget {
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: post.imageUrl!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 180,
+                child: Semantics(
+                  image: true,
+                  label: 'Bild zum Beitrag',
+                  child: CachedNetworkImage(
+                    imageUrl: post.imageUrl!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 180,
+                  ),
                 ),
               ),
             ],
             const SizedBox(height: 12),
             Row(
               children: [
-                InkWell(
+                Semantics(
+                  button: true,
+                  toggled: post.likedByMe,
+                  label: 'Gefällt mir, ${post.likeCount}',
+                  excludeSemantics: true,
+                  child: InkWell(
                   onTap: () => _toggleLike(ref),
                   borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 2,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
                     ),
-                    child: Row(
+                    child: Center(widthFactor: 1, child: Row(
                       children: [
                         Icon(
                           post.likedByMe
@@ -164,19 +171,23 @@ class PostCard extends ConsumerWidget {
                           ),
                         ),
                       ],
-                    ),
+                    )),
                   ),
-                ),
+                )),
                 const SizedBox(width: 12),
-                InkWell(
+                Semantics(
+                  button: true,
+                  label: 'Kommentare, ${post.commentCount}',
+                  excludeSemantics: true,
+                  child: InkWell(
                   onTap: () => context.push('/posts/${post.id}'),
                   borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 2,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
                     ),
-                    child: Row(
+                    child: Center(widthFactor: 1, child: Row(
                       children: [
                         const Icon(
                           Icons.chat_bubble_outline,
@@ -192,9 +203,9 @@ class PostCard extends ConsumerWidget {
                           ),
                         ),
                       ],
-                    ),
+                    )),
                   ),
-                ),
+                )),
               ],
             ),
           ],

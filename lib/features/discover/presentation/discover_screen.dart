@@ -126,7 +126,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : IconButton(onPressed: _search, icon: const Icon(Icons.arrow_forward)),
+                  : IconButton(tooltip: 'Suchen', onPressed: _search, icon: const Icon(Icons.arrow_forward)),
             ),
           ),
           const SizedBox(height: 18),
@@ -291,12 +291,10 @@ class _PersonRow extends ConsumerWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 error: (_, _) => const SizedBox.shrink(),
-                data: (value) => GestureDetector(
+                data: (value) => TinyPill(
                   onTap: () => onToggleFollow(profile.id, value),
-                  child: TinyPill(
-                    label: value ? 'Entfolgen' : 'Folgen',
-                    filled: value,
-                  ),
+                  label: value ? 'Entfolgen' : 'Folgen',
+                  filled: value,
                 ),
               ),
             ],
@@ -351,9 +349,9 @@ class _DiscoverClub extends StatelessWidget {
                   ],
                 ),
               ),
-              GestureDetector(
+              TinyPill(
                 onTap: onJoin,
-                child: TinyPill(label: joined ? 'Verlassen' : 'Beitreten'),
+                label: joined ? 'Verlassen' : 'Beitreten',
               ),
             ],
           ),

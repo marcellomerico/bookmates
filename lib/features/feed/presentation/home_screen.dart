@@ -85,10 +85,12 @@ class _HomeHeader extends StatelessWidget {
           child: Text('Dein Feed', style: Theme.of(context).textTheme.headlineMedium),
         ),
         IconButton(
+          tooltip: 'Suchen',
           onPressed: onSearch,
           icon: const Icon(Icons.search, size: 20, color: AppColors.ink),
         ),
         IconButton(
+          tooltip: 'Benachrichtigungen',
           onPressed: onActivity,
           icon: const Icon(Icons.notifications_none, size: 20, color: AppColors.ink),
         ),

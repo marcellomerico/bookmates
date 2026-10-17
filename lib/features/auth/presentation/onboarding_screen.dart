@@ -139,6 +139,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         title: Text('Einrichtung (${_step + 1}/3)'),
         leading: _step > 0
             ? IconButton(
+                tooltip: 'Zurück',
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _loading
                     ? null

@@ -95,6 +95,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       decoration: InputDecoration(
                         labelText: 'Passwort',
                         suffixIcon: IconButton(
+                          tooltip: _obscurePassword
+                              ? 'Passwort anzeigen'
+                              : 'Passwort verbergen',
                           icon: Icon(
                             _obscurePassword
                                 ? Icons.visibility_off

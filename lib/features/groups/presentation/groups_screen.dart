@@ -279,6 +279,7 @@ class _GroupRow extends ConsumerWidget {
             ),
             if (isCreator)
               IconButton(
+                tooltip: 'Gruppe löschen',
                 icon: const Icon(Icons.delete_outline, size: 18),
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
@@ -306,7 +307,8 @@ class _GroupRow extends ConsumerWidget {
                 },
               )
             else
-              GestureDetector(
+              TinyPill(
+                label: group.isMember ? 'Verlassen' : 'Beitreten',
                 onTap: () async {
                   if (user == null) return;
                   final repo = ref.read(groupRepositoryProvider);
@@ -324,9 +326,6 @@ class _GroupRow extends ConsumerWidget {
                     );
                   }
                 },
-                child: TinyPill(
-                  label: group.isMember ? 'Verlassen' : 'Beitreten',
-                ),
               ),
           ],
         ),

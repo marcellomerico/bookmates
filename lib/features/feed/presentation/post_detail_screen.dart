@@ -84,6 +84,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         actions: [
           if (postAsync.hasValue && postAsync.value != null)
             IconButton(
+              tooltip: 'Optionen',
               icon: const Icon(Icons.more_horiz),
               onPressed: () =>
                   showPostActionsMenu(context, ref, postAsync.value!),
@@ -133,7 +134,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         : items.map((comment) {
                             return ListTile(
                               contentPadding: EdgeInsets.zero,
-                              leading: GestureDetector(
+                              leading: InkWell(
+                                customBorder: const CircleBorder(),
                                 onTap: comment.author == null
                                     ? null
                                     : () => context.push(
@@ -209,6 +211,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Kommentar senden',
                     onPressed: _sending ? null : _sendComment,
                     icon: _sending
                         ? const SizedBox(
