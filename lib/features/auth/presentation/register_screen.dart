@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../../../core/utils/validators.dart';
 import '../../books/providers/books_provider.dart';
