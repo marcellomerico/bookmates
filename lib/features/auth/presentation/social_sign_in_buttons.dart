@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/theme/app_theme.dart';
@@ -11,6 +12,8 @@ class SocialSignInButtons extends ConsumerStatefulWidget {
   const SocialSignInButtons({super.key, this.compact = false});
 
   final bool compact;
+
+  static bool get hasAny => Env.isGoogleConfigured || Platform.isIOS;
 
   @override
   ConsumerState<SocialSignInButtons> createState() =>
@@ -38,6 +41,7 @@ class _SocialSignInButtonsState extends ConsumerState<SocialSignInButtons> {
 
   @override
   Widget build(BuildContext context) {
+    if (!SocialSignInButtons.hasAny) return const SizedBox.shrink();
     final showApple = Platform.isIOS;
 
     return Column(
@@ -56,39 +60,33 @@ class _SocialSignInButtonsState extends ConsumerState<SocialSignInButtons> {
           ),
           const SizedBox(height: 16),
         ],
-        OutlinedButton.icon(
-          onPressed: _loading
-              ? null
-              : () => _run(
-                  () => ref.read(authRepositoryProvider).signInWithGoogle(),
-                ),
-          icon: _loading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.g_mobiledata, size: 22),
-          label: const Text('Mit Google anmelden'),
-        ),
-        if (!Env.isGoogleConfigured) ...[
-          const SizedBox(height: 8),
-          Text(
-            'GOOGLE_WEB_CLIENT_ID in .env eintragen.',
-            style: TextStyle(color: AppColors.muted, fontSize: 12),
-            textAlign: TextAlign.center,
-          ),
-        ],
-        if (showApple) ...[
-          const SizedBox(height: 8),
+        if (Env.isGoogleConfigured)
           OutlinedButton.icon(
             onPressed: _loading
                 ? null
                 : () => _run(
-                    () => ref.read(authRepositoryProvider).signInWithApple(),
+                    () => ref.read(authRepositoryProvider).signInWithGoogle(),
                   ),
-            icon: const Icon(Icons.apple, size: 20),
-            label: const Text('Mit Apple anmelden'),
+            icon: _loading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.g_mobiledata, size: 22),
+            label: const Text('Mit Google anmelden'),
+          ),
+        if (showApple) ...[
+          if (Env.isGoogleConfigured) const SizedBox(height: 8),
+          SignInWithAppleButton(
+            text: 'Mit Apple anmelden',
+            style: SignInWithAppleButtonStyle.black,
+            height: 48,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            onPressed: () {
+              if (_loading) return;
+              _run(() => ref.read(authRepositoryProvider).signInWithApple());
+            },
           ),
         ],
         if (_error != null) ...[
