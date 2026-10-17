@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/post_card.dart';
 import '../../../core/widgets/user_avatar.dart';
@@ -161,6 +162,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               Expanded(
                 child: TextField(
                   controller: _commentController,
+                  maxLength: AppLimits.comment,
+                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
                   minLines: 1,
                   maxLines: 3,
                   decoration: const InputDecoration(hintText: 'Kommentar schreiben...'),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../../../core/utils/image_sanitizer.dart';
@@ -155,6 +156,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             children: [
               TextField(
                 controller: _contentController,
+                maxLength: AppLimits.postContent,
                 maxLines: 8,
                 decoration: const InputDecoration(
                   hintText:

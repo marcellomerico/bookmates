@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../constants/app_config.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/social/providers/social_providers.dart';
 import '../../models/post.dart';
@@ -20,6 +21,7 @@ Future<void> showReportDialog(
       title: const Text('Inhalt melden'),
       content: TextField(
         controller: controller,
+        maxLength: AppLimits.reportReason,
         maxLines: 3,
         decoration: const InputDecoration(
           hintText: 'Warum möchtest du das melden?',

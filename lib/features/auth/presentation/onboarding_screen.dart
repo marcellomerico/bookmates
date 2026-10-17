@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_config.dart';
 import '../../../core/constants/genres.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../../books/presentation/bookshelf_widget.dart';
@@ -217,12 +218,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             const SizedBox(height: 20),
             TextField(
               controller: _displayNameController,
+              maxLength: AppLimits.displayName,
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(labelText: 'Anzeigename'),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _bioController,
+              maxLength: AppLimits.bio,
               maxLines: 3,
               decoration: const InputDecoration(labelText: 'Kurz über dich'),
             ),

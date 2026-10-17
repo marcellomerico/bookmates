@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/constants/app_config.dart';
 import '../../../core/constants/genres.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/image_sanitizer.dart';
@@ -183,11 +184,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               const SizedBox(height: 24),
               TextField(
                 controller: _displayNameController,
+                maxLength: AppLimits.displayName,
                 decoration: const InputDecoration(labelText: 'Anzeigename'),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _bioController,
+                maxLength: AppLimits.bio,
                 maxLines: 4,
                 decoration: const InputDecoration(labelText: 'Bio'),
               ),

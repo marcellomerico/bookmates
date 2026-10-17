@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../../../models/group.dart';
@@ -33,10 +34,12 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             children: [
               TextField(
                 controller: name,
+                maxLength: AppLimits.groupName,
                 decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextField(
                 controller: description,
+                maxLength: AppLimits.groupDescription,
                 decoration: const InputDecoration(labelText: 'Beschreibung'),
               ),
               SwitchListTile(

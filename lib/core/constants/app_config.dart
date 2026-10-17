@@ -17,3 +17,16 @@ class AppConfig {
         query: 'subject=Bookmates Support',
       );
 }
+
+/// Mirrors CHECK constraints in 20261016120000_security_hardening.sql.
+class AppLimits {
+  AppLimits._();
+
+  static const displayName = 50;
+  static const bio = 300;
+  static const postContent = 5000;
+  static const comment = 2000;
+  static const groupName = 80;
+  static const groupDescription = 500;
+  static const reportReason = 1000;
+}
