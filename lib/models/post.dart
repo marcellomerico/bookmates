@@ -24,6 +24,11 @@ enum PostType {
   };
 }
 
+DateTime? _parseHiddenAt(Map<String, dynamic> json) {
+  final v = json['hidden_at'];
+  return v is String ? DateTime.parse(v) : null;
+}
+
 class Post {
   const Post({
     required this.id,
@@ -34,6 +39,7 @@ class Post {
     this.bookId,
     this.groupId,
     this.imageUrl,
+    this.hiddenAt,
     this.author,
     this.book,
     this.likeCount = 0,
@@ -49,6 +55,7 @@ class Post {
   final PostType postType;
   final String? imageUrl;
   final DateTime createdAt;
+  final DateTime? hiddenAt;
   final Profile? author;
   final Book? book;
   final int likeCount;
@@ -65,6 +72,7 @@ class Post {
       postType: postType,
       imageUrl: imageUrl,
       createdAt: createdAt,
+      hiddenAt: hiddenAt,
       author: author,
       book: book,
       likeCount: likeCount ?? this.likeCount,
@@ -109,6 +117,7 @@ class Post {
       postType: PostType.fromDb(json['post_type'] as String? ?? 'discussion'),
       imageUrl: json['image_url'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      hiddenAt: _parseHiddenAt(json),
       author: authorJson is Map<String, dynamic>
           ? Profile.fromJson(authorJson)
           : null,
@@ -127,6 +136,7 @@ class Comment {
     required this.authorId,
     required this.content,
     required this.createdAt,
+    this.hiddenAt,
     this.author,
   });
 
@@ -135,6 +145,7 @@ class Comment {
   final String authorId;
   final String content;
   final DateTime createdAt;
+  final DateTime? hiddenAt;
   final Profile? author;
 
   factory Comment.fromJson(Map<String, dynamic> json) {
@@ -145,6 +156,7 @@ class Comment {
       authorId: json['author_id'] as String,
       content: json['content'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
+      hiddenAt: _parseHiddenAt(json),
       author: authorJson is Map<String, dynamic>
           ? Profile.fromJson(authorJson)
           : null,

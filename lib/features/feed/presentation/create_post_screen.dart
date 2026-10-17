@@ -47,7 +47,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       builder: (context) => ListView(
         children: [
           const ListTile(title: Text('Buch aus deinem Regal')),
-          ...books.where((entry) => entry.book != null).map(
+          ...books
+              .where((entry) => entry.book != null)
+              .map(
                 (entry) => ListTile(
                   title: Text(entry.book!.title),
                   subtitle: Text(entry.book!.author ?? ''),
@@ -88,7 +90,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     try {
       String? imageUrl;
       if (_imageBytes != null) {
-        imageUrl = await ref.read(postRepositoryProvider).uploadPostImage(
+        imageUrl = await ref
+            .read(postRepositoryProvider)
+            .uploadPostImage(
               userId: user.id,
               bytes: _imageBytes!,
               contentType: 'image/jpeg',
@@ -122,10 +126,16 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       } else {
         context.go('/home');
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Beitrag konnte nicht geteilt werden.')),
+          SnackBar(
+            content: Text(
+              isRateLimit(e)
+                  ? authErrorMessage(e)
+                  : 'Beitrag konnte nicht geteilt werden.',
+            ),
+          ),
         );
       }
     } finally {
@@ -147,7 +157,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         Row(
           children: [
             Expanded(
-              child: Text('Neuer Beitrag', style: Theme.of(context).textTheme.headlineMedium),
+              child: Text(
+                'Neuer Beitrag',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
             TextButton(
               onPressed: _saving ? null : _share,
@@ -177,7 +190,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.memory(_imageBytes!, height: 160, width: double.infinity, fit: BoxFit.cover),
+                  child: Image.memory(
+                    _imageBytes!,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ],
               const Divider(color: AppColors.line),
@@ -186,9 +204,16 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 initialValue: _postType,
                 decoration: const InputDecoration(labelText: 'Beitragsart'),
                 items: PostType.values
-                    .map((type) => DropdownMenuItem(value: type, child: Text(type.label)))
+                    .map(
+                      (type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(type.label),
+                      ),
+                    )
                     .toList(),
-                onChanged: _saving ? null : (type) => setState(() => _postType = type ?? _postType),
+                onChanged: _saving
+                    ? null
+                    : (type) => setState(() => _postType = type ?? _postType),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -200,7 +225,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               OutlinedButton.icon(
                 onPressed: _saving ? null : _pickImage,
                 icon: const Icon(Icons.image_outlined),
-                label: Text(_imageBytes == null ? 'Bild hinzufügen' : 'Bild ersetzen'),
+                label: Text(
+                  _imageBytes == null ? 'Bild hinzufügen' : 'Bild ersetzen',
+                ),
               ),
             ],
           ),
@@ -212,7 +239,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               ? const SizedBox(
                   height: 18,
                   width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
               : const Text('Teilen'),
         ),

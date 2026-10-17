@@ -35,7 +35,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     if (user == null || _commentController.text.trim().isEmpty) return;
     setState(() => _sending = true);
     try {
-      await ref.read(postRepositoryProvider).addComment(
+      await ref
+          .read(postRepositoryProvider)
+          .addComment(
             postId: widget.postId,
             authorId: user.id,
             content: _commentController.text,
@@ -45,10 +47,16 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       ref.invalidate(postDetailProvider(widget.postId));
       ref.invalidate(feedProvider);
       ref.invalidate(activityProvider);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kommentar konnte nicht gesendet werden.')),
+          SnackBar(
+            content: Text(
+              isRateLimit(e)
+                  ? authErrorMessage(e)
+                  : 'Kommentar konnte nicht gesendet werden.',
+            ),
+          ),
         );
       }
     } finally {
@@ -67,7 +75,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget build(BuildContext context) {
     final post = ref.watch(postDetailProvider(widget.postId));
     final comments = ref.watch(commentsProvider(widget.postId));
-    final currentUser = ref.watch(currentUserProvider);
 
     final postAsync = ref.watch(postDetailProvider(widget.postId));
 
@@ -78,7 +85,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           if (postAsync.hasValue && postAsync.value != null)
             IconButton(
               icon: const Icon(Icons.more_horiz),
-              onPressed: () => showPostActionsMenu(context, ref, postAsync.value!),
+              onPressed: () =>
+                  showPostActionsMenu(context, ref, postAsync.value!),
             ),
         ],
       ),
@@ -92,7 +100,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           children: [
             post.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, _) => const Text('Beitrag konnte nicht geladen werden.'),
+              error: (_, _) =>
+                  const Text('Beitrag konnte nicht geladen werden.'),
               data: (value) => value == null
                   ? const Text('Beitrag nicht gefunden.')
                   : PostCard(post: value),
@@ -102,52 +111,63 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             const SizedBox(height: 8),
             ...comments.when(
               loading: () => const [Center(child: CircularProgressIndicator())],
-              error: (_, _) => const [Text('Kommentare konnten nicht geladen werden.')],
+              error: (_, _) => const [
+                Text('Kommentare konnten nicht geladen werden.'),
+              ],
               data: (items) => items.isEmpty
                   ? const [
-                      Text('Noch keine Kommentare.', style: TextStyle(color: AppColors.muted)),
+                      Text(
+                        'Noch keine Kommentare.',
+                        style: TextStyle(color: AppColors.muted),
+                      ),
                     ]
                   : items.map((comment) {
-                      final isOwner = currentUser?.id == comment.authorId;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: GestureDetector(
                           onTap: comment.author == null
                               ? null
-                              : () => context.push('/users/${comment.author!.id}'),
+                              : () => context.push(
+                                  '/users/${comment.author!.id}',
+                                ),
                           child: UserAvatar(
                             url: comment.author?.avatarUrl,
-                            name: comment.author?.displayName ?? comment.author?.username,
+                            name:
+                                comment.author?.displayName ??
+                                comment.author?.username,
                           ),
                         ),
                         title: Text(
-                          comment.author?.displayName ?? comment.author?.username ?? 'Leser',
+                          comment.author?.displayName ??
+                              comment.author?.username ??
+                              'Leser',
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (comment.hiddenAt != null)
+                              const HiddenContentHint(),
                             Text(comment.content),
                             Text(
                               formatRelativeTime(comment.createdAt),
-                              style: const TextStyle(color: AppColors.muted, fontSize: 11),
+                              style: const TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
-                        trailing: isOwner
-                            ? IconButton(
-                                icon: const Icon(Icons.delete_outline, size: 18),
-                                onPressed: () => _deleteComment(comment.id),
-                              )
-                            : IconButton(
-                                icon: const Icon(Icons.flag_outlined, size: 18),
-                                onPressed: () => showReportDialog(
-                                  context,
-                                  ref,
-                                  reportedUserId: comment.authorId,
-                                  commentId: comment.id,
-                                  postId: widget.postId,
-                                ),
-                              ),
+                        trailing: IconButton(
+                          tooltip: 'Optionen',
+                          icon: const Icon(Icons.more_horiz, size: 20),
+                          onPressed: () => showCommentActionsMenu(
+                            context,
+                            ref,
+                            comment: comment,
+                            postId: widget.postId,
+                            onDelete: () => _deleteComment(comment.id),
+                          ),
+                        ),
                       );
                     }).toList(),
             ),
@@ -163,10 +183,18 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 child: TextField(
                   controller: _commentController,
                   maxLength: AppLimits.comment,
-                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                  buildCounter:
+                      (
+                        _, {
+                        required currentLength,
+                        required isFocused,
+                        maxLength,
+                      }) => null,
                   minLines: 1,
                   maxLines: 3,
-                  decoration: const InputDecoration(hintText: 'Kommentar schreiben...'),
+                  decoration: const InputDecoration(
+                    hintText: 'Kommentar schreiben...',
+                  ),
                 ),
               ),
               IconButton(

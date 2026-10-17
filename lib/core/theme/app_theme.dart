@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+const _serifFamily = 'SourceSerif4';
+
+// Bundled variable font (assets/fonts): the weight must also be set as an axis value.
+TextStyle _serif({
+  required Color color,
+  required double fontSize,
+  required FontWeight fontWeight,
+  double? height,
+}) {
+  return TextStyle(
+    fontFamily: _serifFamily,
+    color: color,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    fontVariations: [FontVariation.weight(fontWeight.value.toDouble())],
+    height: height,
+  );
+}
 
 class AppColors {
   static const cream = Color(0xFFF7F2E8);
@@ -26,38 +44,38 @@ class AppTheme {
       ),
     );
 
-    final serif = GoogleFonts.sourceSerif4TextTheme(base.textTheme).copyWith(
-      displayLarge: GoogleFonts.sourceSerif4(
+    final serif = base.textTheme.apply(fontFamily: _serifFamily).copyWith(
+      displayLarge: _serif(
         color: AppColors.ink,
         fontSize: 40,
         fontWeight: FontWeight.w700,
         height: 1.05,
       ),
-      displayMedium: GoogleFonts.sourceSerif4(
+      displayMedium: _serif(
         color: AppColors.ink,
         fontSize: 32,
         fontWeight: FontWeight.w700,
         height: 1.1,
       ),
-      headlineLarge: GoogleFonts.sourceSerif4(
+      headlineLarge: _serif(
         color: AppColors.ink,
         fontSize: 28,
         fontWeight: FontWeight.w700,
         height: 1.12,
       ),
-      headlineMedium: GoogleFonts.sourceSerif4(
+      headlineMedium: _serif(
         color: AppColors.ink,
         fontSize: 24,
         fontWeight: FontWeight.w700,
         height: 1.15,
       ),
-      headlineSmall: GoogleFonts.sourceSerif4(
+      headlineSmall: _serif(
         color: AppColors.ink,
         fontSize: 20,
         fontWeight: FontWeight.w700,
         height: 1.2,
       ),
-      titleLarge: GoogleFonts.sourceSerif4(
+      titleLarge: _serif(
         color: AppColors.ink,
         fontSize: 18,
         fontWeight: FontWeight.w700,

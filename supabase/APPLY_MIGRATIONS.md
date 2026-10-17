@@ -14,6 +14,8 @@ Supabase Dashboard → **SQL** → **New query**
 | 4 | `20260731150000_fix_account_deletion.sql` | *Optional / überholt* (Migration 5 entfernt `delete_own_account`) |
 | 5 | `20261016120000_security_hardening.sql` | **Pflicht:** RLS-Härtung, Invite-Codes, Username-Format, Längenlimits, Storage-Limits |
 | 6 | `20261017090000_private_helpers_and_indexes.sql` | **Pflicht:** RLS-Helfer ins Schema `private` (nicht per RPC aufrufbar), Trigger-Funktionen gesperrt, Indizes für Fremdschlüssel |
+| 7 | `20261017120000_moderation_and_rate_limits.sql` | **Pflicht:** Moderation (Admins in `private.admins`, ausgeblendete Inhalte, Meldungs-Status, Auto-Ausblenden ab 3 Meldungen, Admin-RPCs), Rate-Limits |
+| 8 | `20261017150000_moderation_followups.sql` | **Pflicht:** Bild-URL in der Admin-Queue (Bild wird beim Löschen entfernt), Admins dürfen Post-Bilder löschen, Kommentar-Meldungen brauchen die Post-ID |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 
@@ -70,3 +72,18 @@ where n.nspname = 'public'
 ## App
 
 Terminal: **`R`** (Hot Restart) → dann [`TESTING.md`](../TESTING.md) Teil C ff.
+
+## Admin festlegen (nach Migration 7)
+
+Admins sehen in der App unter *Profil → Meldungen prüfen* die Moderations-Queue. Gesetzt werden sie nur per SQL im Dashboard:
+
+```sql
+insert into private.admins (user_id)
+select id from auth.users where email = 'deine@adresse.de';
+```
+
+## Moderations-Ablauf (Betrieb)
+
+- **Meldungen prüfen:** in der App unter *Profil → Meldungen prüfen*. Ziel ist eine Reaktion innerhalb von 24 Stunden, so steht es in den Nutzungsbedingungen.
+- **Konto sperren:** im Supabase-Dashboard unter *Authentication → Users → Nutzer → „Ban user“* eine Dauer wählen (dauerhaft: sehr lange Dauer). Gesperrte Nutzer können sich nicht mehr anmelden. Inhalte bei Bedarf vorher über die Queue löschen.
+- **Benachrichtigung bei neuen Meldungen (offen, braucht deinen E-Mail-Dienst):** *Database → Webhooks →* neuer Webhook auf `public.reports`, Ereignis `INSERT`, Ziel eine Edge Function oder ein Mail-Dienst (z. B. Resend) mit deinem API-Key, Empfänger die Support-Adresse. Solange das fehlt, die Queue täglich öffnen.

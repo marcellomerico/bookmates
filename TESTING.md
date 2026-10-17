@@ -395,6 +395,25 @@ select id, username from public.profiles where username = 'extra_test_user';
 
 ---
 
+# TEIL M — Moderation, Spam-Schutz, Nutzungsbedingungen
+
+**Voraussetzung:** Migration 7 ist angewendet, und dein Account ist Admin (`private.admins`, siehe `supabase/APPLY_MIGRATIONS.md`). Für M2 brauchst du drei Test-Accounts (A, B, C) plus deinen Admin-Account.
+
+| ID | Schritte | Erwartung | ✅ / ❌ |
+|----|----------|-----------|--------|
+| M1 | Registrieren ohne Haken bei Nutzungsbedingungen | Fehlermeldung, kein Konto angelegt | |
+| M2 | A postet etwas. B, C und der Admin melden den Post über „…“ → „Melden“ | Nach der 3. Meldung sehen B, C und andere den Post nicht mehr. A sieht ihn mit dem Hinweis „Ausgeblendet nach Meldungen“. | |
+| M3 | B meldet denselben Post nochmal | „Du hast das bereits gemeldet.“ | |
+| M4 | Admin: Profil → „Meldungen prüfen“ | Meldungen erscheinen mit Grund, Melder, Inhaltsauszug und Badge „ausgeblendet“ | |
+| M5 | Admin: „Verwerfen“ | Post ist für alle wieder sichtbar, die Meldungen verschwinden aus der Liste | |
+| M6 | Erneut melden lassen, Admin: „Löschen“ und bestätigen | Post ist für alle weg, auch für A | |
+| M7 | Kommentar dreimal melden (verschiedene Accounts) | Nur der Kommentar wird ausgeblendet, der Post bleibt sichtbar | |
+| M8 | Profil melden, Admin: „Erledigt“ | Meldung verschwindet; „Ausblenden“ und „Löschen“ werden hier nicht angeboten | |
+| M9 | Nicht-Admin-Account: Profil öffnen | Kein Button „Meldungen prüfen“ | |
+| M10 | 11 Beiträge innerhalb von 10 Minuten posten | Ab dem 11.: „Zu viele Aktionen in kurzer Zeit…“ | |
+
+---
+
 # TEIL J — UI & Stabilität
 
 | ID | Schritte | Erwartung | ✅ / ❌ |

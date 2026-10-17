@@ -3,6 +3,7 @@ import 'package:bookmates/models/post.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  hiddenAtTests();
   group('PostType', () {
     test('fromDb maps review', () {
       expect(PostType.fromDb('review'), PostType.review);
@@ -39,6 +40,43 @@ void main() {
   group('formatRelativeTime', () {
     test('returns gerade eben for recent', () {
       expect(formatRelativeTime(DateTime.now()), 'gerade eben');
+    });
+  });
+}
+
+void hiddenAtTests() {
+  group('hidden_at', () {
+    test('Post parses hidden_at', () {
+      final base = {
+        'id': 'p1',
+        'author_id': 'u1',
+        'content': 'x',
+        'post_type': 'discussion',
+        'created_at': '2026-01-01T12:00:00Z',
+      };
+      expect(Post.fromJson(base).hiddenAt, isNull);
+      expect(
+        Post.fromJson({...base, 'hidden_at': '2026-02-01T00:00:00Z'}).hiddenAt,
+        DateTime.utc(2026, 2, 1),
+      );
+    });
+
+    test('Comment parses hidden_at', () {
+      final base = {
+        'id': 'c1',
+        'post_id': 'p1',
+        'author_id': 'u1',
+        'content': 'x',
+        'created_at': '2026-01-01T12:00:00Z',
+      };
+      expect(Comment.fromJson(base).hiddenAt, isNull);
+      expect(
+        Comment.fromJson({
+          ...base,
+          'hidden_at': '2026-02-01T00:00:00Z',
+        }).hiddenAt,
+        DateTime.utc(2026, 2, 1),
+      );
     });
   });
 }

@@ -12,6 +12,7 @@ import '../../features/books/presentation/book_search_screen.dart';
 import '../../features/feed/presentation/activity_screen.dart';
 import '../../features/feed/presentation/post_detail_screen.dart';
 import '../../features/feed/presentation/main_shell.dart';
+import '../../features/moderation/presentation/moderation_queue_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/follow_list_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
@@ -41,8 +42,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/reset-password',
-        pageBuilder: (context, state) =>
-            fadeSlidePage(key: state.pageKey, child: const ResetPasswordScreen()),
+        pageBuilder: (context, state) => fadeSlidePage(
+          key: state.pageKey,
+          child: const ResetPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: '/login',
@@ -68,9 +71,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/activity',
+        pageBuilder: (context, state) =>
+            slidePushPage(key: state.pageKey, child: const ActivityScreen()),
+      ),
+      GoRoute(
+        path: '/moderation',
         pageBuilder: (context, state) => slidePushPage(
           key: state.pageKey,
-          child: const ActivityScreen(),
+          child: const ModerationQueueScreen(),
         ),
       ),
       GoRoute(

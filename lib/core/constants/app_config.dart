@@ -3,9 +3,12 @@ class AppConfig {
   AppConfig._();
 
   static const supportEmail = 'support@bookmates.app';
-  static const privacyPolicyUrl = 'https://bookmates.app/privacy';
-  static const termsUrl = 'https://bookmates.app/terms';
-  static const imprintUrl = 'https://bookmates.app/impressum';
+  // Live once GitHub Pages is enabled — see docs/RELEASE.md (Rechtstexte veröffentlichen).
+  static const _legalBase = 'https://marcellomerico.github.io/bookmates';
+  static const privacyPolicyUrl = '$_legalBase/privacy.html';
+  static const termsUrl = '$_legalBase/terms.html';
+  static const imprintUrl = '$_legalBase/imprint.html';
+  static const deleteAccountUrl = '$_legalBase/delete-account.html';
 
   /// Deep link Supabase redirects to after e-mail confirmation / password reset.
   /// Must also be listed under Auth → URL Configuration → Redirect URLs.

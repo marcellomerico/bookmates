@@ -1,5 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../features/auth/providers/auth_provider.dart' show AppAuthException;
+import '../models/moderation_report.dart';
+
 class ModerationRepository {
   ModerationRepository(this._client);
 
@@ -40,7 +43,10 @@ class ModerationRepository {
   }
 
   Future<List<String>> getBlockedUserIds(String userId) async {
-    final rows = await _client.from('blocks').select('blocked_id').eq('blocker_id', userId);
+    final rows = await _client
+        .from('blocks')
+        .select('blocked_id')
+        .eq('blocker_id', userId);
     return (rows as List).map((row) => row['blocked_id'] as String).toList();
   }
 
@@ -51,12 +57,39 @@ class ModerationRepository {
     String? postId,
     String? commentId,
   }) async {
-    await _client.from('reports').insert({
-      'reporter_id': reporterId,
-      'reason': reason.trim(),
-      'reported_user_id': ?reportedUserId,
-      'post_id': ?postId,
-      'comment_id': ?commentId,
-    });
+    try {
+      await _client.from('reports').insert({
+        'reporter_id': reporterId,
+        'reason': reason.trim(),
+        'reported_user_id': ?reportedUserId,
+        'post_id': ?postId,
+        'comment_id': ?commentId,
+      });
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        throw const AppAuthException('Du hast das bereits gemeldet.');
+      }
+      rethrow;
+    }
+  }
+
+  Future<bool> isAdmin() async {
+    final result = await _client.rpc('am_i_admin');
+    return result == true;
+  }
+
+  Future<List<ModerationReport>> openReports() async {
+    final rows = await _client.rpc('admin_open_reports');
+    return (rows as List)
+        .map((row) => ModerationReport.fromJson(row as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// [action] is 'dismiss', 'hide' or 'delete'.
+  Future<void> resolveReport(String reportId, String action) async {
+    await _client.rpc(
+      'admin_resolve_report',
+      params: {'p_report_id': reportId, 'p_action': action},
+    );
   }
 }

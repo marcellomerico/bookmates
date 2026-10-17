@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
+import 'terms_links_text.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -119,6 +120,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 10),
               const SocialSignInButtons(compact: true),
+              if (SocialSignInButtons.hasAny) ...[
+                const SizedBox(height: 12),
+                TermsLinksText(
+                  before: SocialSignInButtons.termsNoticePrefix,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppColors.muted),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),
