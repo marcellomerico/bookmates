@@ -27,6 +27,10 @@ Migrationen in dieser Reihenfolge — siehe [`supabase/APPLY_MIGRATIONS.md`](sup
 1. `20260707180000_initial_schema.sql`
 2. `20260731120000_storage_and_policies.sql`
 3. `20260731140000_moderation_and_privacy.sql`
+4. `20260731150000_fix_account_deletion.sql` (optional, von 5 überholt)
+5. `20261016120000_security_hardening.sql`
+
+Zusätzlich: Edge Function `delete-account` deployen (Account löschen). RLS-Test: `supabase/tests/rls_smoke.sql` (nur DEV).
 
 ## Docs
 

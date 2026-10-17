@@ -16,7 +16,7 @@ Wenn du einen Account **löschst** und danach die **gleiche E-Mail** wieder regi
 | Anmeldung landet im **alten** Account (kein Onboarding) | Login nutzt denselben Auth-User → `onboarding_completed = true` |
 | Neuer Username scheint „angelegt“, Login geht nicht | Registrierung wurde nicht abgeschlossen; Auth-User ist noch der alte |
 
-**Lösung:** Migration **4** ausführen (Teil A.5), ggf. manuell aufräumen (Teil C.0), dann **zwei verschiedene E-Mail-Adressen** für User A und User B verwenden.
+**Lösung:** Migration **5** ausführen (A.4) und Edge Function `delete-account` deployen (A.5), ggf. manuell aufräumen (Teil C.0), dann **zwei verschiedene E-Mail-Adressen** für User A und User B verwenden.
 
 ---
 
@@ -52,15 +52,34 @@ Buckets `avatars`, `post-images`, Upload-/Delete-Policies.
 
 `blocks`, `reports`, private Gruppen, erste Version von `delete_own_account()`.
 
-## A.4 Migration 4 — Account-Löschung reparieren (Pflicht)
+## Migration 4 — optional / überholt
 
 **Datei:** `supabase/migrations/20260731150000_fix_account_deletion.sql`
 
-- Löscht Storage-Dateien (Avatare, Post-Bilder)
-- Löscht `auth.users` zuverlässig (Cascade auf Profil, Posts, …)
-- Klare Fehlermeldung, wenn Löschung fehlschlägt
+Repariert die alte RPC `delete_own_account`. Kann übersprungen werden — Migration 5 entfernt die RPC wieder.
 
-> Ohne Migration 4 kann „Account löschen“ in der App scheinbar klappen, der Auth-User bleibt aber bestehen.
+## A.4 Migration 5 — Security-Härtung (Pflicht)
+
+**Datei:** `supabase/migrations/20261016120000_security_hardening.sql`
+
+- RLS: private Gruppen nur per Invite-Code (`join_group_with_code`), serverseitiges Blockieren, keine Anon-Reads
+- Username-Format (a–z, 0–9, `_`, `.`; 3–30) + `username_available`
+- Längenlimits, Storage-Limits (5 MB, jpeg/png/webp, Listing nur eigener Ordner)
+- Entfernt `delete_own_account`
+
+## A.5 Edge Function `delete-account` deployen (Pflicht)
+
+Dashboard → **Edge Functions** oder `supabase functions deploy delete-account` (JWT-Verifikation an).
+
+> Ohne die Function schlägt „Account löschen“ in der App fehl.
+
+## A.6 RLS-Regressionstest (optional, nur DEV)
+
+`supabase/tests/rls_smoke.sql` im SQL Editor ausführen — **nie auf Prod**. Erfolg = kein Fehler (Notice „ALL RLS CHECKS PASSED“), alles wird zurückgerollt.
+
+## A.7 Auth Redirect URL
+
+**Authentication → URL Configuration → Redirect URLs:** `bookmates://auth-callback` ergänzen (Passwort-Reset, E-Mail-Bestätigung).
 
 ---
 
@@ -102,7 +121,7 @@ order by id;
 
 **Erwartung:** 2 Zeilen, beide `public = true`
 
-## B.4 Account-Löschen-Funktion (Migration 4)
+## B.4 Alte Lösch-RPC entfernt (Migration 5)
 
 ```sql
 select pg_get_functiondef(p.oid) as definition
@@ -111,13 +130,12 @@ join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public' and p.proname = 'delete_own_account';
 ```
 
-**Erwartung:** Definition enthält **`storage.objects`** und **`auth.users`**
+**Erwartung:** 0 Zeilen
 
 | Ergebnis | Bedeutung |
 |----------|-----------|
-| Enthält beides | ✅ Migration 4 OK |
-| Nur `auth.users`, kein `storage` | ❌ Migration 4 nachholen |
-| Keine Zeile | ❌ Migration 3+4 nachholen |
+| Keine Zeile | ✅ Migration 5 OK |
+| Eine Zeile | ❌ Migration 5 nachholen |
 
 ## B.5 likes.created_at
 
@@ -165,7 +183,7 @@ where trigger_name = 'on_auth_user_created';
 | M1 | B.1 Tabellen | 13 | |
 | M2 | B.2 Genres | 15 | |
 | M3 | B.3 Storage | 2 Buckets | |
-| M4 | B.4 delete_own_account | storage + auth.users | |
+| M4 | B.4 delete_own_account | 0 Zeilen (entfernt) | |
 | M5 | B.5 likes.created_at | timestamptz | |
 | M6 | B.6 RLS | s.o. | |
 | M7 | B.7 Auth-Trigger | vorhanden | |
@@ -332,10 +350,18 @@ User A und B abwechselnd (Abmelden/Anmelden).
 | H1 | Club → Neu → öffentlich | In Liste | |
 | H2 | Neu → Private Gruppe | Schloss-Icon | |
 | H3 | User B sieht private Gruppe nicht | Nicht in Liste | |
-| H4 | User B tritt bei (Einladung/Beitritt) | Mitglied | |
+| H4 | User B tritt per Invite-Code bei (siehe H8–H10) | Mitglied | |
 | H5 | Mitglied → Beitrag in Gruppe | Post sichtbar | |
 | H6 | Nicht-Mitglied | Kein FAB Beitrag | |
 | H7 | Creator löscht Gruppe | Weg | |
+
+## Private Gruppe per Invite-Code beitreten
+
+| ID | Schritte | Erwartung | ✅ / ❌ |
+|----|----------|-----------|--------|
+| H8 | User A (Creator): private Gruppe öffnen | Invite-Code sichtbar | |
+| H9 | User B: Gruppen → **Code**-Button → falschen Code eingeben | Fehlermeldung, kein Beitritt | |
+| H10 | User B: Code von A eingeben | Beitritt, Gruppe in Liste | |
 
 ---
 
@@ -363,7 +389,7 @@ select id, username from public.profiles where username = 'extra_test_user';
 | I4 Ergebnis | Bedeutung |
 |-------------|-----------|
 | 0 Zeilen in beiden | ✅ Löschung vollständig |
-| User noch in auth.users | ❌ Migration 4 fehlt oder Löschung fehlgeschlagen — Fehlermeldung in App prüfen |
+| User noch in auth.users | ❌ Edge Function `delete-account` nicht deployed oder Löschung fehlgeschlagen — Fehlermeldung in App prüfen |
 
 > **Erst nach I4 = ✅** dieselbe E-Mail wieder für einen neuen Account nutzen.
 
@@ -394,7 +420,7 @@ flutter test       # Erwartung: All tests passed
 
 ## „Registrierung fehlgeschlagen, E-Mail bereits registriert“
 
-1. Migration 4 ausgeführt? (B.4)
+1. Migration 5 ausgeführt + Edge Function deployed? (B.4, A.5)
 2. SQL aus C.0 — existiert die E-Mail noch in `auth.users`?
 3. Ja → User in **Authentication → Users** manuell löschen
 4. App: **`R`** Hot Restart, erneut registrieren
@@ -411,8 +437,8 @@ Du bist im **bestehenden** Auth-User, nicht in einem neuen.
 
 ## „Account löschen“ zeigt Erfolg, Login klappt trotzdem
 
-- Migration 4 fehlt → Funktion löscht nicht zuverlässig
-- App zeigt jetzt eine **Fehlermeldung**, wenn RPC scheitert (nach Update + Hot Restart)
+- Edge Function `delete-account` nicht deployed → Löschung scheitert
+- App zeigt eine **Fehlermeldung**, wenn die Function scheitert (nach Update + Hot Restart)
 - SQL I4 ausführen
 
 ## „Dieser Benutzername ist bereits vergeben“
@@ -442,7 +468,7 @@ Wenn unter **Authentication → Providers → Email** „Confirm email“ aktiv 
 M1 Tabellen (13): ✅ / ❌
 M2 Genres (15): ✅ / ❌
 M3 Storage: ✅ / ❌
-M4 delete_own_account (Migration 4): ✅ / ❌
+M4 delete_own_account entfernt (Migration 5): ✅ / ❌
 M5 likes.created_at: ✅ / ❌
 M6 RLS: ✅ / ❌
 M7 Auth-Trigger: ✅ / ❌
@@ -484,7 +510,10 @@ Simulator / Gerät, iOS: …
 | `supabase/migrations/20260707180000_initial_schema.sql` | Migration 1 |
 | `supabase/migrations/20260731120000_storage_and_policies.sql` | Migration 2 |
 | `supabase/migrations/20260731140000_moderation_and_privacy.sql` | Migration 3 |
-| `supabase/migrations/20260731150000_fix_account_deletion.sql` | Migration 4 |
+| `supabase/migrations/20260731150000_fix_account_deletion.sql` | Migration 4 (optional) |
+| `supabase/migrations/20261016120000_security_hardening.sql` | Migration 5 |
+| `supabase/functions/delete-account` | Edge Function |
+| `supabase/tests/rls_smoke.sql` | RLS-Test (nur DEV) |
 | `supabase/APPLY_MIGRATIONS.md` | Kurz-Anleitung |
 | `PUBLISH_PLAN.md` | Nach erfolgreichem Test |
 
@@ -494,7 +523,7 @@ Simulator / Gerät, iOS: …
 
 Du hast A–C.2 bereits geschafft. **Als Nächstes:**
 
-1. **Migration 4** ausführen (A.5) + B.4 prüfen
+1. **Migration 5** ausführen (A.4), Edge Function deployen (A.5) + B.4 prüfen
 2. **C.0** — deine E-Mail in `auth.users` prüfen, ggf. alten User im Dashboard löschen
 3. App **`R`** Hot Restart
 4. **C.3** — User A und User B mit **zwei verschiedenen E-Mails**
