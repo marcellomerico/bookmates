@@ -14,6 +14,7 @@ Im SQL Editor ausführen:
 3. `supabase/migrations/20260731140000_moderation_and_privacy.sql`
 4. `supabase/migrations/20260731150000_fix_account_deletion.sql` (optional, von 5 überholt)
 5. `supabase/migrations/20261016120000_security_hardening.sql`
+6. `supabase/migrations/20261017090000_private_helpers_and_indexes.sql`
 
 Danach Edge Function deployen (JWT-Verifikation an): `supabase functions deploy delete-account` oder Dashboard → Edge Functions.
 

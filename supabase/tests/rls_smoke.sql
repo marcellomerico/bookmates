@@ -53,9 +53,15 @@ end $$;
 -- ---------------- privileges (as postgres) ----------------
 do $$ begin
   if has_function_privilege('anon', 'public.join_group_with_code(text)', 'execute')
-     or has_function_privilege('anon', 'public.is_blocked_with(uuid)', 'execute')
-     or has_function_privilege('anon', 'public.can_view_post(uuid)', 'execute') then
+     or has_function_privilege('anon', 'private.is_blocked_with(uuid)', 'execute')
+     or has_function_privilege('anon', 'private.can_view_post(uuid)', 'execute')
+     or has_function_privilege('authenticated', 'public.handle_new_user()', 'execute') then
     raise exception 'FAIL: anon can execute private RPCs'; end if;
+  -- RLS helpers must not be exposed via /rest/v1/rpc (only the public schema is).
+  if exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+             where n.nspname = 'public'
+               and p.proname in ('is_group_member', 'can_view_group', 'is_blocked_with', 'can_view_post')) then
+    raise exception 'FAIL: RLS helpers still in public schema'; end if;
   if not has_function_privilege('anon', 'public.username_available(text)', 'execute') then
     raise exception 'FAIL: anon cannot check usernames'; end if;
   if (select file_size_limit from storage.buckets where id = 'post-images') is distinct from 5242880 then

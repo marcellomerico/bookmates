@@ -13,6 +13,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 3 | `20260731140000_moderation_and_privacy.sql` | `blocks`, `reports`, private Groups, `delete_own_account` |
 | 4 | `20260731150000_fix_account_deletion.sql` | *Optional / überholt* (Migration 5 entfernt `delete_own_account`) |
 | 5 | `20261016120000_security_hardening.sql` | **Pflicht:** RLS-Härtung, Invite-Codes, Username-Format, Längenlimits, Storage-Limits |
+| 6 | `20261017090000_private_helpers_and_indexes.sql` | **Pflicht:** RLS-Helfer ins Schema `private` (nicht per RPC aufrufbar), Trigger-Funktionen gesperrt, Indizes für Fremdschlüssel |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 
