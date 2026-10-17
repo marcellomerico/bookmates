@@ -2,40 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
 
-class BookmatesScaffold extends StatelessWidget {
-  const BookmatesScaffold({
-    super.key,
-    this.title,
-    this.actions,
-    this.bottomNavigationBar,
-    this.safeTop = true,
-    this.safeBottom = true,
-    required this.body,
-  });
-
-  final String? title;
-  final List<Widget>? actions;
-  final Widget body;
-  final Widget? bottomNavigationBar;
-  final bool safeTop;
-  final bool safeBottom;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: title == null
-          ? null
-          : AppBar(title: Text(title!), actions: actions),
-      body: SafeArea(
-        top: safeTop && title == null,
-        bottom: safeBottom,
-        child: body,
-      ),
-      bottomNavigationBar: bottomNavigationBar,
-    );
-  }
-}
-
 /// Scrollable form body that avoids keyboard overflow.
 class KeyboardSafeScroll extends StatelessWidget {
   const KeyboardSafeScroll({
@@ -64,34 +30,18 @@ class BookmatesWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'BOOKMATES',
-      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-        color: AppColors.gold,
-        letterSpacing: 2.6,
-        fontWeight: FontWeight.w700,
+    return Semantics(
+      header: true,
+      label: 'Bookmates',
+      excludeSemantics: true,
+      child: Text(
+        'BOOKMATES',
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: AppColors.goldText,
+          letterSpacing: 2.6,
+          fontWeight: FontWeight.w700,
+        ),
       ),
-    );
-  }
-}
-
-class EditorialSectionTitle extends StatelessWidget {
-  const EditorialSectionTitle(this.title, {super.key, this.subtitle});
-
-  final String title;
-  final String? subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
-        if (subtitle != null) ...[
-          const SizedBox(height: 6),
-          Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ],
     );
   }
 }
@@ -115,51 +65,6 @@ class SoftCard extends StatelessWidget {
         border: Border.all(color: AppColors.line),
       ),
       child: Padding(padding: padding, child: child),
-    );
-  }
-}
-
-class SearchStrip extends StatelessWidget {
-  const SearchStrip({
-    super.key,
-    required this.hint,
-    this.trailing,
-    this.leadingIcon = Icons.search,
-  });
-
-  final String hint;
-  final Widget? trailing;
-  final IconData leadingIcon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 42,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.line),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 12),
-          Icon(leadingIcon, size: 18, color: AppColors.muted),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              hint,
-              style: const TextStyle(color: AppColors.muted, fontSize: 13),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing!,
-            const SizedBox(width: 8),
-          ] else
-            const SizedBox(width: 12),
-        ],
-      ),
     );
   }
 }

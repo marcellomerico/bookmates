@@ -143,7 +143,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(_error!, style: const TextStyle(color: Colors.red)),
+              child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
             ),
           Expanded(
             child: _results.isEmpty

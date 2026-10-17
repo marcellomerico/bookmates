@@ -29,7 +29,7 @@ class ProfileScreen extends ConsumerWidget {
             child: const Text('Abbrechen'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Account löschen'),
           ),
@@ -227,9 +227,9 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => _deleteAccount(context, ref),
-                child: const Text(
+                child: Text(
                   'Account löschen',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
             ],

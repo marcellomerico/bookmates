@@ -209,9 +209,9 @@ class _ReportCard extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: busy ? null : () => onAction('delete'),
-                        child: const Text(
+                        child: Text(
                           'Löschen',
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       ),
                     ]

@@ -132,7 +132,7 @@ Future<void> showPostActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
               title: const Text('Beitrag löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )
@@ -262,7 +262,7 @@ Future<void> showCommentActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
               title: const Text('Kommentar löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )
