@@ -17,9 +17,9 @@ class SetupScreen extends StatelessWidget {
               Text(
                 'Bookmates Setup',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.burgundy,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: AppColors.burgundy,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
@@ -30,29 +30,34 @@ class SetupScreen extends StatelessWidget {
               _Step(
                 number: 1,
                 title: 'Supabase-Projekt anlegen',
-                body: 'Erstelle auf supabase.com ein Projekt „bookmates" (Region EU).',
+                body:
+                    'Erstelle auf supabase.com ein Projekt „bookmates" (Region EU).',
               ),
               _Step(
                 number: 2,
                 title: 'SQL-Migration ausführen',
-                body: 'Kopiere supabase/migrations/20260707180000_initial_schema.sql '
+                body:
+                    'Kopiere supabase/migrations/20260707180000_initial_schema.sql '
                     'in den SQL Editor und führe das Skript aus.',
               ),
               _Step(
                 number: 3,
                 title: 'E-Mail-Bestätigung deaktivieren',
-                body: 'Authentication → Providers → Email → „Confirm email" aus (für Tests).',
+                body:
+                    'Authentication → Providers → Email → „Confirm email" aus (für Tests).',
               ),
               _Step(
                 number: 4,
                 title: '.env anlegen',
-                body: 'cp .env.example .env\n'
+                body:
+                    'cp .env.example .env\n'
                     'Trage SUPABASE_URL und SUPABASE_ANON_KEY ein.',
               ),
               _Step(
                 number: 5,
                 title: 'Social Login (optional)',
-                body: 'Google: GOOGLE_WEB_CLIENT_ID in .env eintragen, Provider in Supabase '
+                body:
+                    'Google: GOOGLE_WEB_CLIENT_ID in .env eintragen, Provider in Supabase '
                     'und Google Cloud aktivieren.\n'
                     'Apple: Provider in Supabase aktivieren, Sign in with Apple in Xcode '
                     '(bereits vorbereitet).',
@@ -60,7 +65,8 @@ class SetupScreen extends StatelessWidget {
               _Step(
                 number: 6,
                 title: 'App neu starten',
-                body: 'flutter run — Hot Restart reicht nicht, App komplett neu starten.',
+                body:
+                    'flutter run — Hot Restart reicht nicht, App komplett neu starten.',
               ),
             ],
           ),
@@ -71,11 +77,7 @@ class SetupScreen extends StatelessWidget {
 }
 
 class _Step extends StatelessWidget {
-  const _Step({
-    required this.number,
-    required this.title,
-    required this.body,
-  });
+  const _Step({required this.number, required this.title, required this.body});
 
   final int number;
   final String title;
@@ -101,9 +103,15 @@ class _Step extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 4),
-                Text(body, style: const TextStyle(color: AppColors.muted, height: 1.4)),
+                Text(
+                  body,
+                  style: const TextStyle(color: AppColors.muted, height: 1.4),
+                ),
               ],
             ),
           ),

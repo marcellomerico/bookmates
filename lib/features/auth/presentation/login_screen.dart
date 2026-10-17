@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/bookmates_ui.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
 
@@ -17,6 +18,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
 
   @override
@@ -33,10 +35,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref.read(authRepositoryProvider).signIn(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(_emailController.text.trim(), _passwordController.text);
     } catch (e) {
       setState(() => _error = authErrorMessage(e));
     } finally {
@@ -47,64 +48,77 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+        child: KeyboardSafeScroll(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(),
+              const SizedBox(height: 10),
+              const Center(child: BookmatesWordmark()),
+              const SizedBox(height: 28),
               Text(
-                'Bookmates',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      color: AppColors.burgundy,
-                      fontWeight: FontWeight.bold,
-                    ),
+                'Willkommen\nzuruck.',
+                style: Theme.of(context).textTheme.displayMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                'Deine Community für Bücherfreunde',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.muted,
-                    ),
+                'Deine Community fur Bucher und Leser.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 28),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: 'E-Mail'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Passwort'),
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Passwort',
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 10),
+                Text(
+                  _error!,
+                  style: const TextStyle(
+                    color: AppColors.burgundy,
+                    fontSize: 12,
+                  ),
+                ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               ElevatedButton(
                 onPressed: _loading ? null : _signIn,
                 child: _loading
                     ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Anmelden'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => context.push('/forgot-password'),
+                child: const Text('Passwort vergessen?'),
+              ),
               TextButton(
                 onPressed: () => context.go('/register'),
                 child: const Text('Noch kein Konto? Registrieren'),
               ),
-              const SizedBox(height: 24),
-              const SocialSignInButtons(),
-              const Spacer(),
+              const SizedBox(height: 10),
+              const SocialSignInButtons(compact: true),
             ],
           ),
         ),

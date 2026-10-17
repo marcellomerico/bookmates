@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Bookmates benötigt die Kamera, um ein Profilbild aufzunehmen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Bookmates benötigt Zugriff auf deine Fotomediathek, um ein Profilbild auszuwählen.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -76,6 +80,17 @@
 				<string>com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bookmates</string>
+			</array>
+		</dict>
 	</array>
+	<!-- supabase_flutter handles auth deep links; keep go_router from routing them. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 </dict>
 </plist>

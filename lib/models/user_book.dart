@@ -6,22 +6,22 @@ enum BookStatus {
   wantToRead;
 
   String get dbValue => switch (this) {
-        BookStatus.reading => 'reading',
-        BookStatus.read => 'read',
-        BookStatus.wantToRead => 'want_to_read',
-      };
+    BookStatus.reading => 'reading',
+    BookStatus.read => 'read',
+    BookStatus.wantToRead => 'want_to_read',
+  };
 
   String get label => switch (this) {
-        BookStatus.reading => 'Lese gerade',
-        BookStatus.read => 'Gelesen',
-        BookStatus.wantToRead => 'Möchte lesen',
-      };
+    BookStatus.reading => 'Lese gerade',
+    BookStatus.read => 'Gelesen',
+    BookStatus.wantToRead => 'Möchte lesen',
+  };
 
   static BookStatus fromDb(String value) => switch (value) {
-        'reading' => BookStatus.reading,
-        'read' => BookStatus.read,
-        _ => BookStatus.wantToRead,
-      };
+    'reading' => BookStatus.reading,
+    'read' => BookStatus.read,
+    _ => BookStatus.wantToRead,
+  };
 }
 
 class UserBook {

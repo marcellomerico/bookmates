@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/utils/validators.dart';
+import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
 
@@ -17,6 +21,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
 
   @override
@@ -28,19 +33,76 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _signUp() async {
+    final username = _usernameController.text.trim().toLowerCase();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      setState(() => _error = 'Bitte alle Felder ausfüllen.');
+      return;
+    }
+    _usernameController.text = username;
+    final usernameError = validateUsername(username);
+    if (usernameError != null) {
+      setState(() => _error = usernameError);
+      return;
+    }
+    if (password.length < 8) {
+      setState(() => _error = 'Passwort: mindestens 8 Zeichen.');
+      return;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
     });
 
     try {
-      await ref.read(authRepositoryProvider).signUp(
-            _emailController.text.trim(),
-            _passwordController.text,
-            _usernameController.text.trim(),
+      final usernameFree = await ref
+          .read(profileRepositoryProvider)
+          .isUsernameAvailable(username);
+      if (!mounted) return;
+      if (!usernameFree) {
+        setState(() => _error = 'Dieser Benutzername ist bereits vergeben.');
+        return;
+      }
+
+      final result = await ref.read(authRepositoryProvider).signUp(
+            email,
+            password,
+            username,
           );
-      if (mounted) context.go('/onboarding');
+
+      if (!mounted) return;
+
+      if (result.needsEmailConfirmation) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('E-Mail bestätigen'),
+            content: Text(
+              'Wir haben dir eine Bestätigungs-E-Mail an $email geschickt. '
+              'Bitte bestätige deine Adresse, bevor du dich anmeldest.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        if (mounted) context.go('/login');
+        return;
+      }
+
+      ref.invalidate(currentProfileProvider);
+      context.go('/onboarding');
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = authErrorMessage(e));
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = authErrorMessage(e));
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -50,28 +112,47 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrieren')),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+        child: KeyboardSafeScroll(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Center(child: BookmatesWordmark()),
+              const SizedBox(height: 24),
+              Text(
+                'Willkommen\nbei Bookmates.',
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Erstelle dein Leserprofil und entdecke Menschen mit ahnlichem Geschmack.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 24),
               TextField(
                 controller: _usernameController,
                 decoration: const InputDecoration(labelText: 'Benutzername'),
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: 'E-Mail'),
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Passwort'),
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Passwort',
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),
@@ -93,8 +174,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 onPressed: () => context.go('/login'),
                 child: const Text('Zurück zur Anmeldung'),
               ),
-              const SizedBox(height: 24),
-              const SocialSignInButtons(),
+              const SizedBox(height: 10),
+              const SocialSignInButtons(compact: true),
             ],
           ),
         ),

@@ -22,9 +22,13 @@ final bookshelfProvider = FutureProvider<List<UserBook>>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
 
-  ref.watch(authStateProvider);
   return ref.watch(bookRepositoryProvider).getBookshelf(user.id);
 });
+
+final bookshelfByUserProvider = FutureProvider.autoDispose
+    .family<List<UserBook>, String>((ref, userId) {
+      return ref.watch(bookRepositoryProvider).getBookshelf(userId);
+    });
 
 final userGenresProvider = FutureProvider<List<String>>((ref) async {
   final user = ref.watch(currentUserProvider);

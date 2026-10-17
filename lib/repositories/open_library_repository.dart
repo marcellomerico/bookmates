@@ -23,7 +23,8 @@ class OpenLibraryBook {
 }
 
 class OpenLibraryRepository {
-  OpenLibraryRepository({http.Client? client}) : _client = client ?? http.Client();
+  OpenLibraryRepository({http.Client? client})
+    : _client = client ?? http.Client();
 
   final http.Client _client;
 
@@ -44,19 +45,26 @@ class OpenLibraryRepository {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final docs = data['docs'] as List<dynamic>? ?? [];
 
-    return docs.map((doc) {
-      final map = doc as Map<String, dynamic>;
-      final key = map['key'] as String? ?? '';
-      final authors = map['author_name'] as List<dynamic>?;
-      final isbns = map['isbn'] as List<dynamic>?;
+    return docs
+        .map((doc) {
+          final map = doc as Map<String, dynamic>;
+          final key = map['key'] as String? ?? '';
+          final authors = map['author_name'] as List<dynamic>?;
+          final isbns = map['isbn'] as List<dynamic>?;
 
-      return OpenLibraryBook(
-        openLibraryId: key.replaceFirst('/works/', '').replaceFirst('/books/', ''),
-        title: map['title'] as String? ?? 'Unbekannter Titel',
-        author: authors?.isNotEmpty == true ? authors!.first as String : null,
-        coverId: map['cover_i'] as int?,
-        isbn: isbns?.isNotEmpty == true ? isbns!.first as String : null,
-      );
-    }).where((book) => book.openLibraryId.isNotEmpty).toList();
+          return OpenLibraryBook(
+            openLibraryId: key
+                .replaceFirst('/works/', '')
+                .replaceFirst('/books/', ''),
+            title: map['title'] as String? ?? 'Unbekannter Titel',
+            author: authors?.isNotEmpty == true
+                ? authors!.first as String
+                : null,
+            coverId: map['cover_i'] as int?,
+            isbn: isbns?.isNotEmpty == true ? isbns!.first as String : null,
+          );
+        })
+        .where((book) => book.openLibraryId.isNotEmpty)
+        .toList();
   }
 }

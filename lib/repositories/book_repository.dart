@@ -4,6 +4,8 @@ import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
 
+String _clip(String s, int max) => s.length > max ? s.substring(0, max) : s;
+
 class BookRepository {
   BookRepository(this._client);
 
@@ -24,8 +26,8 @@ class BookRepository {
         .from('books')
         .insert({
           'open_library_id': result.openLibraryId,
-          'title': result.title,
-          'author': result.author,
+          'title': _clip(result.title, 500),
+          'author': result.author == null ? null : _clip(result.author!, 300),
           'cover_url': result.coverUrl,
           'isbn': result.isbn,
         })
@@ -79,15 +81,23 @@ class BookRepository {
         .eq('user_id', userId)
         .order('id');
 
-    return (rows as List).map((row) => UserBook.fromJson(row as Map<String, dynamic>)).toList();
+    return (rows as List)
+        .map((row) => UserBook.fromJson(row as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> updateStatus(String userBookId, BookStatus status) async {
-    await _client.from('user_books').update({'status': status.dbValue}).eq('id', userBookId);
+    await _client
+        .from('user_books')
+        .update({'status': status.dbValue})
+        .eq('id', userBookId);
   }
 
   Future<void> updateRating(String userBookId, int? rating) async {
-    await _client.from('user_books').update({'rating': rating}).eq('id', userBookId);
+    await _client
+        .from('user_books')
+        .update({'rating': rating})
+        .eq('id', userBookId);
   }
 
   Future<void> removeFromShelf(String userBookId) async {

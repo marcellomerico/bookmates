@@ -1,0 +1,190 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../constants/app_config.dart';
+import '../../features/auth/providers/auth_provider.dart';
+import '../../features/social/providers/social_providers.dart';
+import '../../models/post.dart';
+
+Future<void> showReportDialog(
+  BuildContext context,
+  WidgetRef ref, {
+  String? reportedUserId,
+  String? postId,
+  String? commentId,
+}) async {
+  final controller = TextEditingController();
+  final reason = await showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Inhalt melden'),
+      content: TextField(
+        controller: controller,
+        maxLength: AppLimits.reportReason,
+        maxLines: 3,
+        decoration: const InputDecoration(
+          hintText: 'Warum möchtest du das melden?',
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, controller.text.trim()),
+          child: const Text('Melden'),
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  if (reason == null || reason.isEmpty) return;
+
+  final user = ref.read(currentUserProvider);
+  if (user == null) return;
+
+  await ref.read(moderationRepositoryProvider).reportContent(
+        reporterId: user.id,
+        reason: reason,
+        reportedUserId: reportedUserId,
+        postId: postId,
+        commentId: commentId,
+      );
+
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Danke. Wir prüfen deine Meldung.')),
+    );
+  }
+}
+
+Future<void> showPostActionsMenu(
+  BuildContext context,
+  WidgetRef ref,
+  Post post,
+) async {
+  final user = ref.read(currentUserProvider);
+  if (user == null) return;
+
+  final isOwner = post.authorId == user.id;
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isOwner)
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Beitrag löschen'),
+              onTap: () => Navigator.pop(context, 'delete'),
+            )
+          else ...[
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: const Text('Beitrag melden'),
+              onTap: () => Navigator.pop(context, 'report'),
+            ),
+            if (post.author != null)
+              ListTile(
+                leading: const Icon(Icons.block),
+                title: Text('${post.author!.displayName ?? post.author!.username} blockieren'),
+                onTap: () => Navigator.pop(context, 'block'),
+              ),
+          ],
+        ],
+      ),
+    ),
+  );
+
+  if (action == 'delete') {
+    if (!context.mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Beitrag löschen?'),
+        content: const Text('Dieser Beitrag wird dauerhaft entfernt.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Löschen')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+    await ref.read(postRepositoryProvider).deletePost(post.id);
+    ref.invalidate(feedProvider);
+    if (context.mounted) {
+      if (context.canPop()) context.pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Beitrag gelöscht.')),
+      );
+    }
+  } else if (action == 'report') {
+    if (context.mounted) {
+      await showReportDialog(
+        context,
+        ref,
+        reportedUserId: post.authorId,
+        postId: post.id,
+      );
+    }
+  } else if (action == 'block' && post.author != null) {
+    await ref.read(moderationRepositoryProvider).blockUser(
+          blockerId: user.id,
+          blockedId: post.author!.id,
+        );
+    ref.invalidate(feedProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nutzer blockiert.')),
+      );
+    }
+  }
+}
+
+Future<void> showUserActionsMenu(
+  BuildContext context,
+  WidgetRef ref, {
+  required String userId,
+  required String displayName,
+}) async {
+  final user = ref.read(currentUserProvider);
+  if (user == null || user.id == userId) return;
+
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text('Nutzer melden'),
+            onTap: () => Navigator.pop(context, 'report'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.block),
+            title: Text('$displayName blockieren'),
+            onTap: () => Navigator.pop(context, 'block'),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  if (action == 'report' && context.mounted) {
+    await showReportDialog(context, ref, reportedUserId: userId);
+  } else if (action == 'block') {
+    await ref.read(moderationRepositoryProvider).blockUser(
+          blockerId: user.id,
+          blockedId: userId,
+        );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nutzer blockiert.')),
+      );
+    }
+  }
+}
