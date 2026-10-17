@@ -104,17 +104,17 @@ class _MainShellState extends State<MainShell>
               NavigationDestination(
                 icon: Icon(Icons.search),
                 selectedIcon: Icon(Icons.search),
-                label: 'Suche',
+                label: 'Entdecken',
               ),
               NavigationDestination(
                 icon: Icon(Icons.add_circle_outline),
                 selectedIcon: Icon(Icons.add_circle),
-                label: 'Post',
+                label: 'Neu',
               ),
               NavigationDestination(
                 icon: Icon(Icons.groups_outlined),
                 selectedIcon: Icon(Icons.groups),
-                label: 'Club',
+                label: 'Lesekreise',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline),

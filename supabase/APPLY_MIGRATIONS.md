@@ -75,7 +75,7 @@ Terminal: **`R`** (Hot Restart) → dann [`TESTING.md`](../TESTING.md) Teil C ff
 
 ## Admin festlegen (nach Migration 7)
 
-Admins sehen in der App unter *Profil → Meldungen prüfen* die Moderations-Queue. Gesetzt werden sie nur per SQL im Dashboard:
+Admins sehen in der App unter *Profil → Einstellungen → Meldungen prüfen* die Moderations-Queue. Gesetzt werden sie nur per SQL im Dashboard:
 
 ```sql
 insert into private.admins (user_id)
@@ -84,6 +84,6 @@ select id from auth.users where email = 'deine@adresse.de';
 
 ## Moderations-Ablauf (Betrieb)
 
-- **Meldungen prüfen:** in der App unter *Profil → Meldungen prüfen*. Ziel ist eine Reaktion innerhalb von 24 Stunden, so steht es in den Nutzungsbedingungen.
+- **Meldungen prüfen:** in der App unter *Profil → Einstellungen → Meldungen prüfen*. Ziel ist eine Reaktion innerhalb von 24 Stunden, so steht es in den Nutzungsbedingungen.
 - **Konto sperren:** im Supabase-Dashboard unter *Authentication → Users → Nutzer → „Ban user“* eine Dauer wählen (dauerhaft: sehr lange Dauer). Gesperrte Nutzer können sich nicht mehr anmelden. Inhalte bei Bedarf vorher über die Queue löschen.
 - **Benachrichtigung bei neuen Meldungen (offen, braucht deinen E-Mail-Dienst):** *Database → Webhooks →* neuer Webhook auf `public.reports`, Ereignis `INSERT`, Ziel eine Edge Function oder ein Mail-Dienst (z. B. Resend) mit deinem API-Key, Empfänger die Support-Adresse. Solange das fehlt, die Queue täglich öffnen.

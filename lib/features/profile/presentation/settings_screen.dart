@@ -32,7 +32,7 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog.adaptive(
-        title: const Text('Account löschen?'),
+        title: const Text('Konto löschen?'),
         content: const Text(
           'Dein Profil, Beiträge und Daten werden dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',
         ),
@@ -46,7 +46,7 @@ class SettingsScreen extends ConsumerWidget {
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Account löschen'),
+            child: const Text('Konto löschen'),
           ),
         ],
       ),
@@ -58,7 +58,7 @@ class SettingsScreen extends ConsumerWidget {
       ref.invalidate(currentProfileProvider);
       ref.invalidate(authStateProvider);
       if (context.mounted) {
-        _snack(context, 'Account wurde gelöscht.');
+        _snack(context, 'Konto wurde gelöscht.');
         context.go('/login');
       }
     } catch (e) {

@@ -210,12 +210,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Erzahl uns etwas\nuber dich.',
+              'Erzähl uns etwas\nüber dich.',
               style: Theme.of(context).textTheme.displayMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Damit wir dir die richtigen Leser und Bucher zeigen konnen.',
+              'Damit wir dir die richtigen Leser und Bücher zeigen können.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
@@ -244,7 +244,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Wahle mindestens ein Genre. Du kannst spater alles andern.',
+              'Wähle mindestens ein Genre. Du kannst später alles ändern.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 18),
@@ -275,12 +275,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Dein erstes\nBucherregal.',
+              'Dein erstes\nBücherregal.',
               style: Theme.of(context).textTheme.displayMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Optional: Fuge dein erstes Buch hinzu. Du kannst auch uberspringen und spater weitermachen.',
+              'Optional: Füge dein erstes Buch hinzu. Du kannst auch überspringen und später weitermachen.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),

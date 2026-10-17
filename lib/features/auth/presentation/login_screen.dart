@@ -61,12 +61,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const Center(child: BookmatesWordmark()),
               const SizedBox(height: 28),
               Text(
-                'Willkommen\nzuruck.',
+                'Willkommen\nzurück.',
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               const SizedBox(height: 10),
               Text(
-                'Deine Community fur Bucher und Leser.',
+                'Deine Community für Bücher und Leser.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 28),

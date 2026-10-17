@@ -29,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
             onSubmitted: (query) => context.go('/discover?q=${Uri.encodeComponent(query)}'),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
-              hintText: 'Leser, Clubs oder Stichworte suchen',
+              hintText: 'Leser, Lesekreise oder Stichworte suchen',
             ),
           ),
           const SizedBox(height: 16),

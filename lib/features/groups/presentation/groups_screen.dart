@@ -30,7 +30,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Neue Gruppe'),
+          title: const Text('Lesekreis gründen'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -49,8 +49,8 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               ),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Private Gruppe'),
-                subtitle: const Text('Nur fur Mitglieder sichtbar'),
+                title: const Text('Privater Lesekreis'),
+                subtitle: const Text('Nur für Mitglieder sichtbar'),
                 value: isPrivate,
                 onChanged: (value) => setDialogState(() => isPrivate = value),
               ),
@@ -95,7 +95,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           content: Text(
             isRateLimit(e)
                 ? authErrorMessage(e)
-                : 'Gruppe konnte nicht erstellt werden.',
+                : 'Lesekreis konnte nicht erstellt werden.',
           ),
         ),
       );
@@ -165,7 +165,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'Gruppen',
+                  'Lesekreise',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
@@ -194,7 +194,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             loading: () => const [Center(child: CircularProgressIndicator())],
             error: (_, _) => [
               ErrorState(
-                message: 'Gruppen konnten nicht geladen werden.',
+                message: 'Lesekreise konnten nicht geladen werden.',
                 onRetry: () => ref.invalidate(groupsProvider(_query)),
               ),
             ],
@@ -279,15 +279,15 @@ class _GroupRow extends ConsumerWidget {
             ),
             if (isCreator)
               IconButton(
-                tooltip: 'Gruppe löschen',
+                tooltip: 'Lesekreis löschen',
                 icon: const Icon(Icons.delete_outline, size: 18),
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog.adaptive(
-                      title: const Text('Gruppe löschen?'),
+                      title: const Text('Lesekreis löschen?'),
                       content: const Text(
-                        'Alle Beiträge in dieser Gruppe werden entfernt.',
+                        'Alle Beiträge in diesem Lesekreis werden entfernt.',
                       ),
                       actions: [
                         TextButton(

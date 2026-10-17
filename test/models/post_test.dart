@@ -1,8 +1,10 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:bookmates/core/utils/time_ago.dart';
 import 'package:bookmates/models/post.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUpAll(() => initializeDateFormatting('de'));
   hiddenAtTests();
   group('PostType', () {
     test('fromDb maps review', () {
@@ -40,6 +42,26 @@ void main() {
   group('formatRelativeTime', () {
     test('returns gerade eben for recent', () {
       expect(formatRelativeTime(DateTime.now()), 'gerade eben');
+    });
+    test('days and old dates', () {
+      final now = DateTime.now();
+      expect(
+        formatRelativeTime(now.subtract(const Duration(minutes: 5))),
+        'vor 5 Min.',
+      );
+      expect(
+        formatRelativeTime(now.subtract(const Duration(hours: 3))),
+        'vor 3 Std.',
+      );
+      expect(
+        formatRelativeTime(now.subtract(const Duration(days: 1, hours: 1))),
+        'vor 1 Tag',
+      );
+      expect(
+        formatRelativeTime(now.subtract(const Duration(days: 3))),
+        'vor 3 Tagen',
+      );
+      expect(formatRelativeTime(DateTime(2026, 10, 3)), '3. Okt. 2026');
     });
   });
 }

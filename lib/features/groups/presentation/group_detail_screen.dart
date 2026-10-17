@@ -38,7 +38,7 @@ class GroupDetailScreen extends ConsumerWidget {
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Gruppe')),
+      appBar: AppBar(title: const Text('Lesekreis')),
       floatingActionButton: group.maybeWhen(
         data: (item) => item != null && item.isMember
             ? FloatingActionButton.extended(
@@ -61,14 +61,14 @@ class GroupDetailScreen extends ConsumerWidget {
             group.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => ErrorState(
-                message: 'Gruppe konnte nicht geladen werden.',
+                message: 'Lesekreis konnte nicht geladen werden.',
                 onRetry: () => ref.invalidate(groupDetailProvider(groupId)),
               ),
               data: (item) {
                 if (item == null) {
                   return const EmptyState(
                     icon: Icons.search_off,
-                    title: 'Gruppe nicht gefunden',
+                    title: 'Lesekreis nicht gefunden',
                   );
                 }
                 final isCreator = currentUser?.id == item.creatorId;
@@ -117,7 +117,7 @@ class GroupDetailScreen extends ConsumerWidget {
                     else if (!isCreator)
                       OutlinedButton(
                         onPressed: () => _toggleMembership(context, ref, true),
-                        child: const Text('Gruppe verlassen'),
+                        child: const Text('Lesekreis verlassen'),
                       ),
                   ],
                 );
@@ -139,7 +139,7 @@ class GroupDetailScreen extends ConsumerWidget {
                       EmptyState(
                         icon: Icons.forum_outlined,
                         title: 'Noch keine Beiträge',
-                        message: 'In diesem Lesekreis wurde noch nichts gepostet.',
+                        message: 'In diesem Lesekreis gibt es noch keine Beiträge.',
                       ),
                     ]
                   : items

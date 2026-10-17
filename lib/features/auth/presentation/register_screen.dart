@@ -137,7 +137,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Erstelle dein Leserprofil und entdecke Menschen mit ahnlichem Geschmack.',
+                  'Erstelle dein Leserprofil und entdecke Menschen mit ähnlichem Geschmack.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 24),

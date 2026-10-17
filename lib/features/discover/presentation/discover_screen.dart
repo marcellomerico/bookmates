@@ -116,7 +116,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             onSubmitted: (_) => _search(),
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'Leser oder Clubs suchen',
+              hintText: 'Leser oder Lesekreise suchen',
               suffixIcon: _searching
                   ? const Padding(
                       padding: EdgeInsets.all(12),
@@ -167,7 +167,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             ),
             const SizedBox(height: 18),
           ],
-          const _DiscoverSectionTitle('Leser fur dich'),
+          const _DiscoverSectionTitle('Leser für dich'),
           const SizedBox(height: 10),
           ...people.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
@@ -195,13 +195,13 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     .toList(),
           ),
           const SizedBox(height: 18),
-          const _DiscoverSectionTitle('Clubs fur dich'),
+          const _DiscoverSectionTitle('Lesekreise für dich'),
           const SizedBox(height: 10),
           ...groups.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
             error: (_, _) => [
               ErrorState(
-                message: 'Gruppen konnten nicht geladen werden.',
+                message: 'Lesekreise konnten nicht geladen werden.',
                 onRetry: () => ref.invalidate(groupsProvider(null)),
               ),
             ],

@@ -8,8 +8,9 @@ Du kannst dein Bookmates-Konto jederzeit löschen – direkt in der App oder per
 
 1. Öffne Bookmates und melde dich an.
 2. Tippe unten auf **Profil**.
-3. Scrolle nach unten und tippe auf **Account löschen**.
-4. Bestätige die Löschung.
+3. Tippe oben rechts auf das **Zahnrad** (Einstellungen).
+4. Tippe auf **Konto löschen**.
+5. Bestätige die Löschung.
 
 ## Per E-Mail
 
