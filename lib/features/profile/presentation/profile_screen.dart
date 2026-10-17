@@ -171,10 +171,15 @@ class ProfileScreen extends ConsumerWidget {
         Positioned(
           top: 0,
           right: 4,
-          child: IconButton(
-            tooltip: 'Einstellungen',
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.push('/settings'),
+          child: Material(
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+            shape: const CircleBorder(),
+            elevation: 1,
+            child: IconButton(
+              tooltip: 'Einstellungen',
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.push('/settings'),
+            ),
           ),
         ),
       ],

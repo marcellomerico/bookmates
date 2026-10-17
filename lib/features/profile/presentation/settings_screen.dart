@@ -29,6 +29,11 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    // Captured before the await: the router redirect may dispose this screen.
+    final container = ProviderScope.containerOf(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    final repo = ref.read(authRepositoryProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog.adaptive(
@@ -41,9 +46,9 @@ class SettingsScreen extends ConsumerWidget {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Abbrechen'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Konto löschen'),
@@ -54,15 +59,13 @@ class SettingsScreen extends ConsumerWidget {
     if (confirmed != true) return;
 
     try {
-      await ref.read(authRepositoryProvider).deleteAccount();
-      ref.invalidate(currentProfileProvider);
-      ref.invalidate(authStateProvider);
-      if (context.mounted) {
-        _snack(context, 'Konto wurde gelöscht.');
-        context.go('/login');
-      }
+      await repo.deleteAccount();
+      container.invalidate(currentProfileProvider);
+      container.invalidate(authStateProvider);
+      messenger.showSnackBar(const SnackBar(content: Text('Konto wurde gelöscht.')));
+      router.go('/login');
     } catch (e) {
-      if (context.mounted) _snack(context, authErrorMessage(e));
+      messenger.showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
   }
 

@@ -294,7 +294,11 @@ class _GroupRow extends ConsumerWidget {
                           onPressed: () => Navigator.pop(context, false),
                           child: const Text('Abbrechen'),
                         ),
-                        ElevatedButton(
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('Löschen'),
                         ),
@@ -302,8 +306,17 @@ class _GroupRow extends ConsumerWidget {
                     ),
                   );
                   if (confirmed != true) return;
-                  await ref.read(groupRepositoryProvider).deleteGroup(group.id);
-                  ref.invalidate(groupsProvider(query));
+                  try {
+                    await ref
+                        .read(groupRepositoryProvider)
+                        .deleteGroup(group.id);
+                    ref.invalidate(groupsProvider(query));
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authErrorMessage(e))),
+                    );
+                  }
                 },
               )
             else

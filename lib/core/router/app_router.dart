@@ -65,7 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/forgot-password',
-        pageBuilder: (context, state) => fadeSlidePage(
+        pageBuilder: (context, state) => slidePushPage(
           key: state.pageKey,
           child: const ForgotPasswordScreen(),
         ),

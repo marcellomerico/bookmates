@@ -104,7 +104,10 @@ Future<bool> _confirmDelete(BuildContext context, String title, String body) asy
           onPressed: () => Navigator.pop(context, false),
           child: const Text('Abbrechen'),
         ),
-        ElevatedButton(
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+          ),
           onPressed: () => Navigator.pop(context, true),
           child: const Text('Löschen'),
         ),

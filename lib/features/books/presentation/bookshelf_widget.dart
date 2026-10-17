@@ -123,7 +123,11 @@ class _BookshelfWidgetState extends ConsumerState<BookshelfWidget> {
             else
               for (var i = 0; i < filtered.length; i++) ...[
                 if (i > 0) const Divider(height: 1),
-                _BookshelfTile(entry: filtered[i], readOnly: readOnly),
+                _BookshelfTile(
+                  key: ValueKey(filtered[i].id),
+                  entry: filtered[i],
+                  readOnly: readOnly,
+                ),
               ],
           ],
         );
@@ -133,7 +137,7 @@ class _BookshelfWidgetState extends ConsumerState<BookshelfWidget> {
 }
 
 class _BookshelfTile extends ConsumerStatefulWidget {
-  const _BookshelfTile({required this.entry, required this.readOnly});
+  const _BookshelfTile({super.key, required this.entry, required this.readOnly});
 
   final UserBook entry;
   final bool readOnly;
@@ -180,7 +184,10 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Abbrechen'),
           ),
-          ElevatedButton(
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Entfernen'),
           ),
@@ -213,7 +220,9 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
               children: List.generate(5, (index) {
                 final star = index + 1;
                 return IconButton(
-                  tooltip: 'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'} setzen',
+                  tooltip: widget.readOnly
+                      ? null
+                      : 'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'} setzen',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
                     minWidth: 48,

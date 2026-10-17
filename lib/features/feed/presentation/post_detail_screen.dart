@@ -206,7 +206,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       minLines: 1,
                       maxLines: 3,
                       decoration: const InputDecoration(
-                        hintText: 'Kommentar schreiben...',
+                        hintText: 'Kommentar schreiben …',
                       ),
                     ),
                   ),

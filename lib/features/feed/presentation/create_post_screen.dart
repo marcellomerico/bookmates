@@ -195,7 +195,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 maxLines: 8,
                 decoration: const InputDecoration(
                   hintText:
-                      'Was liest du gerade? Teile Gedanken, Zitate oder eine kleine Rezension...',
+                      'Was liest du gerade? Teile Gedanken, Zitate oder eine kleine Rezension …',
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,

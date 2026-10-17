@@ -45,7 +45,7 @@ class ActivityScreen extends ConsumerWidget {
                     icon: Icons.notifications_none,
                     title: 'Noch keine Aktivität',
                     message:
-                        'Likes, Kommentare und neue Follower erscheinen hier.',
+                        '„Gefällt mir“-Angaben, Kommentare und neue Follower erscheinen hier.',
                   ),
                 ],
               );

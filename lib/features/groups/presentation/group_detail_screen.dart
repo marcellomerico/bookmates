@@ -23,7 +23,7 @@ class GroupDetailScreen extends ConsumerWidget {
         await repo.joinGroup(groupId: groupId, userId: user.id);
       }
       ref.invalidate(groupDetailProvider(groupId));
-      ref.invalidate(groupsProvider(null));
+      ref.invalidate(groupsProvider);
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)

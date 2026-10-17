@@ -1,4 +1,5 @@
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:bookmates/core/utils/time_ago.dart';
 import 'package:bookmates/models/post.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,7 +62,11 @@ void main() {
         formatRelativeTime(now.subtract(const Duration(days: 3))),
         'vor 3 Tagen',
       );
-      expect(formatRelativeTime(DateTime(2026, 10, 3)), '3. Okt. 2026');
+      final old = DateTime.now().subtract(const Duration(days: 30));
+      expect(
+        formatRelativeTime(old),
+        DateFormat('d. MMM y', 'de').format(old.toLocal()),
+      );
     });
   });
 }
