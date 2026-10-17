@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../social/providers/social_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -15,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(feedProvider),
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           _HomeHeader(
@@ -40,23 +42,18 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ],
-            error: (_, _) => const [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text('Feed konnte nicht geladen werden.'),
-                ),
+            error: (_, _) => [
+              ErrorState(
+                message: 'Feed konnte nicht geladen werden.',
+                onRetry: () => ref.invalidate(feedProvider),
               ),
             ],
             data: (posts) => posts.isEmpty
                 ? const [
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Text(
-                          'Noch keine Beiträge. Folge Lesern oder starte eine Diskussion.',
-                        ),
-                      ),
+                    EmptyState(
+                      icon: Icons.dynamic_feed_outlined,
+                      title: 'Noch keine Beiträge',
+                      message: 'Folge Lesern oder starte eine Diskussion.',
                     ),
                   ]
                 : posts

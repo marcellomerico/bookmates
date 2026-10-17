@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../social/providers/social_providers.dart';
 
@@ -15,34 +16,44 @@ class FollowListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profiles = ref.watch(
-      mode == FollowListMode.followers
-          ? followersProvider(userId)
-          : followingProvider(userId),
-    );
+    final provider = mode == FollowListMode.followers
+        ? followersProvider(userId)
+        : followingProvider(userId);
+    final profiles = ref.watch(provider);
     final title = mode == FollowListMode.followers ? 'Follower' : 'Folgt';
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(
-          mode == FollowListMode.followers
-              ? followersProvider(userId)
-              : followingProvider(userId),
-        ),
+        onRefresh: () async => ref.invalidate(provider),
         child: profiles.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) =>
-              const Center(child: Text('Liste konnte nicht geladen werden.')),
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(height: 120),
+              Center(child: CircularProgressIndicator()),
+            ],
+          ),
+          error: (_, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              ErrorState(
+                message: 'Liste konnte nicht geladen werden.',
+                onRetry: () => ref.invalidate(provider),
+              ),
+            ],
+          ),
           data: (items) => items.isEmpty
               ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   children: const [
-                    Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(child: Text('Keine Leser gefunden.')),
+                    EmptyState(
+                      icon: Icons.people_outline,
+                      title: 'Keine Leser gefunden',
                     ),
                   ],
                 )
               : ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: items.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {

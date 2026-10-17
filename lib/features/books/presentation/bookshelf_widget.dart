@@ -5,25 +5,41 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/widgets/state_views.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../../models/user_book.dart';
 import '../providers/books_provider.dart';
 
-class BookshelfWidget extends ConsumerWidget {
+class BookshelfWidget extends ConsumerStatefulWidget {
   const BookshelfWidget({super.key, this.compact = false, this.userId});
 
   final bool compact;
   final String? userId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BookshelfWidget> createState() => _BookshelfWidgetState();
+}
+
+class _BookshelfWidgetState extends ConsumerState<BookshelfWidget> {
+  BookStatus _selected = BookStatus.reading;
+
+  @override
+  Widget build(BuildContext context) {
+    final userId = widget.userId;
+    final compact = widget.compact;
     final bookshelf = userId == null
         ? ref.watch(bookshelfProvider)
-        : ref.watch(bookshelfByUserProvider(userId!));
+        : ref.watch(bookshelfByUserProvider(userId));
     final readOnly = userId != null;
 
     return bookshelf.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Text('Bücherregal konnte nicht geladen werden.'),
+      error: (_, _) => ErrorState(
+        message: 'Bücherregal konnte nicht geladen werden.',
+        onRetry: () => userId == null
+            ? ref.invalidate(bookshelfProvider)
+            : ref.invalidate(bookshelfByUserProvider(userId)),
+      ),
       data: (entries) {
         if (entries.isEmpty) {
           return SoftCard(
@@ -57,71 +73,58 @@ class BookshelfWidget extends ConsumerWidget {
           );
         }
 
-        return DefaultTabController(
-          length: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Bücherregal',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const Spacer(),
-                  if (!compact && !readOnly)
-                    GestureDetector(
-                      onTap: () => context.push('/books/search'),
-                      child: const TinyPill(label: 'Hinzufügen', filled: true),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  Tab(text: 'Lese gerade'),
-                  Tab(text: 'Gelesen'),
-                  Tab(text: 'Möchte lesen'),
-                ],
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: compact ? 220 : 320,
-                child: TabBarView(
-                  children:
-                      [
-                        BookStatus.reading,
-                        BookStatus.read,
-                        BookStatus.wantToRead,
-                      ].map((status) {
-                        final filtered = entries
-                            .where((e) => e.status == status)
-                            .toList();
-                        if (filtered.isEmpty) {
-                          return Center(
-                            child: Text(
-                              'Keine Bücher in „${status.label}"',
-                              style: const TextStyle(color: AppColors.muted),
-                            ),
-                          );
-                        }
-                        return ListView.separated(
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            return _BookshelfTile(
-                              entry: filtered[index],
-                              readOnly: readOnly,
-                            );
-                          },
-                        );
-                      }).toList(),
+        final filtered = entries.where((e) => e.status == _selected).toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Bücherregal',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ),
-            ],
-          ),
+                const Spacer(),
+                if (!compact && !readOnly)
+                  GestureDetector(
+                    onTap: () => context.push('/books/search'),
+                    child: const TinyPill(label: 'Hinzufügen', filled: true),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: AppSpacing.s,
+              children: [
+                for (final status in const [
+                  BookStatus.reading,
+                  BookStatus.read,
+                  BookStatus.wantToRead,
+                ])
+                  ChoiceChip(
+                    label: Text(status.label),
+                    selected: _selected == status,
+                    onSelected: (_) => setState(() => _selected = status),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (filtered.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.l),
+                child: Center(
+                  child: Text(
+                    'Keine Bücher in „${_selected.label}"',
+                    style: const TextStyle(color: AppColors.muted),
+                  ),
+                ),
+              )
+            else
+              for (var i = 0; i < filtered.length; i++) ...[
+                if (i > 0) const Divider(height: 1),
+                _BookshelfTile(entry: filtered[i], readOnly: readOnly),
+              ],
+          ],
         );
       },
     );
@@ -141,41 +144,52 @@ class _BookshelfTile extends ConsumerStatefulWidget {
 class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
   bool _updating = false;
 
-  Future<void> _updateStatus(BookStatus status) async {
+  Future<void> _run(Future<void> Function() action) async {
     setState(() => _updating = true);
     try {
-      await ref
-          .read(bookRepositoryProvider)
-          .updateStatus(widget.entry.id, status);
+      await action();
       ref.invalidate(bookshelfProvider);
       ref.invalidate(bookshelfByUserProvider(widget.entry.userId));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      }
     } finally {
       if (mounted) setState(() => _updating = false);
     }
   }
 
-  Future<void> _updateRating(int? rating) async {
-    setState(() => _updating = true);
-    try {
-      await ref
-          .read(bookRepositoryProvider)
-          .updateRating(widget.entry.id, rating);
-      ref.invalidate(bookshelfProvider);
-      ref.invalidate(bookshelfByUserProvider(widget.entry.userId));
-    } finally {
-      if (mounted) setState(() => _updating = false);
-    }
-  }
+  Future<void> _updateStatus(BookStatus status) => _run(
+    () => ref.read(bookRepositoryProvider).updateStatus(widget.entry.id, status),
+  );
+
+  Future<void> _updateRating(int? rating) => _run(
+    () => ref.read(bookRepositoryProvider).updateRating(widget.entry.id, rating),
+  );
 
   Future<void> _remove() async {
-    setState(() => _updating = true);
-    try {
-      await ref.read(bookRepositoryProvider).removeFromShelf(widget.entry.id);
-      ref.invalidate(bookshelfProvider);
-      ref.invalidate(bookshelfByUserProvider(widget.entry.userId));
-    } finally {
-      if (mounted) setState(() => _updating = false);
-    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog.adaptive(
+        title: const Text('Buch entfernen?'),
+        content: const Text('Das Buch wird aus deinem Bücherregal entfernt.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Entfernen'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _run(
+      () => ref.read(bookRepositoryProvider).removeFromShelf(widget.entry.id),
+    );
   }
 
   @override

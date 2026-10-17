@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../models/group.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/social_providers.dart';
@@ -157,6 +158,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(groupsProvider(_query)),
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           Row(
@@ -190,11 +192,24 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           const SizedBox(height: 16),
           ...groups.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
-            error: (_, _) => const [
-              Text('Gruppen konnten nicht geladen werden.'),
+            error: (_, _) => [
+              ErrorState(
+                message: 'Gruppen konnten nicht geladen werden.',
+                onRetry: () => ref.invalidate(groupsProvider(_query)),
+              ),
             ],
             data: (items) => items.isEmpty
-                ? const [Text('Keine Gruppen gefunden.')]
+                ? [
+                    EmptyState(
+                      icon: Icons.groups_outlined,
+                      title: _query == null
+                          ? 'Noch keine Lesekreise'
+                          : 'Keine Lesekreise gefunden',
+                      message: _query == null
+                          ? 'Erstelle den ersten Lesekreis oder tritt mit einem Code bei.'
+                          : null,
+                    ),
+                  ]
                 : items
                       .map(
                         (group) => Padding(
@@ -295,12 +310,19 @@ class _GroupRow extends ConsumerWidget {
                 onTap: () async {
                   if (user == null) return;
                   final repo = ref.read(groupRepositoryProvider);
-                  if (group.isMember) {
-                    await repo.leaveGroup(groupId: group.id, userId: user.id);
-                  } else {
-                    await repo.joinGroup(groupId: group.id, userId: user.id);
+                  try {
+                    if (group.isMember) {
+                      await repo.leaveGroup(groupId: group.id, userId: user.id);
+                    } else {
+                      await repo.joinGroup(groupId: group.id, userId: user.id);
+                    }
+                    ref.invalidate(groupsProvider(query));
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authErrorMessage(e))),
+                    );
                   }
-                  ref.invalidate(groupsProvider(query));
                 },
                 child: TinyPill(
                   label: group.isMember ? 'Verlassen' : 'Beitreten',

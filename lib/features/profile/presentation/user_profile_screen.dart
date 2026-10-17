@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/moderation_actions.dart';
 import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/presentation/bookshelf_widget.dart';
@@ -16,17 +17,28 @@ class UserProfileScreen extends ConsumerWidget {
 
   final String userId;
 
-  Future<void> _toggleFollow(WidgetRef ref, String currentUserId, bool following) async {
+  Future<void> _toggleFollow(
+    BuildContext context,
+    WidgetRef ref,
+    String currentUserId,
+    bool following,
+  ) async {
     final repo = ref.read(followRepositoryProvider);
-    if (following) {
-      await repo.unfollow(followerId: currentUserId, followingId: userId);
-    } else {
-      await repo.follow(followerId: currentUserId, followingId: userId);
+    try {
+      if (following) {
+        await repo.unfollow(followerId: currentUserId, followingId: userId);
+      } else {
+        await repo.follow(followerId: currentUserId, followingId: userId);
+      }
+      ref.invalidate(isFollowingProvider(userId));
+      ref.invalidate(profileStatsProvider(userId));
+      ref.invalidate(feedProvider);
+      ref.invalidate(activityProvider);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
-    ref.invalidate(isFollowingProvider(userId));
-    ref.invalidate(profileStatsProvider(userId));
-    ref.invalidate(feedProvider);
-    ref.invalidate(activityProvider);
   }
 
   @override
@@ -62,18 +74,30 @@ class UserProfileScreen extends ConsumerWidget {
       ),
       body: profile.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => const Center(child: Text('Profil konnte nicht geladen werden.')),
+        error: (_, _) => ErrorState(
+          message: 'Profil konnte nicht geladen werden.',
+          onRetry: () => ref.invalidate(profileByIdProvider(userId)),
+        ),
         data: (data) {
           if (data == null) {
-            return const Center(child: Text('Profil nicht gefunden.'));
+            return const EmptyState(
+              icon: Icons.person_off_outlined,
+              title: 'Profil nicht gefunden',
+            );
           }
 
           return blocked.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => const Center(child: Text('Profil konnte nicht geladen werden.')),
+            error: (_, _) => ErrorState(
+              message: 'Profil konnte nicht geladen werden.',
+              onRetry: () => ref.invalidate(isBlockedProvider(userId)),
+            ),
             data: (isBlocked) {
               if (isBlocked) {
-                return const Center(child: Text('Du hast diesen Nutzer blockiert.'));
+                return const EmptyState(
+                  icon: Icons.block,
+                  title: 'Du hast diesen Nutzer blockiert',
+                );
               }
 
               return RefreshIndicator(
@@ -84,6 +108,7 @@ class UserProfileScreen extends ConsumerWidget {
                   ref.invalidate(bookshelfByUserProvider(userId));
                 },
                 child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
                   children: [
                     Center(
@@ -134,7 +159,7 @@ class UserProfileScreen extends ConsumerWidget {
                         loading: () => const Center(child: CircularProgressIndicator()),
                         error: (_, _) => const SizedBox.shrink(),
                         data: (value) => ElevatedButton(
-                          onPressed: () => _toggleFollow(ref, currentUser.id, value),
+                          onPressed: () => _toggleFollow(context, ref, currentUser.id, value),
                           child: Text(value ? 'Entfolgen' : 'Folgen'),
                         ),
                       ),
@@ -158,9 +183,19 @@ class UserProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     ...posts.when(
                       loading: () => const [Center(child: CircularProgressIndicator())],
-                      error: (_, _) => const [Text('Beiträge konnten nicht geladen werden.')],
+                      error: (_, _) => [
+                        ErrorState(
+                          message: 'Beiträge konnten nicht geladen werden.',
+                          onRetry: () => ref.invalidate(userPostsProvider(userId)),
+                        ),
+                      ],
                       data: (items) => items.isEmpty
-                          ? const [Text('Noch keine Beiträge.', style: TextStyle(color: AppColors.muted))]
+                          ? const [
+                              EmptyState(
+                                icon: Icons.edit_note,
+                                title: 'Noch keine Beiträge',
+                              ),
+                            ]
                           : items
                               .map((post) => Padding(
                                     padding: const EdgeInsets.only(bottom: 12),

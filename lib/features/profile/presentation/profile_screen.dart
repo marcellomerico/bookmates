@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/launch_utils.dart';
 import '../../../core/widgets/app_legal_links.dart';
 import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/presentation/bookshelf_widget.dart';
@@ -64,11 +65,16 @@ class ProfileScreen extends ConsumerWidget {
 
     return profile.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) =>
-          const Center(child: Text('Profil konnte nicht geladen werden.')),
+      error: (_, _) => ErrorState(
+        message: 'Profil konnte nicht geladen werden.',
+        onRetry: () => ref.invalidate(currentProfileProvider),
+      ),
       data: (data) {
         if (data == null) {
-          return const Center(child: Text('Kein Profil gefunden.'));
+          return const EmptyState(
+            icon: Icons.person_off_outlined,
+            title: 'Kein Profil gefunden',
+          );
         }
         final stats = ref.watch(profileStatsProvider(data.id));
         final posts = ref.watch(userPostsProvider(data.id));
@@ -81,6 +87,7 @@ class ProfileScreen extends ConsumerWidget {
             ref.invalidate(bookshelfProvider);
           },
           child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
             children: [
               Row(
@@ -198,14 +205,18 @@ class ProfileScreen extends ConsumerWidget {
                 loading: () => const [
                   Center(child: CircularProgressIndicator()),
                 ],
-                error: (_, _) => const [
-                  Text('Beiträge konnten nicht geladen werden.'),
+                error: (_, _) => [
+                  ErrorState(
+                    message: 'Beiträge konnten nicht geladen werden.',
+                    onRetry: () => ref.invalidate(userPostsProvider(data.id)),
+                  ),
                 ],
                 data: (items) => items.isEmpty
                     ? const [
-                        Text(
-                          'Noch keine Beiträge.',
-                          style: TextStyle(color: AppColors.muted),
+                        EmptyState(
+                          icon: Icons.edit_note,
+                          title: 'Noch keine Beiträge',
+                          message: 'Teile, was du gerade liest.',
                         ),
                       ]
                     : items

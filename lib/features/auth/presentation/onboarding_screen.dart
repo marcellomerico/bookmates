@@ -289,7 +289,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               label: const Text('Buch suchen und hinzufügen'),
             ),
             const SizedBox(height: 16),
-            const SizedBox(height: 220, child: BookshelfWidget(compact: true)),
+            const BookshelfWidget(compact: true),
           ],
         );
     }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/social_providers.dart';
 
@@ -11,17 +12,23 @@ class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({super.key, required this.groupId});
   final String groupId;
 
-  Future<void> _toggleMembership(WidgetRef ref, bool member) async {
+  Future<void> _toggleMembership(BuildContext context, WidgetRef ref, bool member) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     final repo = ref.read(groupRepositoryProvider);
-    if (member) {
-      await repo.leaveGroup(groupId: groupId, userId: user.id);
-    } else {
-      await repo.joinGroup(groupId: groupId, userId: user.id);
+    try {
+      if (member) {
+        await repo.leaveGroup(groupId: groupId, userId: user.id);
+      } else {
+        await repo.joinGroup(groupId: groupId, userId: user.id);
+      }
+      ref.invalidate(groupDetailProvider(groupId));
+      ref.invalidate(groupsProvider(null));
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
-    ref.invalidate(groupDetailProvider(groupId));
-    ref.invalidate(groupsProvider(null));
   }
 
   @override
@@ -48,13 +55,22 @@ class GroupDetailScreen extends ConsumerWidget {
           ref.invalidate(groupPostsProvider(groupId));
         },
         child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
             group.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, _) => const Text('Gruppe konnte nicht geladen werden.'),
+              error: (_, _) => ErrorState(
+                message: 'Gruppe konnte nicht geladen werden.',
+                onRetry: () => ref.invalidate(groupDetailProvider(groupId)),
+              ),
               data: (item) {
-                if (item == null) return const Text('Gruppe nicht gefunden.');
+                if (item == null) {
+                  return const EmptyState(
+                    icon: Icons.search_off,
+                    title: 'Gruppe nicht gefunden',
+                  );
+                }
                 final isCreator = currentUser?.id == item.creatorId;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,12 +111,12 @@ class GroupDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 10),
                     if (!item.isMember)
                       OutlinedButton(
-                        onPressed: () => _toggleMembership(ref, false),
+                        onPressed: () => _toggleMembership(context, ref, false),
                         child: const Text('Beitreten'),
                       )
                     else if (!isCreator)
                       OutlinedButton(
-                        onPressed: () => _toggleMembership(ref, true),
+                        onPressed: () => _toggleMembership(context, ref, true),
                         child: const Text('Gruppe verlassen'),
                       ),
                   ],
@@ -112,9 +128,20 @@ class GroupDetailScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             ...posts.when(
               loading: () => const [Center(child: CircularProgressIndicator())],
-              error: (_, _) => const [Text('Beiträge konnten nicht geladen werden.')],
+              error: (_, _) => [
+                ErrorState(
+                  message: 'Beiträge konnten nicht geladen werden.',
+                  onRetry: () => ref.invalidate(groupPostsProvider(groupId)),
+                ),
+              ],
               data: (items) => items.isEmpty
-                  ? const [Text('Noch keine Beiträge in dieser Gruppe.')]
+                  ? const [
+                      EmptyState(
+                        icon: Icons.forum_outlined,
+                        title: 'Noch keine Beiträge',
+                        message: 'In diesem Lesekreis wurde noch nichts gepostet.',
+                      ),
+                    ]
                   : items
                       .map(
                         (post) => Padding(
