@@ -30,6 +30,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
 flutter:
   uses-material-design: true
@@ -40,3 +42,23 @@ flutter:
     - family: SourceSerif4
       fonts:
         - asset: assets/fonts/SourceSerif4-Variable.ttf
+
+# Branding: PNGs come from tool/branding/render_branding_test.dart.
+# Regenerate: dart run flutter_launcher_icons && dart run flutter_native_splash:create
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/branding/icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#7B3140"
+  adaptive_icon_foreground: assets/branding/icon_foreground.png
+  min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#F7F2E8"
+  image: assets/branding/splash.png
+  android_12:
+    color: "#F7F2E8"
+    image: assets/branding/icon_foreground.png
+    icon_background_color: "#7B3140"
+  web: false

@@ -1,5 +1,23 @@
 # Release Builds
 
+Was vor dem Release zu tun ist und wer es macht: [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Store-Texte: [`STORE_LISTING.md`](STORE_LISTING.md).
+
+## Versionierung
+
+`version: <marketing>+<build>` in `pubspec.yaml`, z. B. `1.0.0+1`.
+- **Build-Nummer** (`+N`) steigt bei *jedem* Store-Upload, auch bei TestFlight- oder Internal-Testing-Builds. Beide Stores lehnen eine bereits benutzte Nummer ab.
+- **Marketing-Version** folgt SemVer: Patch für Fixes, Minor für Features, Major für große Umbrüche.
+- Nach jedem Upload die neue Version in `pubspec.yaml` committen und taggen (`git tag v1.0.0+1`).
+
+## Release-Build per Skript
+
+```bash
+BOOKMATES_PROD_REF=<prod-ref> tool/build_release.sh android      # .aab
+BOOKMATES_PROD_REF=<prod-ref> tool/build_release.sh ios 2        # .ipa mit Build-Nummer 2
+```
+
+Das Skript bricht ab, wenn `.env` nicht auf das Prod-Projekt zeigt oder Platzhalter enthält, wenn `android/key.properties` fehlt (Android) oder wenn der Google-URL-Scheme-Platzhalter noch in `Info.plist` steht (iOS). Danach laufen analyze, test und `tool/check_queries.sh` gegen Prod. Erst dann wird gebaut.
+
 ## Android
 
 1. Keystore erstellen:
@@ -14,10 +32,11 @@
    storeFile=../bookmates-release.jks
    ```
 3. `android/app/build.gradle.kts` — Release-Signing konfigurieren
-4. Build: `flutter build appbundle`
+4. Build: `tool/build_release.sh android`
 
 Hinweise:
 - Release-Builds **schlagen fehl** (unsigniert), wenn `android/key.properties` fehlt — kein stiller Fallback auf den Debug-Key mehr.
+- `targetSdk` folgt Flutter (aktuell 36) und erfüllt damit die Play-Vorgabe
 - Gradle 9.1 braucht JDK ≤ 25: `flutter config --jdk-dir <Pfad zu JDK 23>`
 
 ## iOS
@@ -26,10 +45,11 @@ Hinweise:
 2. Sign in with Apple Capability (bereits in Runner.entitlements)
 3. Distribution Certificate + Provisioning Profile
 4. Google URL Scheme in Info.plist mit echter iOS Client ID ersetzen
-5. Build: `flutter build ipa`
+5. Build: `tool/build_release.sh ios`
 
 Hinweise:
 - Min. iOS-Version: 15.0 (Xcode 27)
+- `ITSAppUsesNonExemptEncryption = false` steht in `Info.plist` (nur Standard-HTTPS). Damit entfällt die Export-Compliance-Frage bei jedem Upload.
 - Simulator-Builds nur arm64 (Flutter 3.44 / Xcode 27 lipo-Inkompatibilität); Intel-Mac-Simulatoren nicht unterstützt, Geräte-Builds unberührt
 
 ## Store
