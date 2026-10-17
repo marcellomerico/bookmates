@@ -84,132 +84,148 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         actions: [
           if (postAsync.hasValue && postAsync.value != null)
             IconButton(
+              tooltip: 'Optionen',
               icon: const Icon(Icons.more_horiz),
               onPressed: () =>
                   showPostActionsMenu(context, ref, postAsync.value!),
             ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(postDetailProvider(widget.postId));
-          ref.invalidate(commentsProvider(widget.postId));
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            post.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, _) =>
-                  const Text('Beitrag konnte nicht geladen werden.'),
-              data: (value) => value == null
-                  ? const Text('Beitrag nicht gefunden.')
-                  : PostCard(post: value),
-            ),
-            const SizedBox(height: 24),
-            Text('Kommentare', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            ...comments.when(
-              loading: () => const [Center(child: CircularProgressIndicator())],
-              error: (_, _) => const [
-                Text('Kommentare konnten nicht geladen werden.'),
-              ],
-              data: (items) => items.isEmpty
-                  ? const [
-                      Text(
-                        'Noch keine Kommentare.',
-                        style: TextStyle(color: AppColors.muted),
-                      ),
-                    ]
-                  : items.map((comment) {
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: GestureDetector(
-                          onTap: comment.author == null
-                              ? null
-                              : () => context.push(
-                                  '/users/${comment.author!.id}',
-                                ),
-                          child: UserAvatar(
-                            url: comment.author?.avatarUrl,
-                            name:
-                                comment.author?.displayName ??
-                                comment.author?.username,
-                          ),
-                        ),
-                        title: Text(
-                          comment.author?.displayName ??
-                              comment.author?.username ??
-                              'Leser',
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (comment.hiddenAt != null)
-                              const HiddenContentHint(),
-                            Text(comment.content),
-                            Text(
-                              formatRelativeTime(comment.createdAt),
-                              style: const TextStyle(
-                                color: AppColors.muted,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: IconButton(
-                          tooltip: 'Optionen',
-                          icon: const Icon(Icons.more_horiz, size: 20),
-                          onPressed: () => showCommentActionsMenu(
-                            context,
-                            ref,
-                            comment: comment,
-                            postId: widget.postId,
-                            onDelete: () => _deleteComment(comment.id),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _commentController,
-                  maxLength: AppLimits.comment,
-                  buildCounter:
-                      (
-                        _, {
-                        required currentLength,
-                        required isFocused,
-                        maxLength,
-                      }) => null,
-                  minLines: 1,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    hintText: 'Kommentar schreiben...',
+      body: Column(
+        children: [
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(postDetailProvider(widget.postId));
+                ref.invalidate(commentsProvider(widget.postId));
+              },
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  post.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (_, _) =>
+                        const Text('Beitrag konnte nicht geladen werden.'),
+                    data: (value) => value == null
+                        ? const Text('Beitrag nicht gefunden.')
+                        : PostCard(post: value),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Kommentare',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  ...comments.when(
+                    loading: () => const [
+                      Center(child: CircularProgressIndicator()),
+                    ],
+                    error: (_, _) => const [
+                      Text('Kommentare konnten nicht geladen werden.'),
+                    ],
+                    data: (items) => items.isEmpty
+                        ? const [
+                            Text(
+                              'Noch keine Kommentare.',
+                              style: TextStyle(color: AppColors.muted),
+                            ),
+                          ]
+                        : items.map((comment) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: comment.author == null
+                                    ? null
+                                    : () => context.push(
+                                        '/users/${comment.author!.id}',
+                                      ),
+                                child: UserAvatar(
+                                  url: comment.author?.avatarUrl,
+                                  name:
+                                      comment.author?.displayName ??
+                                      comment.author?.username,
+                                ),
+                              ),
+                              title: Text(
+                                comment.author?.displayName ??
+                                    comment.author?.username ??
+                                    'Leser',
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (comment.hiddenAt != null)
+                                    const HiddenContentHint(),
+                                  Text(comment.content),
+                                  Text(
+                                    formatRelativeTime(comment.createdAt),
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                tooltip: 'Optionen',
+                                icon: const Icon(Icons.more_horiz, size: 20),
+                                onPressed: () => showCommentActionsMenu(
+                                  context,
+                                  ref,
+                                  comment: comment,
+                                  postId: widget.postId,
+                                  onDelete: () => _deleteComment(comment.id),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: _sending ? null : _sendComment,
-                icon: _sending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send),
-              ),
-            ],
+            ),
           ),
-        ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _commentController,
+                      maxLength: AppLimits.comment,
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => null,
+                      minLines: 1,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        hintText: 'Kommentar schreiben …',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Kommentar senden',
+                    onPressed: _sending ? null : _sendComment,
+                    icon: _sending
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

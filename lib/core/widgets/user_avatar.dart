@@ -4,7 +4,16 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class UserAvatar extends StatelessWidget {
-  const UserAvatar({super.key, this.url, this.name, this.radius = 18});
+  const UserAvatar({
+    super.key,
+    this.url,
+    this.name,
+    this.radius = 18,
+    this.semanticLabel,
+  });
+
+  /// Overrides the default "Profilbild von $name" label.
+  final String? semanticLabel;
 
   final String? url;
   final String? name;
@@ -12,6 +21,19 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = semanticLabel ??
+        ((name == null || name!.trim().isEmpty)
+            ? 'Profilbild'
+            : 'Profilbild von ${name!.trim()}');
+    return Semantics(
+      label: label,
+      image: true,
+      excludeSemantics: true,
+      child: _build(),
+    );
+  }
+
+  Widget _build() {
     final initial = (name == null || name!.trim().isEmpty)
         ? '?'
         : name!.trim().characters.first.toUpperCase();

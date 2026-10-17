@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../models/group.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/social_providers.dart';
@@ -23,29 +24,33 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     final name = TextEditingController();
     final description = TextEditingController();
     var isPrivate = false;
+    var nameError = false;
 
     final created = await showDialog<bool>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Neue Gruppe'),
+          title: const Text('Lesekreis gründen'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: name,
                 maxLength: AppLimits.groupName,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  errorText: nameError ? 'Bitte gib einen Namen ein.' : null,
+                ),
               ),
               TextField(
                 controller: description,
                 maxLength: AppLimits.groupDescription,
                 decoration: const InputDecoration(labelText: 'Beschreibung'),
               ),
-              SwitchListTile(
+              SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Private Gruppe'),
-                subtitle: const Text('Nur fur Mitglieder sichtbar'),
+                title: const Text('Privater Lesekreis'),
+                subtitle: const Text('Nur für Mitglieder sichtbar'),
                 value: isPrivate,
                 onChanged: (value) => setDialogState(() => isPrivate = value),
               ),
@@ -57,7 +62,13 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               child: const Text('Abbrechen'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: () {
+                if (name.text.trim().isEmpty) {
+                  setDialogState(() => nameError = true);
+                  return;
+                }
+                Navigator.pop(context, true);
+              },
               child: const Text('Erstellen'),
             ),
           ],
@@ -84,7 +95,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           content: Text(
             isRateLimit(e)
                 ? authErrorMessage(e)
-                : 'Gruppe konnte nicht erstellt werden.',
+                : 'Lesekreis konnte nicht erstellt werden.',
           ),
         ),
       );
@@ -147,13 +158,14 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(groupsProvider(_query)),
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Gruppen',
+                  'Lesekreise',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
@@ -180,11 +192,24 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           const SizedBox(height: 16),
           ...groups.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
-            error: (_, _) => const [
-              Text('Gruppen konnten nicht geladen werden.'),
+            error: (_, _) => [
+              ErrorState(
+                message: 'Lesekreise konnten nicht geladen werden.',
+                onRetry: () => ref.invalidate(groupsProvider(_query)),
+              ),
             ],
             data: (items) => items.isEmpty
-                ? const [Text('Keine Gruppen gefunden.')]
+                ? [
+                    EmptyState(
+                      icon: Icons.groups_outlined,
+                      title: _query == null
+                          ? 'Noch keine Lesekreise'
+                          : 'Keine Lesekreise gefunden',
+                      message: _query == null
+                          ? 'Erstelle den ersten Lesekreis oder tritt mit einem Code bei.'
+                          : null,
+                    ),
+                  ]
                 : items
                       .map(
                         (group) => Padding(
@@ -254,21 +279,26 @@ class _GroupRow extends ConsumerWidget {
             ),
             if (isCreator)
               IconButton(
+                tooltip: 'Lesekreis löschen',
                 icon: const Icon(Icons.delete_outline, size: 18),
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Gruppe löschen?'),
+                    builder: (context) => AlertDialog.adaptive(
+                      title: const Text('Lesekreis löschen?'),
                       content: const Text(
-                        'Alle Beiträge in dieser Gruppe werden entfernt.',
+                        'Alle Beiträge in diesem Lesekreis werden entfernt.',
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
                           child: const Text('Abbrechen'),
                         ),
-                        ElevatedButton(
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('Löschen'),
                         ),
@@ -276,25 +306,39 @@ class _GroupRow extends ConsumerWidget {
                     ),
                   );
                   if (confirmed != true) return;
-                  await ref.read(groupRepositoryProvider).deleteGroup(group.id);
-                  ref.invalidate(groupsProvider(query));
+                  try {
+                    await ref
+                        .read(groupRepositoryProvider)
+                        .deleteGroup(group.id);
+                    ref.invalidate(groupsProvider(query));
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authErrorMessage(e))),
+                    );
+                  }
                 },
               )
             else
-              GestureDetector(
+              TinyPill(
+                label: group.isMember ? 'Verlassen' : 'Beitreten',
                 onTap: () async {
                   if (user == null) return;
                   final repo = ref.read(groupRepositoryProvider);
-                  if (group.isMember) {
-                    await repo.leaveGroup(groupId: group.id, userId: user.id);
-                  } else {
-                    await repo.joinGroup(groupId: group.id, userId: user.id);
+                  try {
+                    if (group.isMember) {
+                      await repo.leaveGroup(groupId: group.id, userId: user.id);
+                    } else {
+                      await repo.joinGroup(groupId: group.id, userId: user.id);
+                    }
+                    ref.invalidate(groupsProvider(query));
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(authErrorMessage(e))),
+                    );
                   }
-                  ref.invalidate(groupsProvider(query));
                 },
-                child: TinyPill(
-                  label: group.isMember ? 'Verlassen' : 'Beitreten',
-                ),
               ),
           ],
         ),

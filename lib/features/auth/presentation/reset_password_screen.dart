@@ -9,7 +9,8 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
-  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
@@ -54,43 +55,65 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Neues Passwort')),
-      body: SafeArea(
-        child: KeyboardSafeScroll(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Neues Passwort festlegen', style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                autofillHints: const [AutofillHints.newPassword],
-                decoration: const InputDecoration(hintText: 'Neues Passwort'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _confirmController,
-                obscureText: true,
-                autofillHints: const [AutofillHints.newPassword],
-                decoration: const InputDecoration(hintText: 'Passwort wiederholen'),
-                onSubmitted: (_) => _save(),
-              ),
-              if (_error != null) ...[
+      body: AutofillGroup(
+        child: SafeArea(
+          child: KeyboardSafeScroll(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Neues Passwort festlegen',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.newPassword],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(hintText: 'Neues Passwort'),
+                ),
                 const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: AppColors.burgundy, fontSize: 12)),
+                TextField(
+                  controller: _confirmController,
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.newPassword],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    hintText: 'Passwort wiederholen',
+                  ),
+                  onSubmitted: (_) => _save(),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: AppColors.burgundy,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _loading ? null : _save,
+                  child: _loading
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Speichern'),
+                ),
               ],
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _loading ? null : _save,
-                child: _loading
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Speichern'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

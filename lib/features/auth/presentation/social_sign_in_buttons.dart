@@ -97,7 +97,7 @@ class _SocialSignInButtonsState extends ConsumerState<SocialSignInButtons> {
           const SizedBox(height: 12),
           Text(
             _error!,
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
             textAlign: TextAlign.center,
           ),
         ],

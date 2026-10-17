@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,8 +46,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
     if (!_acceptedTerms) {
-      setState(() => _error =
-          'Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.');
+      setState(
+        () => _error =
+            'Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.',
+      );
       return;
     }
     _usernameController.text = username;
@@ -75,18 +78,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         return;
       }
 
-      final result = await ref.read(authRepositoryProvider).signUp(
-            email,
-            password,
-            username,
-          );
+      final result = await ref
+          .read(authRepositoryProvider)
+          .signUp(email, password, username);
 
+      TextInput.finishAutofillContext();
       if (!mounted) return;
 
       if (result.needsEmailConfirmation) {
         await showDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => AlertDialog.adaptive(
             title: const Text('E-Mail bestätigen'),
             content: Text(
               'Wir haben dir eine Bestätigungs-E-Mail an $email geschickt. '
@@ -121,100 +123,127 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: KeyboardSafeScroll(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Center(child: BookmatesWordmark()),
-              const SizedBox(height: 24),
-              Text(
-                'Willkommen\nbei Bookmates.',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Erstelle dein Leserprofil und entdecke Menschen mit ahnlichem Geschmack.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Benutzername'),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'E-Mail'),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Passwort',
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+      body: AutofillGroup(
+        child: SafeArea(
+          child: KeyboardSafeScroll(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(child: BookmatesWordmark()),
+                const SizedBox(height: 24),
+                Text(
+                  'Willkommen\nbei Bookmates.',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Erstelle dein Leserprofil und entdecke Menschen mit ähnlichem Geschmack.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(labelText: 'Benutzername'),
+                  autofillHints: const [AutofillHints.newUsername],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: const InputDecoration(labelText: 'E-Mail'),
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  autofillHints: const [AutofillHints.newPassword],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _loading ? null : _signUp(),
+                  decoration: InputDecoration(
+                    labelText: 'Passwort',
+                    suffixIcon: IconButton(
+                      tooltip: _obscurePassword
+                          ? 'Passwort anzeigen'
+                          : 'Passwort verbergen',
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
                   ),
                 ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: Colors.red)),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _acceptedTerms,
-                    onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => setState(() => _acceptedTerms = !_acceptedTerms),
-                      child: const TermsLinksText(
-                        before: 'Ich akzeptiere die ',
-                        after: '.',
-                      ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _error!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _loading ? null : _signUp,
-                child: _loading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Konto erstellen'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('Zurück zur Anmeldung'),
-              ),
-              const SizedBox(height: 10),
-              const SocialSignInButtons(compact: true),
-              if (SocialSignInButtons.hasAny) ...[
                 const SizedBox(height: 12),
-                TermsLinksText(
-                  before: SocialSignInButtons.termsNoticePrefix,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: AppColors.muted),
-                  textAlign: TextAlign.center,
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _acceptedTerms,
+                      onChanged: (v) =>
+                          setState(() => _acceptedTerms = v ?? false),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () =>
+                            setState(() => _acceptedTerms = !_acceptedTerms),
+                        child: const TermsLinksText(
+                          before: 'Ich akzeptiere die ',
+                          after: '.',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _loading ? null : _signUp,
+                  child: _loading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Konto erstellen'),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.go('/login'),
+                  child: const Text('Zurück zur Anmeldung'),
+                ),
+                const SizedBox(height: 10),
+                const SocialSignInButtons(compact: true),
+                if (SocialSignInButtons.hasAny) ...[
+                  const SizedBox(height: 12),
+                  TermsLinksText(
+                    before: SocialSignInButtons.termsNoticePrefix,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

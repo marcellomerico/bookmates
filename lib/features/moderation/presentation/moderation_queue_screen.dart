@@ -22,7 +22,7 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
     if (action == 'delete') {
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AlertDialog.adaptive(
           title: const Text('Inhalt löschen?'),
           content: const Text('Der gemeldete Inhalt wird dauerhaft entfernt.'),
           actions: [
@@ -30,7 +30,10 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Abbrechen'),
             ),
-            ElevatedButton(
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
               onPressed: () => Navigator.pop(context, true),
               child: const Text('Löschen'),
             ),
@@ -209,9 +212,9 @@ class _ReportCard extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: busy ? null : () => onAction('delete'),
-                        child: const Text(
+                        child: Text(
                           'Löschen',
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       ),
                     ]

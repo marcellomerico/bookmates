@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../../models/group.dart';
 import '../../../models/profile.dart';
@@ -75,14 +76,24 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     final repo = ref.read(followRepositoryProvider);
-    if (following) {
-      await repo.unfollow(followerId: user.id, followingId: userId);
-    } else {
-      await repo.follow(followerId: user.id, followingId: userId);
+    try {
+      if (following) {
+        await repo.unfollow(followerId: user.id, followingId: userId);
+      } else {
+        await repo.follow(followerId: user.id, followingId: userId);
+      }
+      ref.invalidate(discoverPeopleProvider);
+      ref.invalidate(isFollowingProvider(userId));
+      ref.invalidate(feedProvider);
+    } catch (e) {
+      _showError(e);
     }
-    ref.invalidate(discoverPeopleProvider);
-    ref.invalidate(isFollowingProvider(userId));
-    ref.invalidate(feedProvider);
+  }
+
+  void _showError(Object e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
   }
 
   @override
@@ -95,6 +106,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         ref.invalidate(groupsProvider(null));
       },
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           Text('Entdecken', style: Theme.of(context).textTheme.headlineMedium),
@@ -104,7 +116,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             onSubmitted: (_) => _search(),
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'Leser oder Clubs suchen',
+              hintText: 'Leser oder Lesekreise suchen',
               suffixIcon: _searching
                   ? const Padding(
                       padding: EdgeInsets.all(12),
@@ -114,7 +126,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : IconButton(onPressed: _search, icon: const Icon(Icons.arrow_forward)),
+                  : IconButton(tooltip: 'Suchen', onPressed: _search, icon: const Icon(Icons.arrow_forward)),
             ),
           ),
           const SizedBox(height: 18),
@@ -139,38 +151,60 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   final user = ref.read(currentUserProvider);
                   if (user == null) return;
                   final repo = ref.read(groupRepositoryProvider);
-                  if (group.isMember) {
-                    await repo.leaveGroup(groupId: group.id, userId: user.id);
-                  } else {
-                    await repo.joinGroup(groupId: group.id, userId: user.id);
+                  try {
+                    if (group.isMember) {
+                      await repo.leaveGroup(groupId: group.id, userId: user.id);
+                    } else {
+                      await repo.joinGroup(groupId: group.id, userId: user.id);
+                    }
+                    ref.invalidate(groupsProvider(null));
+                    _search();
+                  } catch (e) {
+                    _showError(e);
                   }
-                  ref.invalidate(groupsProvider(null));
-                  _search();
                 },
               ),
             ),
             const SizedBox(height: 18),
           ],
-          const _DiscoverSectionTitle('Leser fur dich'),
+          const _DiscoverSectionTitle('Leser für dich'),
           const SizedBox(height: 10),
           ...people.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
-            error: (_, _) => const [Text('Empfehlungen konnten nicht geladen werden.')],
-            data: (items) => items
-                .map(
-                  (profile) => _PersonRow(
-                    profile: profile,
-                    onToggleFollow: _toggleFollow,
-                  ),
-                )
-                .toList(),
+            error: (_, _) => [
+              ErrorState(
+                message: 'Empfehlungen konnten nicht geladen werden.',
+                onRetry: () => ref.invalidate(discoverPeopleProvider),
+              ),
+            ],
+            data: (items) => items.isEmpty
+                ? const [
+                    EmptyState(
+                      icon: Icons.people_outline,
+                      title: 'Noch keine Empfehlungen',
+                      message: 'Schau später noch einmal vorbei.',
+                    ),
+                  ]
+                : items
+                    .map(
+                      (profile) => _PersonRow(
+                        profile: profile,
+                        onToggleFollow: _toggleFollow,
+                      ),
+                    )
+                    .toList(),
           ),
           const SizedBox(height: 18),
-          const _DiscoverSectionTitle('Clubs fur dich'),
+          const _DiscoverSectionTitle('Lesekreise für dich'),
           const SizedBox(height: 10),
           ...groups.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
-            error: (_, _) => const [Text('Gruppen konnten nicht geladen werden.')],
+            error: (_, _) => [
+              ErrorState(
+                message: 'Lesekreise konnten nicht geladen werden.',
+                onRetry: () => ref.invalidate(groupsProvider(null)),
+              ),
+            ],
             data: (items) => items
                 .take(3)
                 .map(
@@ -183,12 +217,16 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       final user = ref.read(currentUserProvider);
                       if (user == null) return;
                       final repo = ref.read(groupRepositoryProvider);
-                      if (group.isMember) {
-                        await repo.leaveGroup(groupId: group.id, userId: user.id);
-                      } else {
-                        await repo.joinGroup(groupId: group.id, userId: user.id);
+                      try {
+                        if (group.isMember) {
+                          await repo.leaveGroup(groupId: group.id, userId: user.id);
+                        } else {
+                          await repo.joinGroup(groupId: group.id, userId: user.id);
+                        }
+                        ref.invalidate(groupsProvider(null));
+                      } catch (e) {
+                        _showError(e);
                       }
-                      ref.invalidate(groupsProvider(null));
                     },
                   ),
                 )
@@ -253,12 +291,10 @@ class _PersonRow extends ConsumerWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 error: (_, _) => const SizedBox.shrink(),
-                data: (value) => GestureDetector(
+                data: (value) => TinyPill(
                   onTap: () => onToggleFollow(profile.id, value),
-                  child: TinyPill(
-                    label: value ? 'Entfolgen' : 'Folgen',
-                    filled: value,
-                  ),
+                  label: value ? 'Entfolgen' : 'Folgen',
+                  filled: value,
                 ),
               ),
             ],
@@ -313,9 +349,9 @@ class _DiscoverClub extends StatelessWidget {
                   ],
                 ),
               ),
-              GestureDetector(
+              TinyPill(
                 onTap: onJoin,
-                child: TinyPill(label: joined ? 'Verlassen' : 'Beitreten'),
+                label: joined ? 'Verlassen' : 'Beitreten',
               ),
             ],
           ),

@@ -10,7 +10,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -48,51 +49,67 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Passwort zurücksetzen')),
-      body: SafeArea(
-        child: KeyboardSafeScroll(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Passwort vergessen?',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _sent
-                    ? 'Wir haben dir einen Link zum Zurücksetzen geschickt, falls ein Konto mit dieser E-Mail existiert.'
-                    : 'Gib deine E-Mail ein. Du erhältst einen Link zum Zurücksetzen.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (!_sent) ...[
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
+      body: AutofillGroup(
+        child: SafeArea(
+          child: KeyboardSafeScroll(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Passwort vergessen?',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                if (_error != null) ...[
-                  const SizedBox(height: 10),
-                  Text(_error!, style: const TextStyle(color: AppColors.burgundy, fontSize: 12)),
+                const SizedBox(height: 8),
+                Text(
+                  _sent
+                      ? 'Wir haben dir einen Link zum Zurücksetzen geschickt, falls ein Konto mit dieser E-Mail existiert.'
+                      : 'Gib deine E-Mail ein. Du erhältst einen Link zum Zurücksetzen.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (!_sent) ...[
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _loading ? null : _sendReset(),
+                    decoration: const InputDecoration(labelText: 'E-Mail'),
+                  ),
+                  if (_error != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      _error!,
+                      style: const TextStyle(
+                        color: AppColors.burgundy,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
+                  ElevatedButton(
+                    onPressed: _loading ? null : _sendReset,
+                    child: _loading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Link senden'),
+                  ),
                 ],
-                const SizedBox(height: 18),
-                ElevatedButton(
-                  onPressed: _loading ? null : _sendReset,
-                  child: _loading
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Link senden'),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.go('/login'),
+                  child: const Text('Zurück zur Anmeldung'),
                 ),
               ],
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('Zurück zur Anmeldung'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

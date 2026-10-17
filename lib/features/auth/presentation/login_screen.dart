@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,6 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref
           .read(authRepositoryProvider)
           .signIn(_emailController.text.trim(), _passwordController.text);
+      TextInput.finishAutofillContext();
     } catch (e) {
       setState(() => _error = authErrorMessage(e));
     } finally {
@@ -59,30 +61,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const Center(child: BookmatesWordmark()),
               const SizedBox(height: 28),
               Text(
-                'Willkommen\nzuruck.',
+                'Willkommen\nzurück.',
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               const SizedBox(height: 10),
               Text(
-                'Deine Community fur Bucher und Leser.',
+                'Deine Community für Bücher und Leser.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 28),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'E-Mail'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Passwort',
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
+              AutofillGroup(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(labelText: 'E-Mail'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      autofillHints: const [AutofillHints.password],
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _loading ? null : _signIn(),
+                      decoration: InputDecoration(
+                        labelText: 'Passwort',
+                        suffixIcon: IconButton(
+                          tooltip: _obscurePassword
+                              ? 'Passwort anzeigen'
+                              : 'Passwort verbergen',
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (_error != null) ...[
@@ -124,10 +151,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 TermsLinksText(
                   before: SocialSignInButtons.termsNoticePrefix,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: AppColors.muted),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
                   textAlign: TextAlign.center,
                 ),
               ],

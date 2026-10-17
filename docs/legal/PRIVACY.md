@@ -43,7 +43,7 @@ Du kannst Beiträge, Kommentare und Nutzer melden sowie Nutzer blockieren. Werde
 ## 7. Speicherdauer und Löschung
 
 - Deine Daten speichern wir, solange dein Konto besteht.
-- **Konto löschen:** In der App unter *Profil → Account löschen*. Dabei werden dein Konto, Profil, Beiträge, Kommentare, Likes, Folgen, Gruppen-Mitgliedschaften, Blockierungen, deine Meldungen und alle hochgeladenen Bilder sofort gelöscht. Alternativ per E-Mail an [support@bookmates.app] von der registrierten Adresse.
+- **Konto löschen:** In der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen*. Dabei werden dein Konto, Profil, Beiträge, Kommentare, Likes, Folgen, Gruppen-Mitgliedschaften, Blockierungen, deine Meldungen und alle hochgeladenen Bilder sofort gelöscht. Alternativ per E-Mail an [support@bookmates.app] von der registrierten Adresse.
 - Gruppen, die du erstellt hast, werden mit deinem Konto gelöscht.
 - Sicherungskopien und Server-Logs des Hosting-Anbieters werden nach [bis zu 30 Tagen – mit Supabase-Plan abgleichen] überschrieben.
 

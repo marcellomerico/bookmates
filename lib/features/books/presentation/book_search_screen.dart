@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../models/user_book.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -29,6 +30,7 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
   List<OpenLibraryBook> _results = [];
   bool _searching = false;
   String? _error;
+  bool _searched = false;
   String? _addingId;
 
   @override
@@ -50,8 +52,14 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
       final results = await ref
           .read(openLibraryRepositoryProvider)
           .search(query);
-      setState(() => _results = results);
+      if (mounted) {
+        setState(() {
+          _results = results;
+          _searched = true;
+        });
+      }
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _error = 'Suche fehlgeschlagen. Bitte erneut versuchen.';
         _results = [];
@@ -140,19 +148,22 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
               ],
             ),
           ),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(_error!, style: const TextStyle(color: Colors.red)),
-            ),
           Expanded(
             child: _results.isEmpty
-                ? Center(
-                    child: Text(
-                      _searching ? 'Suche läuft…' : 'Suche nach einem Buch',
-                      style: const TextStyle(color: AppColors.muted),
-                    ),
-                  )
+                ? (_error != null
+                    ? ErrorState(message: _error!, onRetry: _search)
+                    : _searching
+                        ? const Center(child: CircularProgressIndicator())
+                        : _searched
+                            ? const EmptyState(
+                                icon: Icons.search_off,
+                                title: 'Keine Treffer',
+                                message: 'Versuche es mit einem anderen Titel oder Autor.',
+                              )
+                            : const EmptyState(
+                                icon: Icons.menu_book_outlined,
+                                title: 'Suche nach einem Buch',
+                              ))
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: _results.length,
@@ -196,20 +207,31 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : InkWell(
-                                    onTap: () => _addBook(book),
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.burgundy,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 18,
+                                : Semantics(
+                                    button: true,
+                                    label: 'Zum Regal hinzufügen',
+                                    excludeSemantics: true,
+                                    child: InkWell(
+                                      onTap: () => _addBook(book),
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: SizedBox(
+                                        width: 48,
+                                        height: 48,
+                                        child: Center(
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.burgundy,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

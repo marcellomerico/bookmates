@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 const _serifFamily = 'SourceSerif4';
@@ -24,11 +25,24 @@ class AppColors {
   static const parchment = Color(0xFFE9DDC8);
   static const burgundy = Color(0xFF7B3140);
   static const gold = Color(0xFFC7A64B);
+  static const goldText = Color(0xFF85661A);
+  static const inputBorder = Color(0xFFA39079);
+  static const error = Color(0xFFB3261E);
   static const ink = Color(0xFF2B221B);
-  static const muted = Color(0xFF8A796C);
+  static const muted = Color(0xFF6F5F53);
   static const line = Color(0xFFE5D8C8);
   static const card = Colors.white;
   static const success = Color(0xFF4E7A5D);
+}
+
+class AppSpacing {
+  AppSpacing._();
+  static const xs = 4.0, s = 8.0, m = 12.0, l = 16.0, xl = 24.0, xxl = 32.0;
+}
+
+class AppRadius {
+  AppRadius._();
+  static const s = 8.0, m = 10.0, l = 12.0, xl = 16.0;
 }
 
 class AppTheme {
@@ -40,6 +54,7 @@ class AppTheme {
         primary: AppColors.burgundy,
         secondary: AppColors.gold,
         surface: AppColors.card,
+        error: AppColors.error,
         brightness: Brightness.light,
       ),
     );
@@ -121,6 +136,13 @@ class AppTheme {
     return base.copyWith(
       textTheme: serif,
       scaffoldBackgroundColor: AppColors.cream,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
       dividerColor: AppColors.line,
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.cream,
@@ -140,12 +162,12 @@ class AppTheme {
           vertical: 14,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.line),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.line),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),

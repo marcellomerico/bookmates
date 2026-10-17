@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../social/providers/social_providers.dart';
 
@@ -19,25 +20,39 @@ class ActivityScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async => ref.invalidate(activityProvider),
         child: activity.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Center(child: Text('Aktivität konnte nicht geladen werden.')),
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(height: 120),
+              Center(child: CircularProgressIndicator()),
+            ],
+          ),
+          error: (_, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              ErrorState(
+                message: 'Aktivität konnte nicht geladen werden.',
+                onRetry: () => ref.invalidate(activityProvider),
+              ),
+            ],
+          ),
           data: (items) {
             if (items.isEmpty) {
               return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: const [
-                  SizedBox(height: 120),
-                  Center(
-                    child: Text(
-                      'Noch keine Aktivität.\nLikes, Kommentare und neue Follower erscheinen hier.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.muted),
-                    ),
+                  EmptyState(
+                    icon: Icons.notifications_none,
+                    title: 'Noch keine Aktivität',
+                    message:
+                        '„Gefällt mir“-Angaben, Kommentare und neue Follower erscheinen hier.',
                   ),
                 ],
               );
             }
 
             return ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: items.length,
               separatorBuilder: (_, _) => const Divider(height: 1),

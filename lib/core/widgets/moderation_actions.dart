@@ -96,7 +96,7 @@ Future<void> _blockUser(
 Future<bool> _confirmDelete(BuildContext context, String title, String body) async {
   final confirmed = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => AlertDialog.adaptive(
       title: Text(title),
       content: Text(body),
       actions: [
@@ -104,7 +104,10 @@ Future<bool> _confirmDelete(BuildContext context, String title, String body) asy
           onPressed: () => Navigator.pop(context, false),
           child: const Text('Abbrechen'),
         ),
-        ElevatedButton(
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+          ),
           onPressed: () => Navigator.pop(context, true),
           child: const Text('Löschen'),
         ),
@@ -132,7 +135,7 @@ Future<void> showPostActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
               title: const Text('Beitrag löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )
@@ -262,7 +265,7 @@ Future<void> showCommentActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
               title: const Text('Kommentar löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )

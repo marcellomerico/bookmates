@@ -45,7 +45,7 @@ Wir bemühen uns um einen stabilen Betrieb, können aber keine ununterbrochene V
 
 ## 9. Kündigung und Kontolöschung
 
-Du kannst dein Konto jederzeit in der App unter *Profil → Account löschen* löschen. Wir können das Nutzungsverhältnis bei Verstößen gegen diese Bedingungen beenden.
+Du kannst dein Konto jederzeit in der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen* löschen. Wir können das Nutzungsverhältnis bei Verstößen gegen diese Bedingungen beenden.
 
 ## 10. Änderungen
 
