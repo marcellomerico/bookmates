@@ -30,4 +30,23 @@ void main() {
     );
     expect(img.decodeJpg(out)!.width, 400);
   });
+
+  test('bakes EXIF orientation and drops the metadata bytes', () async {
+    final source = img.Image(width: 40, height: 20);
+    source.exif.imageIfd['Make'] = 'SpyCam';
+    source.exif.imageIfd.orientation = 6;
+    final out = await sanitizeImage(Uint8List.fromList(img.encodeJpg(source)));
+
+    final decoded = img.decodeJpg(out)!;
+    expect(decoded.width, 20);
+    expect(decoded.height, 40);
+    expect(String.fromCharCodes(out).contains('SpyCam'), isFalse);
+  });
+
+  test('rejects undecodable input with FormatException', () async {
+    await expectLater(
+      sanitizeImage(Uint8List.fromList([1, 2, 3])),
+      throwsFormatException,
+    );
+  });
 }

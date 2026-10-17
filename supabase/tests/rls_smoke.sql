@@ -237,7 +237,7 @@ begin
     raise exception 'FAIL: alice sees blocked bob likes'; end if;
 
   update public.groups set is_private = true where id = '00000000-0000-4000-8000-0000000001b0';
-  if (select invite_code from public.groups where id = '00000000-0000-4000-8000-0000000001b0') = 'testcode02' then
+  if coalesce((select invite_code from public.groups where id = '00000000-0000-4000-8000-0000000001b0'), 'testcode02') = 'testcode02' then
     raise exception 'FAIL: invite code not rotated when group went private'; end if;
 end $$;
 
