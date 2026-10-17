@@ -15,6 +15,10 @@ class SocialSignInButtons extends ConsumerStatefulWidget {
 
   static bool get hasAny => Env.isGoogleConfigured || Platform.isIOS;
 
+  /// Notice text naming exactly the providers shown, e.g. 'Mit der Anmeldung über Apple akzeptierst du unsere '.
+  static String get termsNoticePrefix =>
+      socialTermsNoticePrefix(apple: Platform.isIOS, google: Env.isGoogleConfigured);
+
   @override
   ConsumerState<SocialSignInButtons> createState() =>
       _SocialSignInButtonsState();
@@ -100,4 +104,9 @@ class _SocialSignInButtonsState extends ConsumerState<SocialSignInButtons> {
       ],
     );
   }
+}
+
+String socialTermsNoticePrefix({required bool apple, required bool google}) {
+  final providers = [if (apple) 'Apple', if (google) 'Google'].join(' oder ');
+  return 'Mit der Anmeldung über $providers akzeptierst du unsere ';
 }

@@ -211,6 +211,21 @@ class AuthRepository {
       idToken: idToken,
       accessToken: googleAuth.accessToken,
     );
+    await _recordTermsAcceptance();
+  }
+
+  /// Social sign-in shows a terms notice; record the first acceptance like e-mail sign-up does.
+  Future<void> _recordTermsAcceptance() async {
+    if (_client.auth.currentUser?.userMetadata?['terms_accepted_at'] != null) return;
+    try {
+      await _client.auth.updateUser(
+        UserAttributes(
+          data: {'terms_accepted_at': DateTime.now().toUtc().toIso8601String()},
+        ),
+      );
+    } catch (e) {
+      debugPrint('Recording terms acceptance failed: $e');
+    }
   }
 
   Future<void> signInWithApple() async {
@@ -237,6 +252,7 @@ class AuthRepository {
       idToken: idToken,
       nonce: rawNonce,
     );
+    await _recordTermsAcceptance();
 
     final user = _client.auth.currentUser;
     if (user == null) return;

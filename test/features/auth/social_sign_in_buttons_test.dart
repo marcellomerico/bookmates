@@ -5,6 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bookmates/features/auth/presentation/social_sign_in_buttons.dart';
 
 void main() {
+  test('terms notice names exactly the shown providers', () {
+    expect(socialTermsNoticePrefix(apple: true, google: false),
+        'Mit der Anmeldung über Apple akzeptierst du unsere ');
+    expect(socialTermsNoticePrefix(apple: false, google: true),
+        'Mit der Anmeldung über Google akzeptierst du unsere ');
+    expect(socialTermsNoticePrefix(apple: true, google: true),
+        'Mit der Anmeldung über Apple oder Google akzeptierst du unsere ');
+  });
+
   testWidgets('shows nothing without Google config on non-iOS', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(

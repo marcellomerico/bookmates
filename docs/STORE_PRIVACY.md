@@ -48,11 +48,11 @@ Demo account: [E-Mail] / [Passwort]  (contains sample posts, a public and a priv
 
 Bookmates is a community app for readers. User-generated content is moderated:
 - Report: tap "…" on any post, comment or profile → "Melden".
-- Block: tap "…" on a post or profile → "Blockieren". Blocked users can no longer see
+- Block: tap "…" on a post, comment or profile → "Blockieren". Blocked users can no longer see
   or interact with the blocker's content (enforced server-side).
 - Content reported by 3 users is hidden automatically until reviewed.
 - Moderators review reports in-app (Profil → "Meldungen prüfen") within 24 hours and
-  can hide or delete content and suspend accounts.
+  can hide or delete content; accounts are suspended by the moderator in the backend.
 - Users must accept the Terms of Use (zero tolerance for objectionable content)
   at sign-up.
 - Account deletion: Profil → "Account löschen" (deletes all data and images).

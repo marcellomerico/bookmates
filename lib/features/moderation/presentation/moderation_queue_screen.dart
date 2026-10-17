@@ -46,6 +46,11 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
       await container
           .read(moderationRepositoryProvider)
           .resolveReport(report.reportId, action);
+      // Deleted posts must not leave their image publicly reachable (best effort).
+      final imageUrl = report.targetImageUrl;
+      if (action == 'delete' && imageUrl != null) {
+        await container.read(postRepositoryProvider).removePostImage(imageUrl);
+      }
       container.invalidate(openReportsProvider);
       container.invalidate(feedProvider);
       container.invalidate(activityProvider);

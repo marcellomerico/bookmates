@@ -206,7 +206,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               if (SocialSignInButtons.hasAny) ...[
                 const SizedBox(height: 12),
                 TermsLinksText(
-                  before: 'Mit der Anmeldung über Apple oder Google akzeptierst du unsere ',
+                  before: SocialSignInButtons.termsNoticePrefix,
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall

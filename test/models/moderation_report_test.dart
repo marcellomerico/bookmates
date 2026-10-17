@@ -14,6 +14,7 @@ void main() {
       'target_comment_id': 'c1',
       'content': 'Hello',
       'content_hidden': true,
+      'target_image_url': 'https://x/post-images/u/1.jpg',
     });
     expect(r.reportId, 'r1');
     expect(r.reportedAt, DateTime.utc(2026, 10, 1, 10));
@@ -26,6 +27,7 @@ void main() {
     expect(r.content, 'Hello');
     expect(r.contentHidden, isTrue);
     expect(r.hasContentTarget, isTrue);
+    expect(r.targetImageUrl, 'https://x/post-images/u/1.jpg');
   });
 
   test('parses nulls (user-only report)', () {

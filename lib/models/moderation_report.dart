@@ -10,6 +10,7 @@ class ModerationReport {
     this.targetCommentId,
     this.content,
     this.contentHidden = false,
+    this.targetImageUrl,
   });
 
   final String reportId;
@@ -22,6 +23,7 @@ class ModerationReport {
   final String? targetCommentId;
   final String? content;
   final bool contentHidden;
+  final String? targetImageUrl;
 
   bool get hasContentTarget => targetPostId != null || targetCommentId != null;
 
@@ -37,6 +39,7 @@ class ModerationReport {
       targetCommentId: json['target_comment_id'] as String?,
       content: json['content'] as String?,
       contentHidden: json['content_hidden'] as bool? ?? false,
+      targetImageUrl: json['target_image_url'] as String?,
     );
   }
 }

@@ -35,6 +35,8 @@ insert into public.comments (id, post_id, author_id, content) values
 insert into public.likes (post_id, user_id) values
   ('00000000-0000-4000-8000-0000000002a0', '00000000-0000-4000-8000-00000000000a');
 insert into private.admins (user_id) values ('00000000-0000-4000-8000-00000000000a');
+update public.posts set image_url = 'https://example.supabase.co/storage/v1/object/public/post-images/a/x.jpg'
+where id = '00000000-0000-4000-8000-0000000002d2';
 
 -- ---------------- signup trigger (as postgres) ----------------
 do $$
@@ -372,6 +374,13 @@ begin
     raise exception 'FAIL: erin reported a post she cannot see';
   exception when insufficient_privilege then null;
   end;
+  -- a comment report must carry its post_id (otherwise the visibility check would be skipped)
+  begin
+    insert into public.reports (reporter_id, comment_id, reason)
+    values ('00000000-0000-4000-8000-00000000000e', '00000000-0000-4000-8000-0000000003e2', 'no post');
+    raise exception 'FAIL: comment report without post_id accepted';
+  exception when insufficient_privilege then null;
+  end;
 end $$;
 
 -- as ALICE (admin): hide a post; 'hide' on a user-only report is rejected
@@ -381,6 +390,9 @@ declare rid uuid;
 begin
   select o.report_id into rid from public.admin_open_reports() o where o.target_post_id = '00000000-0000-4000-8000-0000000002d2';
   if rid is null then raise exception 'FAIL: admin does not see report on hide target'; end if;
+  if (select o.target_image_url from public.admin_open_reports() o where o.report_id = rid) is distinct from
+     'https://example.supabase.co/storage/v1/object/public/post-images/a/x.jpg' then
+    raise exception 'FAIL: admin_open_reports lacks target_image_url'; end if;
   perform public.admin_resolve_report(rid, 'hide');
   rid := null;
   select o.report_id into rid from public.admin_open_reports() o

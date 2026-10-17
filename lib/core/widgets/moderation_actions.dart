@@ -68,6 +68,52 @@ Future<void> showReportDialog(
   }
 }
 
+Future<void> _blockUser(
+  BuildContext context,
+  WidgetRef ref, {
+  required String blockerId,
+  required String blockedId,
+  String? postId,
+}) async {
+  String message = 'Nutzer blockiert.';
+  try {
+    await ref
+        .read(moderationRepositoryProvider)
+        .blockUser(blockerId: blockerId, blockedId: blockedId);
+    ref.invalidate(feedProvider);
+    if (postId != null) {
+      ref.invalidate(commentsProvider(postId));
+      ref.invalidate(postDetailProvider(postId));
+    }
+  } catch (e) {
+    message = authErrorMessage(e);
+  }
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+Future<bool> _confirmDelete(BuildContext context, String title, String body) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Abbrechen'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Löschen'),
+        ),
+      ],
+    ),
+  );
+  return confirmed == true;
+}
+
 Future<void> showPostActionsMenu(
   BuildContext context,
   WidgetRef ref,
@@ -112,26 +158,23 @@ Future<void> showPostActionsMenu(
 
   if (action == 'delete') {
     if (!context.mounted) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Beitrag löschen?'),
-        content: const Text('Dieser Beitrag wird dauerhaft entfernt.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    if (!context.mounted) return;
-    await ref.read(postRepositoryProvider).deletePost(post.id);
+    if (!await _confirmDelete(
+      context,
+      'Beitrag löschen?',
+      'Dieser Beitrag wird dauerhaft entfernt.',
+    )) {
+      return;
+    }
+    try {
+      await ref.read(postRepositoryProvider).deletePost(post.id);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      }
+      return;
+    }
     ref.invalidate(feedProvider);
     if (context.mounted) {
       if (context.canPop()) context.pop();
@@ -148,16 +191,14 @@ Future<void> showPostActionsMenu(
         postId: post.id,
       );
     }
-  } else if (action == 'block' && post.author != null) {
-    await ref
-        .read(moderationRepositoryProvider)
-        .blockUser(blockerId: user.id, blockedId: post.author!.id);
-    ref.invalidate(feedProvider);
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Nutzer blockiert.')));
-    }
+  } else if (action == 'block' && post.author != null && context.mounted) {
+    await _blockUser(
+      context,
+      ref,
+      blockerId: user.id,
+      blockedId: post.author!.id,
+      postId: post.id,
+    );
   }
 }
 
@@ -194,14 +235,87 @@ Future<void> showUserActionsMenu(
 
   if (action == 'report' && context.mounted) {
     await showReportDialog(context, ref, reportedUserId: userId);
-  } else if (action == 'block') {
-    await ref
-        .read(moderationRepositoryProvider)
-        .blockUser(blockerId: user.id, blockedId: userId);
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Nutzer blockiert.')));
+  } else if (action == 'block' && context.mounted) {
+    await _blockUser(context, ref, blockerId: user.id, blockedId: userId);
+  }
+}
+
+/// Actions for a single comment: delete (own) or report / block author (others).
+Future<void> showCommentActionsMenu(
+  BuildContext context,
+  WidgetRef ref, {
+  required Comment comment,
+  required String postId,
+  required Future<void> Function() onDelete,
+}) async {
+  final user = ref.read(currentUserProvider);
+  if (user == null) return;
+
+  final isOwner = comment.authorId == user.id;
+  final authorName = comment.author?.displayName ?? comment.author?.username;
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isOwner)
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Kommentar löschen'),
+              onTap: () => Navigator.pop(context, 'delete'),
+            )
+          else ...[
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: const Text('Kommentar melden'),
+              onTap: () => Navigator.pop(context, 'report'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.block),
+              title: Text('${authorName ?? 'Nutzer'} blockieren'),
+              onTap: () => Navigator.pop(context, 'block'),
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+  if (!context.mounted) return;
+
+  if (action == 'delete') {
+    if (!await _confirmDelete(
+      context,
+      'Kommentar löschen?',
+      'Dieser Kommentar wird dauerhaft entfernt.',
+    )) {
+      return;
     }
+    try {
+      await onDelete();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      }
+    }
+  } else if (action == 'report') {
+    await showReportDialog(
+      context,
+      ref,
+      reportedUserId: comment.authorId,
+      commentId: comment.id,
+      postId: postId,
+    );
+  } else if (action == 'block') {
+    await _blockUser(
+      context,
+      ref,
+      blockerId: user.id,
+      blockedId: comment.authorId,
+      postId: postId,
+    );
   }
 }

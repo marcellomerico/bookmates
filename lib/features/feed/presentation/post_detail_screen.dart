@@ -75,7 +75,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget build(BuildContext context) {
     final post = ref.watch(postDetailProvider(widget.postId));
     final comments = ref.watch(commentsProvider(widget.postId));
-    final currentUser = ref.watch(currentUserProvider);
 
     final postAsync = ref.watch(postDetailProvider(widget.postId));
 
@@ -123,7 +122,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       ),
                     ]
                   : items.map((comment) {
-                      final isOwner = currentUser?.id == comment.authorId;
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: GestureDetector(
@@ -159,24 +157,17 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             ),
                           ],
                         ),
-                        trailing: isOwner
-                            ? IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  size: 18,
-                                ),
-                                onPressed: () => _deleteComment(comment.id),
-                              )
-                            : IconButton(
-                                icon: const Icon(Icons.flag_outlined, size: 18),
-                                onPressed: () => showReportDialog(
-                                  context,
-                                  ref,
-                                  reportedUserId: comment.authorId,
-                                  commentId: comment.id,
-                                  postId: widget.postId,
-                                ),
-                              ),
+                        trailing: IconButton(
+                          tooltip: 'Optionen',
+                          icon: const Icon(Icons.more_horiz, size: 20),
+                          onPressed: () => showCommentActionsMenu(
+                            context,
+                            ref,
+                            comment: comment,
+                            postId: widget.postId,
+                            onDelete: () => _deleteComment(comment.id),
+                          ),
+                        ),
                       );
                     }).toList(),
             ),
