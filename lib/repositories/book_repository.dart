@@ -4,6 +4,8 @@ import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
 
+String _clip(String s, int max) => s.length > max ? s.substring(0, max) : s;
+
 class BookRepository {
   BookRepository(this._client);
 
@@ -24,8 +26,8 @@ class BookRepository {
         .from('books')
         .insert({
           'open_library_id': result.openLibraryId,
-          'title': result.title,
-          'author': result.author,
+          'title': _clip(result.title, 500),
+          'author': result.author == null ? null : _clip(result.author!, 300),
           'cover_url': result.coverUrl,
           'isbn': result.isbn,
         })

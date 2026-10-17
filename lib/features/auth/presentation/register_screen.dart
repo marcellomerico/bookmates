@@ -61,6 +61,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final usernameFree = await ref
           .read(profileRepositoryProvider)
           .isUsernameAvailable(username);
+      if (!mounted) return;
       if (!usernameFree) {
         setState(() => _error = 'Dieser Benutzername ist bereits vergeben.');
         return;
@@ -98,8 +99,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ref.invalidate(currentProfileProvider);
       context.go('/onboarding');
     } on AuthException catch (e) {
+      if (!mounted) return;
       setState(() => _error = authErrorMessage(e));
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = authErrorMessage(e));
     } finally {
       if (mounted) setState(() => _loading = false);

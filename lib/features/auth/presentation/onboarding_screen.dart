@@ -87,9 +87,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
       if (mounted) context.go('/home');
     } catch (e) {
+      debugPrint('Onboarding save failed: $e');
       if (mounted) {
         setState(
-          () => _error = 'Onboarding konnte nicht gespeichert werden. $e',
+          () => _error =
+              'Onboarding konnte nicht gespeichert werden. ${authErrorMessage(e)}',
         );
         ScaffoldMessenger.of(
           context,

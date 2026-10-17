@@ -22,7 +22,6 @@ final bookshelfProvider = FutureProvider<List<UserBook>>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
 
-  ref.watch(authStateProvider);
   return ref.watch(bookRepositoryProvider).getBookshelf(user.id);
 });
 

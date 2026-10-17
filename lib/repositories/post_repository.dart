@@ -105,13 +105,17 @@ class PostRepository {
     await _client.from('posts').delete().eq('id', postId);
 
     final imageUrl = row?['image_url'] as String?;
-    final path = imageUrl == null ? null : postImagePathFromUrl(imageUrl);
-    if (path != null) {
-      try {
-        await _client.storage.from('post-images').remove([path]);
-      } catch (e) {
-        debugPrint('post image cleanup failed: $e');
-      }
+    if (imageUrl != null) await removePostImage(imageUrl);
+  }
+
+  /// Best-effort storage cleanup; never throws.
+  Future<void> removePostImage(String url) async {
+    final path = postImagePathFromUrl(url);
+    if (path == null) return;
+    try {
+      await _client.storage.from('post-images').remove([path]);
+    } catch (e) {
+      debugPrint('post image cleanup failed: $e');
     }
   }
 

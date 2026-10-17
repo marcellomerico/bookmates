@@ -89,3 +89,7 @@ app.*.map.json
 
 # Supabase local
 .supabase/
+
+# Local build artifacts
+android/build/
+buildServer.json

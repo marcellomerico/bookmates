@@ -103,10 +103,6 @@ String authErrorMessage(Object error) {
     if (message.contains('not authenticated')) {
       return 'Nicht angemeldet.';
     }
-    if (message.contains('could not be deleted') ||
-        message.contains('account could not')) {
-      return 'Konto konnte nicht gelöscht werden. Bitte später erneut versuchen.';
-    }
     debugPrint('Auth error: ${error.message}');
     return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
   }
@@ -228,10 +224,18 @@ class AuthRepository {
     ].where((part) => part != null && part.isNotEmpty).join(' ');
 
     if (displayName.isNotEmpty) {
-      await _client
-          .from('profiles')
-          .update({'display_name': displayName})
-          .eq('id', user.id);
+      try {
+        await _client
+            .from('profiles')
+            .update({
+              'display_name': displayName.length > AppLimits.displayName
+                  ? displayName.substring(0, AppLimits.displayName)
+                  : displayName,
+            })
+            .eq('id', user.id);
+      } catch (e) {
+        debugPrint('Apple display name update failed: $e');
+      }
     }
   }
 

@@ -95,14 +95,20 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             );
       }
 
-      await ref.read(postRepositoryProvider).createPost(
-            authorId: user.id,
-            content: _contentController.text,
-            postType: _postType,
-            bookId: _selectedBook?.bookId,
-            groupId: widget.groupId,
-            imageUrl: imageUrl,
-          );
+      final repo = ref.read(postRepositoryProvider);
+      try {
+        await repo.createPost(
+          authorId: user.id,
+          content: _contentController.text,
+          postType: _postType,
+          bookId: _selectedBook?.bookId,
+          groupId: widget.groupId,
+          imageUrl: imageUrl,
+        );
+      } catch (_) {
+        if (imageUrl != null) await repo.removePostImage(imageUrl);
+        rethrow;
+      }
       ref.invalidate(feedProvider);
       ref.invalidate(currentProfileProvider);
       ref.invalidate(profileStatsProvider(user.id));
