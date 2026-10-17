@@ -53,35 +53,66 @@ class PostCard extends ConsumerWidget {
             Row(
               children: [
                 GestureDetector(
-                  onTap: author == null ? null : () => context.push('/users/${author.id}'),
-                  child: UserAvatar(url: author?.avatarUrl, name: displayName, radius: 16),
+                  onTap: author == null
+                      ? null
+                      : () => context.push('/users/${author.id}'),
+                  child: UserAvatar(
+                    url: author?.avatarUrl,
+                    name: displayName,
+                    radius: 16,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: GestureDetector(
-                    onTap: author == null ? null : () => context.push('/users/${author.id}'),
+                    onTap: author == null
+                        ? null
+                        : () => context.push('/users/${author.id}'),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(displayName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
                         Text(
                           '$handle • ${formatRelativeTime(post.createdAt)}',
-                          style: const TextStyle(color: AppColors.muted, fontSize: 11),
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.more_horiz, color: AppColors.muted, size: 20),
+                  icon: const Icon(
+                    Icons.more_horiz,
+                    color: AppColors.muted,
+                    size: 20,
+                  ),
                   onPressed: () => showPostActionsMenu(context, ref, post),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
                 ),
               ],
             ),
+            if (post.hiddenAt != null) ...[
+              const SizedBox(height: 8),
+              const HiddenContentHint(),
+            ],
             const SizedBox(height: 12),
-            Text(post.content, style: const TextStyle(fontSize: 13, height: 1.45)),
+            Text(
+              post.content,
+              style: const TextStyle(fontSize: 13, height: 1.45),
+            ),
             if (post.book != null) ...[
               const SizedBox(height: 12),
               _BookChip(
@@ -109,16 +140,29 @@ class PostCard extends ConsumerWidget {
                   onTap: () => _toggleLike(ref),
                   borderRadius: BorderRadius.circular(20),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     child: Row(
                       children: [
                         Icon(
-                          post.likedByMe ? Icons.favorite : Icons.favorite_border,
+                          post.likedByMe
+                              ? Icons.favorite
+                              : Icons.favorite_border,
                           size: 17,
-                          color: post.likedByMe ? AppColors.burgundy : AppColors.muted,
+                          color: post.likedByMe
+                              ? AppColors.burgundy
+                              : AppColors.muted,
                         ),
                         const SizedBox(width: 4),
-                        Text('${post.likeCount}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                        Text(
+                          '${post.likeCount}',
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -128,12 +172,25 @@ class PostCard extends ConsumerWidget {
                   onTap: () => context.push('/posts/${post.id}'),
                   borderRadius: BorderRadius.circular(20),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     child: Row(
                       children: [
-                        const Icon(Icons.chat_bubble_outline, size: 17, color: AppColors.muted),
+                        const Icon(
+                          Icons.chat_bubble_outline,
+                          size: 17,
+                          color: AppColors.muted,
+                        ),
                         const SizedBox(width: 4),
-                        Text('${post.commentCount}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                        Text(
+                          '${post.commentCount}',
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -168,15 +225,27 @@ class _BookChip extends StatelessWidget {
           if (coverUrl != null && coverUrl!.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(imageUrl: coverUrl!, width: 42, height: 58, fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: coverUrl!,
+                width: 42,
+                height: 58,
+                fit: BoxFit.cover,
+              ),
             )
           else
             Container(
               width: 42,
               height: 58,
-              decoration: BoxDecoration(color: AppColors.burgundy, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                color: AppColors.burgundy,
+                borderRadius: BorderRadius.circular(8),
+              ),
               alignment: Alignment.center,
-              child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.menu_book_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           const SizedBox(width: 10),
           Expanded(
@@ -185,17 +254,46 @@ class _BookChip extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontSize: 14),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (author != null)
-                  Text(author!, style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                  Text(
+                    author!,
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 12,
+                    ),
+                  ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Shown to the author when moderation hid their content.
+class HiddenContentHint extends StatelessWidget {
+  const HiddenContentHint({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Icon(Icons.visibility_off, size: 14, color: AppColors.muted),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'Ausgeblendet nach Meldungen – nur für dich sichtbar',
+            style: TextStyle(color: AppColors.muted, fontSize: 11),
+          ),
+        ),
+      ],
     );
   }
 }

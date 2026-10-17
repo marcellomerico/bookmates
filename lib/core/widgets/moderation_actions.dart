@@ -28,7 +28,10 @@ Future<void> showReportDialog(
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Abbrechen'),
+        ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, controller.text.trim()),
           child: const Text('Melden'),
@@ -42,18 +45,26 @@ Future<void> showReportDialog(
   final user = ref.read(currentUserProvider);
   if (user == null) return;
 
-  await ref.read(moderationRepositoryProvider).reportContent(
-        reporterId: user.id,
-        reason: reason,
-        reportedUserId: reportedUserId,
-        postId: postId,
-        commentId: commentId,
-      );
+  String message;
+  try {
+    await ref
+        .read(moderationRepositoryProvider)
+        .reportContent(
+          reporterId: user.id,
+          reason: reason,
+          reportedUserId: reportedUserId,
+          postId: postId,
+          commentId: commentId,
+        );
+    message = 'Danke für deine Meldung. Wir prüfen sie zeitnah.';
+  } catch (e) {
+    message = authErrorMessage(e);
+  }
 
   if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Danke. Wir prüfen deine Meldung.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -88,7 +99,9 @@ Future<void> showPostActionsMenu(
             if (post.author != null)
               ListTile(
                 leading: const Icon(Icons.block),
-                title: Text('${post.author!.displayName ?? post.author!.username} blockieren'),
+                title: Text(
+                  '${post.author!.displayName ?? post.author!.username} blockieren',
+                ),
                 onTap: () => Navigator.pop(context, 'block'),
               ),
           ],
@@ -105,8 +118,14 @@ Future<void> showPostActionsMenu(
         title: const Text('Beitrag löschen?'),
         content: const Text('Dieser Beitrag wird dauerhaft entfernt.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Löschen')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Löschen'),
+          ),
         ],
       ),
     );
@@ -116,9 +135,9 @@ Future<void> showPostActionsMenu(
     ref.invalidate(feedProvider);
     if (context.mounted) {
       if (context.canPop()) context.pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Beitrag gelöscht.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Beitrag gelöscht.')));
     }
   } else if (action == 'report') {
     if (context.mounted) {
@@ -130,15 +149,14 @@ Future<void> showPostActionsMenu(
       );
     }
   } else if (action == 'block' && post.author != null) {
-    await ref.read(moderationRepositoryProvider).blockUser(
-          blockerId: user.id,
-          blockedId: post.author!.id,
-        );
+    await ref
+        .read(moderationRepositoryProvider)
+        .blockUser(blockerId: user.id, blockedId: post.author!.id);
     ref.invalidate(feedProvider);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nutzer blockiert.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nutzer blockiert.')));
     }
   }
 }
@@ -177,14 +195,13 @@ Future<void> showUserActionsMenu(
   if (action == 'report' && context.mounted) {
     await showReportDialog(context, ref, reportedUserId: userId);
   } else if (action == 'block') {
-    await ref.read(moderationRepositoryProvider).blockUser(
-          blockerId: user.id,
-          blockedId: userId,
-        );
+    await ref
+        .read(moderationRepositoryProvider)
+        .blockUser(blockerId: user.id, blockedId: userId);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nutzer blockiert.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nutzer blockiert.')));
     }
   }
 }

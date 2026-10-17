@@ -52,8 +52,14 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Erstellen')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Abbrechen'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Erstellen'),
+            ),
           ],
         ),
       ),
@@ -61,13 +67,28 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     if (created != true || name.text.trim().isEmpty) return;
     final user = ref.read(currentUserProvider);
     if (user == null) return;
-    await ref.read(groupRepositoryProvider).createGroup(
-          creatorId: user.id,
-          name: name.text,
-          description: description.text,
-          isPrivate: isPrivate,
-        );
-    ref.invalidate(groupsProvider(_query));
+    try {
+      await ref
+          .read(groupRepositoryProvider)
+          .createGroup(
+            creatorId: user.id,
+            name: name.text,
+            description: description.text,
+            isPrivate: isPrivate,
+          );
+      ref.invalidate(groupsProvider(_query));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isRateLimit(e)
+                ? authErrorMessage(e)
+                : 'Gruppe konnte nicht erstellt werden.',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _joinWithCode() async {
@@ -84,7 +105,10 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           decoration: const InputDecoration(hintText: 'Einladungscode'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('Beitreten'),
@@ -94,12 +118,16 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     );
     if (code == null || code.trim().isEmpty || !mounted) return;
     try {
-      final groupId = await ref.read(groupRepositoryProvider).joinWithCode(code);
+      final groupId = await ref
+          .read(groupRepositoryProvider)
+          .joinWithCode(code);
       ref.invalidate(groupsProvider(_query));
       if (mounted) context.push('/groups/$groupId');
     } on PostgrestException catch (e) {
       _showJoinError(
-        e.code == 'P0002' ? 'Ungültiger Einladungscode.' : 'Beitritt fehlgeschlagen. Bitte erneut versuchen.',
+        e.code == 'P0002'
+            ? 'Ungültiger Einladungscode.'
+            : 'Beitritt fehlgeschlagen. Bitte erneut versuchen.',
       );
     } catch (_) {
       _showJoinError('Beitritt fehlgeschlagen. Bitte erneut versuchen.');
@@ -108,7 +136,9 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
 
   void _showJoinError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -121,19 +151,27 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Gruppen', style: Theme.of(context).textTheme.headlineMedium)),
+              Expanded(
+                child: Text(
+                  'Gruppen',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
               TextButton(onPressed: _joinWithCode, child: const Text('Code')),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _createGroup,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(76, 38)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(76, 38),
+                ),
                 child: const Text('Neu'),
               ),
             ],
           ),
           const SizedBox(height: 14),
           TextField(
-            onChanged: (value) => setState(() => _query = value.trim().isEmpty ? null : value),
+            onChanged: (value) =>
+                setState(() => _query = value.trim().isEmpty ? null : value),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
               hintText: 'Suche nach Lesekreisen',
@@ -142,15 +180,19 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           const SizedBox(height: 16),
           ...groups.when(
             loading: () => const [Center(child: CircularProgressIndicator())],
-            error: (_, _) => const [Text('Gruppen konnten nicht geladen werden.')],
+            error: (_, _) => const [
+              Text('Gruppen konnten nicht geladen werden.'),
+            ],
             data: (items) => items.isEmpty
                 ? const [Text('Keine Gruppen gefunden.')]
                 : items
-                    .map((group) => Padding(
+                      .map(
+                        (group) => Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: _GroupRow(group: group, query: _query),
-                        ))
-                    .toList(),
+                        ),
+                      )
+                      .toList(),
           ),
         ],
       ),
@@ -193,10 +235,19 @@ class _GroupRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(group.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  Text(
+                    group.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
                   Text(
                     '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
-                    style: const TextStyle(color: AppColors.muted, fontSize: 11),
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -209,10 +260,18 @@ class _GroupRow extends ConsumerWidget {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Gruppe löschen?'),
-                      content: const Text('Alle Beiträge in dieser Gruppe werden entfernt.'),
+                      content: const Text(
+                        'Alle Beiträge in dieser Gruppe werden entfernt.',
+                      ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
-                        ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Löschen')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Abbrechen'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Löschen'),
+                        ),
                       ],
                     ),
                   );
@@ -233,7 +292,9 @@ class _GroupRow extends ConsumerWidget {
                   }
                   ref.invalidate(groupsProvider(query));
                 },
-                child: TinyPill(label: group.isMember ? 'Verlassen' : 'Beitreten'),
+                child: TinyPill(
+                  label: group.isMember ? 'Verlassen' : 'Beitreten',
+                ),
               ),
           ],
         ),

@@ -24,7 +24,10 @@ class ProfileScreen extends ConsumerWidget {
           'Dein Profil, Beiträge und Daten werden dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
@@ -47,9 +50,9 @@ class ProfileScreen extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authErrorMessage(e))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
       }
     }
   }
@@ -61,7 +64,8 @@ class ProfileScreen extends ConsumerWidget {
 
     return profile.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Center(child: Text('Profil konnte nicht geladen werden.')),
+      error: (_, _) =>
+          const Center(child: Text('Profil konnte nicht geladen werden.')),
       data: (data) {
         if (data == null) {
           return const Center(child: Text('Kein Profil gefunden.'));
@@ -112,18 +116,25 @@ class ProfileScreen extends ConsumerWidget {
                   height: 52,
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (_, _) => const Text('Statistiken konnten nicht geladen werden.'),
+                error: (_, _) =>
+                    const Text('Statistiken konnten nicht geladen werden.'),
                 data: (value) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _StatColumn(value: '${value.postCount}', label: 'Beiträge'),
                     InkWell(
                       onTap: () => context.push('/users/${data.id}/followers'),
-                      child: _StatColumn(value: '${value.followerCount}', label: 'Follower'),
+                      child: _StatColumn(
+                        value: '${value.followerCount}',
+                        label: 'Follower',
+                      ),
                     ),
                     InkWell(
                       onTap: () => context.push('/users/${data.id}/following'),
-                      child: _StatColumn(value: '${value.followingCount}', label: 'Folgt'),
+                      child: _StatColumn(
+                        value: '${value.followingCount}',
+                        label: 'Folgt',
+                      ),
                     ),
                   ],
                 ),
@@ -138,7 +149,9 @@ class ProfileScreen extends ConsumerWidget {
                     alignment: WrapAlignment.center,
                     spacing: 8,
                     runSpacing: 8,
-                    children: genreList.map((genre) => Chip(label: Text(genre))).toList(),
+                    children: genreList
+                        .map((genre) => Chip(label: Text(genre)))
+                        .toList(),
                   );
                 },
               ),
@@ -149,12 +162,24 @@ class ProfileScreen extends ConsumerWidget {
                 label: const Text('Profil bearbeiten'),
               ),
               const SizedBox(height: 8),
+              if (ref.watch(isAdminProvider).valueOrNull == true) ...[
+                OutlinedButton.icon(
+                  onPressed: () => context.push('/moderation'),
+                  icon: const Icon(Icons.shield_outlined),
+                  label: const Text('Meldungen prüfen'),
+                ),
+                const SizedBox(height: 8),
+              ],
               OutlinedButton.icon(
                 onPressed: () async {
                   final ok = await openSupportEmail();
                   if (!ok && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('E-Mail-App konnte nicht geöffnet werden.')),
+                      const SnackBar(
+                        content: Text(
+                          'E-Mail-App konnte nicht geöffnet werden.',
+                        ),
+                      ),
                     );
                   }
                 },
@@ -164,19 +189,33 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               const AppLegalLinks(),
               const SizedBox(height: 24),
-              Text('Meine Beiträge', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Meine Beiträge',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 8),
               ...posts.when(
-                loading: () => const [Center(child: CircularProgressIndicator())],
-                error: (_, _) => const [Text('Beiträge konnten nicht geladen werden.')],
+                loading: () => const [
+                  Center(child: CircularProgressIndicator()),
+                ],
+                error: (_, _) => const [
+                  Text('Beiträge konnten nicht geladen werden.'),
+                ],
                 data: (items) => items.isEmpty
-                    ? const [Text('Noch keine Beiträge.', style: TextStyle(color: AppColors.muted))]
+                    ? const [
+                        Text(
+                          'Noch keine Beiträge.',
+                          style: TextStyle(color: AppColors.muted),
+                        ),
+                      ]
                     : items
-                        .map((post) => Padding(
+                          .map(
+                            (post) => Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: PostCard(post: post),
-                            ))
-                        .toList(),
+                            ),
+                          )
+                          .toList(),
               ),
               const SizedBox(height: 24),
               const BookshelfWidget(),
@@ -188,7 +227,10 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => _deleteAccount(context, ref),
-                child: const Text('Account löschen', style: TextStyle(color: Colors.red)),
+                child: const Text(
+                  'Account löschen',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
@@ -210,7 +252,10 @@ class _StatColumn extends StatelessWidget {
       children: [
         Text(value, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 11)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.muted, fontSize: 11),
+        ),
       ],
     );
   }

@@ -23,7 +23,11 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 final currentUserProvider = Provider<User?>((ref) {
   // Recompute only when the signed-in user changes, not on every token refresh.
   // hasValue also re-runs on the first event so the persisted-session fallback is dropped.
-  ref.watch(authStateProvider.select((s) => (s.hasValue, s.valueOrNull?.session?.user.id)));
+  ref.watch(
+    authStateProvider.select(
+      (s) => (s.hasValue, s.valueOrNull?.session?.user.id),
+    ),
+  );
   final auth = ref.read(authStateProvider);
   if (auth.hasValue) return auth.value!.session?.user;
   // Before the first auth event: fall back to the persisted session.
@@ -45,8 +49,9 @@ class PasswordRecovery extends Notifier<bool> {
   void done() => state = false;
 }
 
-final passwordRecoveryProvider =
-    NotifierProvider<PasswordRecovery, bool>(PasswordRecovery.new);
+final passwordRecoveryProvider = NotifierProvider<PasswordRecovery, bool>(
+  PasswordRecovery.new,
+);
 
 final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   final user = ref.watch(currentUserProvider);
@@ -66,6 +71,9 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
 class AppAuthException extends AuthException {
   const AppAuthException(super.message);
 }
+
+bool isRateLimit(Object e) =>
+    e is PostgrestException && e.message == 'rate_limit';
 
 String authErrorMessage(Object error) {
   if (error is AuthException) {
@@ -102,6 +110,9 @@ String authErrorMessage(Object error) {
     final message = error.message.toLowerCase();
     if (message.contains('not authenticated')) {
       return 'Nicht angemeldet.';
+    }
+    if (error.message == 'rate_limit') {
+      return 'Zu viele Aktionen in kurzer Zeit. Bitte warte einen Moment.';
     }
     debugPrint('Auth error: ${error.message}');
     return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
@@ -143,7 +154,11 @@ class AuthRepository {
     return _client.auth.signInWithPassword(email: email, password: password);
   }
 
-  Future<SignUpResult> signUp(String email, String password, String username) async {
+  Future<SignUpResult> signUp(
+    String email,
+    String password,
+    String username,
+  ) async {
     final trimmedEmail = email.trim();
     final trimmedUsername = username.trim();
 
@@ -182,7 +197,9 @@ class AuthRepository {
     final googleAuth = await googleUser.authentication;
     final idToken = googleAuth.idToken;
     if (idToken == null) {
-      throw const AppAuthException('Anmeldung fehlgeschlagen. Bitte erneut versuchen.');
+      throw const AppAuthException(
+        'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+      );
     }
 
     await _client.auth.signInWithIdToken(
@@ -206,7 +223,9 @@ class AuthRepository {
 
     final idToken = credential.identityToken;
     if (idToken == null) {
-      throw const AppAuthException('Anmeldung fehlgeschlagen. Bitte erneut versuchen.');
+      throw const AppAuthException(
+        'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+      );
     }
 
     await _client.auth.signInWithIdToken(
