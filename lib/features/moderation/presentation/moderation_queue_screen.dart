@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../../models/moderation_report.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class ModerationQueueScreen extends ConsumerStatefulWidget {
@@ -55,7 +56,7 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
         await container.read(postRepositoryProvider).removePostImage(imageUrl);
       }
       container.invalidate(openReportsProvider);
-      container.invalidate(feedProvider);
+      container.invalidate(pagedPostsProvider);
       container.invalidate(activityProvider);
       final postId = report.targetPostId;
       if (postId != null) {

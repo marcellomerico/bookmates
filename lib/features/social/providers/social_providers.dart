@@ -34,51 +34,6 @@ final activityRepositoryProvider = Provider<ActivityRepository>((ref) {
   return ActivityRepository(ref.watch(supabaseClientProvider));
 });
 
-Future<List<Post>> _filterBlockedPosts(
-  Ref ref,
-  String userId,
-  List<Post> posts,
-) async {
-  final blocked = await ref
-      .read(moderationRepositoryProvider)
-      .getBlockedUserIds(userId);
-  if (blocked.isEmpty) return posts;
-  return posts.where((post) => !blocked.contains(post.authorId)).toList();
-}
-
-final feedProvider = FutureProvider.autoDispose<List<Post>>((ref) async {
-  final user = ref.watch(currentUserProvider);
-  if (user == null) return [];
-
-  final followRepo = ref.watch(followRepositoryProvider);
-  final postRepo = ref.watch(postRepositoryProvider);
-  final followingIds = await followRepo.getFollowingIds(user.id);
-  final authorIds = {...followingIds, user.id}.toList();
-
-  List<Post> posts;
-  if (followingIds.isNotEmpty) {
-    posts = await postRepo.getFeed(
-      currentUserId: user.id,
-      authorIds: authorIds,
-    );
-  } else {
-    posts = await postRepo.getFeed(currentUserId: user.id);
-  }
-
-  return _filterBlockedPosts(ref, user.id, posts);
-});
-
-final userPostsProvider = FutureProvider.autoDispose.family<List<Post>, String>(
-  (ref, userId) async {
-    final current = ref.watch(currentUserProvider);
-    final posts = await ref
-        .watch(postRepositoryProvider)
-        .getPostsByAuthor(userId, currentUserId: current?.id);
-    if (current == null) return posts;
-    return _filterBlockedPosts(ref, current.id, posts);
-  },
-);
-
 final activityProvider = FutureProvider.autoDispose<List<ActivityItem>>((
   ref,
 ) async {
@@ -179,16 +134,6 @@ final groupDetailProvider = FutureProvider.autoDispose
       return ref
           .watch(groupRepositoryProvider)
           .getGroup(groupId, currentUserId: user?.id);
-    });
-
-final groupPostsProvider = FutureProvider.autoDispose
-    .family<List<Post>, String>((ref, groupId) async {
-      final user = ref.watch(currentUserProvider);
-      if (user == null) return [];
-      final posts = await ref
-          .watch(postRepositoryProvider)
-          .getFeed(currentUserId: user.id, groupId: groupId);
-      return _filterBlockedPosts(ref, user.id, posts);
     });
 
 // autoDispose: a transient failure (cached as false) is retried when the profile is reopened.

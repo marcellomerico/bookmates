@@ -9,6 +9,7 @@ import '../../../core/widgets/user_avatar.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../../core/widgets/moderation_actions.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       _commentController.clear();
       ref.invalidate(commentsProvider(widget.postId));
       ref.invalidate(postDetailProvider(widget.postId));
-      ref.invalidate(feedProvider);
+      ref.invalidate(pagedPostsProvider);
       ref.invalidate(activityProvider);
     } catch (e) {
       if (mounted) {
@@ -68,7 +69,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     await ref.read(postRepositoryProvider).deleteComment(commentId);
     ref.invalidate(commentsProvider(widget.postId));
     ref.invalidate(postDetailProvider(widget.postId));
-    ref.invalidate(feedProvider);
+    ref.invalidate(pagedPostsProvider);
   }
 
   @override

@@ -13,6 +13,7 @@ import '../../../models/post.dart';
 import '../../../models/user_book.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
@@ -113,11 +114,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         if (imageUrl != null) await repo.removePostImage(imageUrl);
         rethrow;
       }
-      ref.invalidate(feedProvider);
+      ref.invalidate(pagedPostsProvider);
       ref.invalidate(currentProfileProvider);
       ref.invalidate(profileStatsProvider(user.id));
       if (widget.groupId != null) {
-        ref.invalidate(groupPostsProvider(widget.groupId!));
         ref.invalidate(groupDetailProvider(widget.groupId!));
       }
       if (!mounted) return;

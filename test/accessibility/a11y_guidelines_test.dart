@@ -1,6 +1,7 @@
 import 'package:bookmates/core/theme/app_theme.dart';
 import 'package:bookmates/core/widgets/post_card.dart';
 import 'package:bookmates/features/auth/presentation/login_screen.dart';
+import 'package:bookmates/features/auth/providers/auth_provider.dart';
 import 'package:bookmates/models/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
   ProviderScope(
+    overrides: [currentUserProvider.overrideWithValue(null)],
     child: MaterialApp(theme: AppTheme.light, home: Scaffold(body: child)),
   ),
 );

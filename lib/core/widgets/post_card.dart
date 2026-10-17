@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/providers/auth_provider.dart';
-import '../../features/social/providers/social_providers.dart';
+import '../../features/social/providers/like_overrides.dart';
 import '../../models/post.dart';
 import '../theme/app_theme.dart';
 import '../theme/bookmates_ui.dart';
@@ -20,24 +20,18 @@ class PostCard extends ConsumerWidget {
 
   final Post post;
 
-  Future<void> _toggleLike(WidgetRef ref) async {
+  Future<void> _toggleLike(BuildContext context, WidgetRef ref) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
-
-    final repo = ref.read(postRepositoryProvider);
     try {
-      if (post.likedByMe) {
-        await repo.unlikePost(postId: post.id, userId: user.id);
-      } else {
-        await repo.likePost(postId: post.id, userId: user.id);
-      }
-      ref.invalidate(feedProvider);
-      ref.invalidate(postDetailProvider(post.id));
-      ref.invalidate(activityProvider);
-      if (post.groupId != null) {
-        ref.invalidate(groupPostsProvider(post.groupId!));
-      }
-    } catch (_) {}
+      await ref
+          .read(likeOverridesProvider.notifier)
+          .toggle(post, userId: user.id);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+    }
   }
 
   @override
@@ -45,6 +39,8 @@ class PostCard extends ConsumerWidget {
     final author = post.author;
     final displayName = author?.displayName ?? author?.username ?? 'Leser';
     final handle = author != null ? '@${author.username}' : '';
+    final like = ref.watch(likeOverridesProvider)[post.id] ??
+        (liked: post.likedByMe, count: post.likeCount);
 
     return SoftCard(
       child: InkWell(
@@ -144,11 +140,11 @@ class PostCard extends ConsumerWidget {
               children: [
                 Semantics(
                   button: true,
-                  toggled: post.likedByMe,
-                  label: 'Gefällt mir, ${post.likeCount}',
+                  toggled: like.liked,
+                  label: 'Gefällt mir, ${like.count}',
                   excludeSemantics: true,
                   child: InkWell(
-                  onTap: () => _toggleLike(ref),
+                  onTap: () => _toggleLike(context, ref),
                   borderRadius: BorderRadius.circular(20),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
@@ -158,17 +154,17 @@ class PostCard extends ConsumerWidget {
                     child: Center(widthFactor: 1, child: Row(
                       children: [
                         Icon(
-                          post.likedByMe
+                          like.liked
                               ? Icons.favorite
                               : Icons.favorite_border,
                           size: 17,
-                          color: post.likedByMe
+                          color: like.liked
                               ? AppColors.burgundy
                               : AppColors.muted,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${post.likeCount}',
+                          '${like.count}',
                           style: const TextStyle(
                             color: AppColors.muted,
                             fontSize: 12,

@@ -10,6 +10,7 @@ import '../../../models/group.dart';
 import '../../../models/profile.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class DiscoverScreen extends ConsumerStatefulWidget {
@@ -84,7 +85,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       }
       ref.invalidate(discoverPeopleProvider);
       ref.invalidate(isFollowingProvider(userId));
-      ref.invalidate(feedProvider);
+      ref.invalidate(pagedPostsProvider);
     } catch (e) {
       _showError(e);
     }

@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/post_card.dart';
+import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 
 class GroupDetailScreen extends ConsumerWidget {
@@ -34,7 +35,6 @@ class GroupDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final group = ref.watch(groupDetailProvider(groupId));
-    final posts = ref.watch(groupPostsProvider(groupId));
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
@@ -52,7 +52,9 @@ class GroupDetailScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(groupDetailProvider(groupId));
-          ref.invalidate(groupPostsProvider(groupId));
+          await ref
+              .read(pagedPostsProvider(PostSource.group(groupId)).notifier)
+              .refresh();
         },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -126,30 +128,15 @@ class GroupDetailScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text('Beiträge', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            ...posts.when(
-              loading: () => const [Center(child: CircularProgressIndicator())],
-              error: (_, _) => [
-                ErrorState(
-                  message: 'Beiträge konnten nicht geladen werden.',
-                  onRetry: () => ref.invalidate(groupPostsProvider(groupId)),
-                ),
-              ],
-              data: (items) => items.isEmpty
-                  ? const [
-                      EmptyState(
-                        icon: Icons.forum_outlined,
-                        title: 'Noch keine Beiträge',
-                        message: 'In diesem Lesekreis gibt es noch keine Beiträge.',
-                      ),
-                    ]
-                  : items
-                      .map(
-                        (post) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: PostCard(post: post),
-                        ),
-                      )
-                      .toList(),
+            ...pagedPostListItems(
+              ref,
+              PostSource.group(groupId),
+              errorMessage: 'Beiträge konnten nicht geladen werden.',
+              empty: const EmptyState(
+                icon: Icons.forum_outlined,
+                title: 'Noch keine Beiträge',
+                message: 'In diesem Lesekreis gibt es noch keine Beiträge.',
+              ),
             ),
           ],
         ),
