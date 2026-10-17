@@ -37,6 +37,39 @@ class BookRepository {
     return Book.fromJson(inserted);
   }
 
+  Future<Book?> getByOpenLibraryId(String workId) async {
+    final id = normalizeWorkId(workId);
+    if (!RegExp(r'^OL\d+W$').hasMatch(id)) return null;
+    final rows = await _client
+        .from('books')
+        .select()
+        .or('open_library_id.eq.$id,open_library_id.eq./works/$id')
+        .limit(1);
+    return rows.isEmpty ? null : Book.fromJson(rows.first);
+  }
+
+  Future<int> readerCount(String bookId) async {
+    final res = await _client
+        .from('user_books')
+        .select('id')
+        .eq('book_id', bookId)
+        .count(CountOption.exact);
+    return res.count;
+  }
+
+  Future<UserBook?> myEntry({
+    required String userId,
+    required String bookId,
+  }) async {
+    final row = await _client
+        .from('user_books')
+        .select('*, books(*)')
+        .eq('user_id', userId)
+        .eq('book_id', bookId)
+        .maybeSingle();
+    return row == null ? null : UserBook.fromJson(row);
+  }
+
   Future<UserBook> addToShelf({
     required String userId,
     required OpenLibraryBook result,
