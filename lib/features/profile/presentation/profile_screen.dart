@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/launch_utils.dart';
-import '../../../core/widgets/app_legal_links.dart';
 import '../../../core/widgets/post_card.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
@@ -16,54 +14,12 @@ import '../../social/providers/social_providers.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog.adaptive(
-        title: const Text('Account löschen?'),
-        content: const Text(
-          'Dein Profil, Beiträge und Daten werden dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Account löschen'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    try {
-      await ref.read(authRepositoryProvider).deleteAccount();
-      ref.invalidate(currentProfileProvider);
-      ref.invalidate(authStateProvider);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account wurde gelöscht.')),
-        );
-        context.go('/login');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(currentProfileProvider);
     final genres = ref.watch(userGenresProvider);
 
-    return profile.when(
+    final body = profile.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, _) => ErrorState(
         message: 'Profil konnte nicht geladen werden.',
@@ -169,32 +125,6 @@ class ProfileScreen extends ConsumerWidget {
                 label: const Text('Profil bearbeiten'),
               ),
               const SizedBox(height: 8),
-              if (ref.watch(isAdminProvider).valueOrNull == true) ...[
-                OutlinedButton.icon(
-                  onPressed: () => context.push('/moderation'),
-                  icon: const Icon(Icons.shield_outlined),
-                  label: const Text('Meldungen prüfen'),
-                ),
-                const SizedBox(height: 8),
-              ],
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final ok = await openSupportEmail();
-                  if (!ok && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'E-Mail-App konnte nicht geöffnet werden.',
-                        ),
-                      ),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.mail_outline),
-                label: const Text('Support kontaktieren'),
-              ),
-              const SizedBox(height: 24),
-              const AppLegalLinks(),
               const SizedBox(height: 24),
               Text(
                 'Meine Beiträge',
@@ -230,23 +160,24 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               const BookshelfWidget(),
-              const SizedBox(height: 24),
-              OutlinedButton(
-                onPressed: () => ref.read(authRepositoryProvider).signOut(),
-                child: const Text('Abmelden'),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => _deleteAccount(context, ref),
-                child: Text(
-                  'Account löschen',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
             ],
           ),
         );
       },
+    );
+    return Stack(
+      children: [
+        body,
+        Positioned(
+          top: 0,
+          right: 4,
+          child: IconButton(
+            tooltip: 'Einstellungen',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+          ),
+        ),
+      ],
     );
   }
 }

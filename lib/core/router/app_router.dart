@@ -15,6 +15,7 @@ import '../../features/feed/presentation/main_shell.dart';
 import '../../features/moderation/presentation/moderation_queue_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/follow_list_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
 import '../../features/groups/presentation/group_detail_screen.dart';
 import '../../models/user_book.dart';
@@ -80,6 +81,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const ModerationQueueScreen(),
         ),
+      ),
+      GoRoute(
+        path: '/settings',
+        pageBuilder: (context, state) =>
+            slidePushPage(key: state.pageKey, child: const SettingsScreen()),
       ),
       GoRoute(
         path: '/profile/edit',
