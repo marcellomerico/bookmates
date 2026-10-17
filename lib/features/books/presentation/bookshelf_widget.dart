@@ -8,6 +8,7 @@ import '../../../core/theme/bookmates_ui.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../models/user_book.dart';
+import '../../../repositories/open_library_repository.dart';
 import '../providers/books_provider.dart';
 
 class BookshelfWidget extends ConsumerStatefulWidget {
@@ -205,7 +206,11 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
     final book = widget.entry.book;
     if (book == null) return const SizedBox.shrink();
 
+    final workId = book.openLibraryId;
     return ListTile(
+      onTap: workId == null
+          ? null
+          : () => context.push('/books/${normalizeWorkId(workId)}'),
       leading: _Cover(url: book.coverUrl),
       title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Column(

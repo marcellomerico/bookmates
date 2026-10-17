@@ -8,6 +8,7 @@ import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/books/presentation/book_detail_screen.dart';
 import '../../features/books/presentation/book_search_screen.dart';
 import '../../features/feed/presentation/activity_screen.dart';
 import '../../features/feed/presentation/post_detail_screen.dart';
@@ -18,6 +19,7 @@ import '../../features/profile/presentation/follow_list_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
 import '../../features/groups/presentation/group_detail_screen.dart';
+import '../../repositories/open_library_repository.dart';
 import '../../models/user_book.dart';
 import 'auth_redirect.dart';
 import 'bookmates_page_transitions.dart';
@@ -108,6 +110,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           );
         },
+      ),
+      // Must stay after '/books/search': go_router matches in declaration order.
+      GoRoute(
+        path: '/books/:workId',
+        pageBuilder: (context, state) => slidePushPage(
+          key: state.pageKey,
+          child: BookDetailScreen(
+            workId: normalizeWorkId(state.pathParameters['workId']!),
+          ),
+        ),
       ),
       GoRoute(
         path: '/posts/:postId',

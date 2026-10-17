@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/social/providers/like_overrides.dart';
 import '../../models/post.dart';
+import '../../repositories/open_library_repository.dart';
 import '../theme/app_theme.dart';
 import '../theme/bookmates_ui.dart';
 import '../utils/time_ago.dart';
@@ -116,6 +117,11 @@ class PostCard extends ConsumerWidget {
                 title: post.book!.title,
                 author: post.book!.author,
                 coverUrl: post.book!.coverUrl,
+                onTap: post.book!.openLibraryId == null
+                    ? null
+                    : () => context.push(
+                        '/books/${normalizeWorkId(post.book!.openLibraryId!)}',
+                      ),
               ),
             ],
             if (post.imageUrl != null && post.imageUrl!.isNotEmpty) ...[
@@ -216,15 +222,21 @@ class PostCard extends ConsumerWidget {
 }
 
 class _BookChip extends StatelessWidget {
-  const _BookChip({required this.title, this.author, this.coverUrl});
+  const _BookChip({
+    required this.title,
+    this.author,
+    this.coverUrl,
+    this.onTap,
+  });
 
   final String title;
   final String? author;
   final String? coverUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final chip = Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.cream,
@@ -285,6 +297,13 @@ class _BookChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+    if (onTap == null) return chip;
+    return Semantics(
+      button: true,
+      label: 'Buchdetails öffnen: $title',
+      excludeSemantics: true,
+      child: GestureDetector(onTap: onTap, child: chip),
     );
   }
 }
