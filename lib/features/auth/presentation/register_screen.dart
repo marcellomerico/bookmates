@@ -8,6 +8,7 @@ import '../../../core/utils/validators.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
+import 'terms_links_text.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -22,6 +23,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   bool _loading = false;
   bool _obscurePassword = true;
+  bool _acceptedTerms = false;
   String? _error;
 
   @override
@@ -39,6 +41,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
       setState(() => _error = 'Bitte alle Felder ausfüllen.');
+      return;
+    }
+    if (!_acceptedTerms) {
+      setState(() => _error =
+          'Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.');
       return;
     }
     _usernameController.text = username;
@@ -158,7 +165,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 12),
                 Text(_error!, style: const TextStyle(color: Colors.red)),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _acceptedTerms,
+                    onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _acceptedTerms = !_acceptedTerms),
+                      child: const TermsLinksText(
+                        before: 'Ich akzeptiere die ',
+                        after: '.',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _loading ? null : _signUp,
                 child: _loading
@@ -176,6 +202,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               const SizedBox(height: 10),
               const SocialSignInButtons(compact: true),
+              if (SocialSignInButtons.hasAny) ...[
+                const SizedBox(height: 12),
+                TermsLinksText(
+                  before: 'Mit der Anmeldung über Apple oder Google akzeptierst du unsere ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppColors.muted),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),

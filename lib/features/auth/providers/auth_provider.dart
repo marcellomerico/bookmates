@@ -170,7 +170,11 @@ class AuthRepository {
       email: trimmedEmail,
       password: password,
       emailRedirectTo: AppConfig.authRedirectUrl,
-      data: {'username': trimmedUsername, 'display_name': trimmedUsername},
+      data: {
+        'username': trimmedUsername,
+        'display_name': trimmedUsername,
+        'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
+      },
     );
 
     final user = response.user;
