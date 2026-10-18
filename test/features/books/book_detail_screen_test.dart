@@ -62,7 +62,10 @@ void main() {
     await tester.pumpWidget(_app(book: null));
     await tester.pumpAndSettle();
     expect(find.text('Testbuch'), findsOneWidget);
-    expect(find.textContaining('Regal'), findsNothing);
+    expect(find.textContaining('Leser haben'), findsNothing);
     expect(find.text('Beiträge zu diesem Buch'), findsNothing);
+    // Not on the shelf yet: offer both destinations.
+    expect(find.text('Ins Regal'), findsOneWidget);
+    expect(find.text('Wunschliste'), findsOneWidget);
   });
 }

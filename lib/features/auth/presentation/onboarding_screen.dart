@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/genres.dart';
 import '../../../core/theme/booksquad_ui.dart';
-import '../../books/presentation/bookshelf_widget.dart';
+import '../../books/presentation/visual_shelf.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
 import 'follow_suggestions_step.dart';
@@ -331,7 +331,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               label: const Text('Buch suchen und hinzufügen'),
             ),
             const SizedBox(height: 16),
-            const BookshelfWidget(compact: true),
+            const ShelfView(compact: true),
           ],
         );
     }

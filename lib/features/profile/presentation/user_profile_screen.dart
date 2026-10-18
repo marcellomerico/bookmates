@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/moderation_actions.dart';
-import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
-import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
-import '../../books/presentation/bookshelf_widget.dart';
 import '../../books/providers/books_provider.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
+import 'profile_layout.dart';
 
 class UserProfileScreen extends ConsumerWidget {
   const UserProfileScreen({super.key, required this.userId});
@@ -47,15 +43,17 @@ class UserProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileByIdProvider(userId));
     final currentUser = ref.watch(currentUserProvider);
-    final stats = ref.watch(profileStatsProvider(userId));
-    final genres = ref.watch(userGenresByIdProvider(userId));
     final following = ref.watch(isFollowingProvider(userId));
     final blocked = ref.watch(isBlockedProvider(userId));
     final ownProfile = currentUser?.id == userId;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil'),
+        title: Text(
+          profile.valueOrNull == null
+              ? 'Profil'
+              : '@${profile.valueOrNull!.username}',
+        ),
         actions: [
           if (!ownProfile && currentUser != null)
             IconButton(
@@ -102,10 +100,13 @@ class UserProfileScreen extends ConsumerWidget {
                 );
               }
 
-              return RefreshIndicator(
+              return ProfileLayout(
+                profile: data,
+                own: ownProfile,
                 onRefresh: () async {
                   ref.invalidate(profileByIdProvider(userId));
                   ref.invalidate(profileStatsProvider(userId));
+                  ref.invalidate(userGenresByIdProvider(userId));
                   ref.invalidate(bookshelfByUserProvider(userId));
                   await ref
                       .read(
@@ -113,110 +114,37 @@ class UserProfileScreen extends ConsumerWidget {
                       )
                       .refresh();
                 },
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    Center(
-                      child: UserAvatar(
-                        url: data.avatarUrl,
-                        name: data.displayName ?? data.username,
-                        radius: 36,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      data.displayName ?? data.username,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    Text(
-                      '@${data.username}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.muted),
-                    ),
-                    if (data.bio?.isNotEmpty ?? false)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(data.bio!, textAlign: TextAlign.center),
-                      ),
-                    const SizedBox(height: 16),
-                    stats.when(
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (_, _) => const Text(
-                        'Statistiken konnten nicht geladen werden.',
-                      ),
-                      data: (value) => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _Stat('${value.postCount}', 'Beiträge'),
-                          InkWell(
-                            onTap: () =>
-                                context.push('/users/$userId/followers'),
-                            child: _Stat('${value.followerCount}', 'Follower'),
-                          ),
-                          InkWell(
-                            onTap: () =>
-                                context.push('/users/$userId/following'),
-                            child: _Stat('${value.followingCount}', 'Folgt'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (!ownProfile && currentUser != null) ...[
-                      const SizedBox(height: 16),
-                      following.when(
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
+                actions: ownProfile || currentUser == null
+                    ? const SizedBox.shrink()
+                    : following.when(
+                        loading: () => const SizedBox(
+                          height: 40,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
                         error: (_, _) => const SizedBox.shrink(),
-                        data: (value) => ElevatedButton(
-                          onPressed: () => _toggleFollow(
-                            context,
-                            ref,
-                            currentUser.id,
-                            value,
-                          ),
-                          child: Text(value ? 'Entfolgen' : 'Folgen'),
+                        data: (value) => SizedBox(
+                          width: double.infinity,
+                          child: value
+                              ? OutlinedButton(
+                                  onPressed: () => _toggleFollow(
+                                    context,
+                                    ref,
+                                    currentUser.id,
+                                    value,
+                                  ),
+                                  child: const Text('Folgst du'),
+                                )
+                              : FilledButton(
+                                  onPressed: () => _toggleFollow(
+                                    context,
+                                    ref,
+                                    currentUser.id,
+                                    value,
+                                  ),
+                                  child: const Text('Folgen'),
+                                ),
                         ),
                       ),
-                    ],
-                    genres.when(
-                      data: (items) => items.isEmpty
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 8,
-                                children: items
-                                    .map((genre) => Chip(label: Text(genre)))
-                                    .toList(),
-                              ),
-                            ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
-                    ),
-                    const SizedBox(height: 24),
-                    // Shelf before posts: the post list pages endlessly, anything below it is unreachable.
-                    BookshelfWidget(userId: userId),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Beiträge',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    ...pagedPostListItems(
-                      ref,
-                      PostSource.author(userId),
-                      errorMessage: 'Beiträge konnten nicht geladen werden.',
-                      empty: const EmptyState(
-                        icon: Icons.edit_note,
-                        title: 'Noch keine Beiträge',
-                      ),
-                    ),
-                  ],
-                ),
               );
             },
           );
@@ -224,17 +152,4 @@ class UserProfileScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat(this.value, this.label);
-  final String value;
-  final String label;
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Text(value, style: Theme.of(context).textTheme.titleLarge),
-      Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 11)),
-    ],
-  );
 }

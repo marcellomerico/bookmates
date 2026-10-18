@@ -15,6 +15,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
+import '../../social/providers/social_providers.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -149,6 +150,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
       ref.invalidate(currentProfileProvider);
       ref.invalidate(userGenresProvider);
+      ref.invalidate(userGenresByIdProvider(user.id));
+      ref.invalidate(profileByIdProvider(user.id));
       if (mounted) context.pop();
     } on PostgrestException catch (e) {
       // 23505: someone took the name between the check and saving.
