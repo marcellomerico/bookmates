@@ -200,6 +200,11 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.burgundy,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
       chipTheme: ChipThemeData(
         backgroundColor: Colors.white,
         selectedColor: AppColors.burgundy,

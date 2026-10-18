@@ -128,7 +128,7 @@ class _BottomBar extends StatelessWidget {
               _TabItem(
                 label: 'Entdecken',
                 icon: Icons.search_rounded,
-                activeIcon: Icons.manage_search_rounded,
+                activeIcon: Icons.search_rounded,
                 selected: currentIndex == 1,
                 onTap: () => onSelect(1),
               ),
