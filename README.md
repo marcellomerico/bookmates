@@ -1,57 +1,114 @@
+<div align="center">
+
+<img src="assets/branding/icon.png" width="96" alt="Booksquad-Icon">
+
 # Booksquad
 
-Social App für Bücherfreunde — Profile, Feed, Gruppen, Bücherregal.
+**Lesen mit Freunden.** Bücherregal, Rezensionen und Lesekreise in einer App.
 
-## Features (Client)
+[![Flutter CI](https://github.com/marcellomerico/booksquad/actions/workflows/flutter.yml/badge.svg)](https://github.com/marcellomerico/booksquad/actions/workflows/flutter.yml)
+![Flutter](https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter)
+![Supabase](https://img.shields.io/badge/Supabase-EU%20Frankfurt-3ECF8E?logo=supabase)
+![Plattformen](https://img.shields.io/badge/iOS%20%7C%20Android-7B3140)
 
-- Auth: E-Mail, Passwort vergessen, Account löschen, Google/Apple (Config nötig)
-- Onboarding, Profil + Avatar, Bücherregal (Open Library)
-- Feed, Beiträge (Text, Bild, Buch), Likes, Comments
-- Folgen, Entdecken, Aktivität
-- Gruppen (öffentlich/privat), Moderation (Melden/Blockieren)
+<img src="docs/screenshots/hero.png" alt="Booksquad: Profil, Feed und Buchseite" width="100%">
 
-## Quick Start
+</div>
+
+## Was ist Booksquad?
+
+Booksquad ist eine Community-App für alle, die gerne lesen. Du hältst fest, was du liest, teilst Gedanken und Zitate und findest Menschen mit ähnlichem Buchgeschmack. In Lesekreisen sprecht ihr gemeinsam über ein Buch, öffentlich oder privat mit Einladungscode.
+
+Keine Werbung, kein Tracking, Daten in der EU.
+
+<table>
+  <tr>
+    <td><img src="docs/store/01-feed.png" alt="Feed"></td>
+    <td><img src="docs/store/09-regal.png" alt="Bücherregal"></td>
+    <td><img src="docs/store/03-buch.png" alt="Buchseite"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/store/06-lesekreis.png" alt="Lesekreis"></td>
+    <td><img src="docs/store/07-neuer-beitrag.png" alt="Neuer Beitrag"></td>
+    <td><img src="docs/store/04-entdecken.png" alt="Entdecken"></td>
+  </tr>
+</table>
+
+## Funktionen
+
+| Bereich | Was die App kann |
+|---|---|
+| **Bücherregal** | „Lese gerade“, „Gelesen“, „Möchte lesen“, Sternbewertung, Suche über Open Library mit Millionen Titeln |
+| **Beiträge** | Rezension, Empfehlung, Diskussion oder Zitat, mit Buch und Foto (Metadaten wie GPS werden entfernt) |
+| **Feed** | Beiträge der Leute, denen du folgst, endlos scrollbar, Likes reagieren sofort |
+| **Buchseiten** | Cover, Beschreibung, Themen, Leserzahl und alle Beiträge zum Buch |
+| **Lesekreise** | öffentlich oder privat mit Einladungscode, eigener Feed pro Kreis |
+| **Entdecken** | Vorschläge für Leser und Lesekreise passend zu deinen Lieblingsgenres |
+| **Sicherheit** | Melden, Blockieren, automatisches Ausblenden nach mehreren Meldungen, Moderations-Queue für Admins, Spam-Begrenzung |
+| **Konto** | E-Mail, Apple- und Google-Login, Passwort zurücksetzen, Konto in der App löschen |
+
+## Technik
+
+- **App:** Flutter 3.44 (iOS und Android), Riverpod, go_router, Material 3 mit eigenem Theme (Source Serif 4, Bordeaux und Creme)
+- **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions), Region Frankfurt
+- **Sicherheit:** Row Level Security auf allen Tabellen, Hilfsfunktionen im nicht öffentlichen Schema `private`, Rate-Limits per Trigger, Konto-Löschung über eine Edge Function
+- **Buchdaten:** [Open Library](https://openlibrary.org) (Suche, Cover, Beschreibungen)
+- **Qualität:** 117 automatisierte Tests, `flutter analyze` ohne Befunde, CI bei jedem Push, RLS-Regressionstest und Prüfung aller Abfragen gegen das Backend
+
+```
+lib/
+  core/         Theme, Router, gemeinsame Widgets, Konfiguration
+  features/     auth, feed, books, groups, discover, profile, moderation, social
+  models/       Datenklassen
+  repositories/ Zugriff auf Supabase und Open Library
+  demo/         Demo-Modus mit Beispieldaten
+supabase/       Migrationen, Edge Function, Prod-Setup, RLS-Test
+tool/           Release-Build, Prüfskripte, Icon- und Store-Bild-Generator
+```
+
+## Schnellstart
 
 ```bash
-git clone https://github.com/<user>/booksquad.git
+git clone https://github.com/marcellomerico/booksquad.git
 cd booksquad
 flutter pub get
-cp .env.example .env   # Supabase-Keys
+cp .env.example .env   # Supabase-URL und Anon-Key eintragen
 flutter run
 ```
 
-## Supabase
+**Ohne Backend ausprobieren:** Der Demo-Modus startet die App angemeldet mit Beispieldaten. Er braucht kein Supabase-Projekt.
 
-Migrationen in dieser Reihenfolge — siehe [`supabase/APPLY_MIGRATIONS.md`](supabase/APPLY_MIGRATIONS.md):
+```bash
+flutter run --dart-define=BOOKSQUAD_DEMO=true
+```
 
-1. `20260707180000_initial_schema.sql`
-2. `20260731120000_storage_and_policies.sql`
-3. `20260731140000_moderation_and_privacy.sql`
-4. `20260731150000_fix_account_deletion.sql` (optional, von 5 überholt)
-5. `20261016120000_security_hardening.sql`
-6. `20261017090000_private_helpers_and_indexes.sql`
-7. `20261017120000_moderation_and_rate_limits.sql`
-8. `20261017150000_moderation_followups.sql`
-9. `20261017180000_feed_indexes.sql`
+## Backend einrichten
 
-Zusätzlich: Edge Function `delete-account` deployen (Account löschen). RLS-Test: `supabase/tests/rls_smoke.sql` (nur DEV).
+Das komplette Schema liegt in [`supabase/prod_setup.sql`](supabase/prod_setup.sql) (eine Transaktion, aus den Migrationen erzeugt). Schritt für Schritt: [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md). Danach die Edge Function `delete-account` deployen.
 
-## Docs
+## Bilder und Branding neu erzeugen
+
+```bash
+flutter test tool/branding/render_branding_test.dart       # App-Icon und Splash
+dart run flutter_launcher_icons && dart run flutter_native_splash:create
+flutter test tool/branding/render_store_shots_test.dart    # Store-Bilder und Titelbild
+```
+
+Die Rohbilder in `docs/screenshots/` stammen aus dem Demo-Modus im iPhone-Simulator.
+
+## Dokumentation
 
 | Datei | Inhalt |
-|-------|--------|
-| [`TESTING.md`](TESTING.md) | Test-Checkliste |
-| [`ROADMAP.md`](ROADMAP.md) | Feature-Stand |
-| [`PUBLISH_PLAN.md`](PUBLISH_PLAN.md) | Store-Launch |
-| [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md) | Prod-Backend |
-| [`docs/RELEASE.md`](docs/RELEASE.md) | Android/iOS Builds |
-| [`docs/GOOGLE_APPLE_AUTH.md`](docs/GOOGLE_APPLE_AUTH.md) | OAuth Setup |
-| [`docs/legal/`](docs/legal/) | Datenschutz, AGB, Impressum (Entwürfe) |
+|---|---|
+| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Alle Schritte bis zum Store-Release |
+| [`docs/RELEASE.md`](docs/RELEASE.md) | Versionierung und Release-Builds |
+| [`docs/STORE_LISTING.md`](docs/STORE_LISTING.md) | Store-Texte und Screenshot-Plan |
+| [`docs/STORE_PRIVACY.md`](docs/STORE_PRIVACY.md) | Datenschutz-Angaben, Altersfreigabe, Review-Notizen |
+| [`docs/SUPABASE_PRODUCTION.md`](docs/SUPABASE_PRODUCTION.md) | Produktions-Backend |
+| [`docs/GOOGLE_APPLE_AUTH.md`](docs/GOOGLE_APPLE_AUTH.md) | Apple- und Google-Login |
+| [`docs/legal/`](docs/legal/) | Datenschutz, Nutzungsbedingungen, Impressum |
+| [`TESTING.md`](TESTING.md) | Manuelle Testanleitung |
 
-## Tech
+## Status
 
-Flutter · Riverpod · go_router · Supabase · Open Library
-
-## CI
-
-GitHub Actions: `flutter analyze` + `flutter test` bei Push/PR.
+In Vorbereitung für den Start im App Store und bei Google Play.
