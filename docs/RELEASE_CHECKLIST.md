@@ -1,154 +1,273 @@
-# Release-Anleitung für Marcello
+# Release-Plan Booksquad
 
-Hier steht nur, was Claude **nicht** selbst erledigen kann: Konten, Passwörter, Geld, rechtliche Verantwortung und das Tippen in der App mit deinen Test-Konten. Alles andere übernimmt Claude. Wo **„→ Claude“** steht, gib kurz Bescheid, dann macht Claude weiter.
+Alles, was du selbst erledigen kannst, in der richtigen Reihenfolge. Dazu die Kosten, ein Zeitplan und was warten kann. Wo **„→ Claude“** steht, gib kurz Bescheid, dann übernimmt Claude den Rest.
 
-Die Reihenfolge ist absichtlich so gewählt:
-- **Teil 1 ist kostenlos** und läuft komplett auf dem Dev-Projekt. Dein Supabase-Konto hat schon zwei Gratis-Projekte, ein drittes für Prod geht nur mit dem kostenpflichtigen Plan.
-- **Teil 2 kostet Geld** und kommt ganz am Schluss.
+Stand: 18. Oktober 2026. Preise geprüft bei Apple, Google und Supabase. Domain-Preise schwanken je nach Anbieter.
 
 ---
 
-## Teil 1 – Jetzt, kostenlos
+## 1. Auf einen Blick
 
-### Schritt 1: Marke prüfen, Domains und Postfach kaufen (30 Min., ca. 2–5 €/Monat)
+| Phase | Was passiert | Kosten | Dauer |
+|---|---|---|---|
+| **0 · Jetzt** | Du klickst dich selbst durch die App | 0 € | 30 Min. |
+| **A · Vorbereitung** | Marke, Domain, Rechtstexte, Datenbank-Einstellungen, Google-Login, Tester sammeln, Testen | ca. 5–60 € | 1–2 Wochen |
+| **B · Beta** | TestFlight (iPhone) und geschlossener Test bei Google Play mit echten Testern | ca. 125 € | mind. 14 Tage (Google-Pflicht) |
+| **C · Start** | Eigenes Produktions-Backend, Store-Einträge, Prüfung, Veröffentlichung | ca. 27 €/Monat | 1–2 Wochen |
+| **D · Später** | Webseite, Marke anmelden, Englisch, Push, Premium | je nach Wunsch | – |
 
-Der App-Name ist **Booksquad**. In App, Rechtstexten und Store-Texten stehen schon `getbooksquad.com` als Webseite und `support@getbooksquad.com` als Kontakt.
+**Direkt veröffentlichen geht nicht, bei Google jedenfalls nicht:**
+- **Apple:** Du *könntest* nach der App-Prüfung direkt veröffentlichen. Sinnvoll ist trotzdem erst TestFlight, damit echte Leute die App vorher benutzen.
+- **Google:** Neue private Entwicklerkonten **müssen** vorher einen geschlossenen Test machen. Bedingung: mindestens **12 Tester**, **14 Tage am Stück** angemeldet. Erst danach kannst du die Veröffentlichung beantragen. Fällt die Zahl unter 12, beginnen die 14 Tage laut Erfahrungsberichten von vorn. Plane deshalb 15–20 Tester ein. Ausgenommen sind nur Firmenkonten, und die brauchen eine D-U-N-S-Nummer.
 
-1. [ ] **Marke prüfen:** Bei [TMview](https://www.tmdn.org/tmview/) (EU und weltweit) und [USPTO](https://tmsearch.uspto.gov/) (USA) nach „Booksquad“ suchen. Gibt es eine eingetragene Marke für Apps, Software oder soziale Netzwerke (Klassen 9, 38, 42, 45) → Claude, bevor du etwas kaufst
-2. [ ] **Domains kaufen:** `getbooksquad.com` und `booksquad.de`, am besten zusammen mit einem **E-Mail-Postfach** bei einem deutschen Anbieter (z. B. all-inkl, netcup, IONOS, Strato)
-3. [ ] Postfach `support@getbooksquad.com` anlegen
-4. [ ] → Claude: „Domains und Postfach sind da“, dazu den Anbieter nennen. Claude sagt dir, welche DNS-Einträge du für die Webseite (GitHub Pages) und die Weiterleitung von `booksquad.de` setzen musst
-5. [ ] **Supabase Dev-Projekt → Authentication → URL Configuration:** Die Redirect-URL heißt jetzt `booksquad://auth-callback` (vorher stand dort der alte App-Name). Ohne diese Änderung öffnen Bestätigungs- und Passwort-Links die App nicht
+### Zeitplan, wenn die App noch dieses Jahr erscheinen soll
 
-### Schritt 2: Rechtstexte prüfen lassen
+| Zeitraum | Ziel |
+|---|---|
+| bis ca. 31. Oktober | Phase A: Domain, Rechtstexte zur Prüfung, Datenbank eingerichtet, Tester gefunden |
+| bis ca. 15. November | Apple- und Google-Konto stehen (Identitätsprüfung dauert ein paar Tage) |
+| ab ca. 15. November | Beta läuft: TestFlight und geschlossener Test bei Google |
+| ca. 29. November | 14 Tage Google-Test erfüllt → Veröffentlichung beantragen |
+| Anfang bis Mitte Dezember | Öffentlicher Start (Apple und Google prüfen meist in 1–3 Tagen, über Weihnachten langsamer) |
 
-Name und Anschrift sind eingetragen, die E-Mail-Adresse auch.
+Bei Google ist der späteste sinnvolle Start des Tests ungefähr der **20. November**. Später wird es vor Weihnachten knapp.
 
-- [ ] Die Texte in `docs/legal/` (Datenschutz, Nutzungsbedingungen, Impressum, Konto löschen) rechtlich prüfen lassen, z. B. durch einen Anwalt. Das geht parallel zu allen weiteren Schritten, muss aber vor Teil 2 fertig sein. Fragen für den Prüfer:
+---
+
+## 2. Kosten
+
+### Pflicht
+
+| Posten | Wann | Kosten | Hinweis |
+|---|---|---|---|
+| Domain `getbooksquad.com` | Phase A | ca. 10–15 €/Jahr | Auf den **Verlängerungspreis** achten, nicht nur aufs erste Jahr |
+| Domain `booksquad.de` | Phase A | ca. 2–10 €/Jahr | Bei günstigen Anbietern dauerhaft unter 5 € |
+| E-Mail-Postfach (`support@`, `noreply@`) | Phase A | ca. 0–5 €/Monat | Oft im Domain-Paket enthalten. Ohne eigenes Postfach bekommen deine Tester keine Bestätigungsmails |
+| Apple Developer Program | Phase B | **99 €/Jahr** | Verlängert sich automatisch. Nur nötig, solange die App im App Store sein soll |
+| Google Play Console | Phase B | **25 $ einmalig** (ca. 23 €) | Keine jährliche Gebühr |
+| Supabase Pro (Produktion) | Phase C | **25 $/Monat** (ca. 23 € + ggf. 19 % USt, also ca. 27 €) | Ein Projekt inklusive. Die Rechenleistung für ein kleines Projekt ist durch ein 10-$-Guthaben abgedeckt |
+
+### Empfohlen
+
+| Posten | Kosten | Hinweis |
+|---|---|---|
+| Rechtliche Prüfung der Texte | ca. 150–600 € einmalig | Alternative: Rechtstext-Dienst im Abo, ca. 10–25 €/Monat. Die Texte werden dort gepflegt, sind aber allgemeiner |
+| Mailversand über Resend o. ä. | 0 € (bis ca. 3.000 Mails/Monat) | Nur nötig, wenn dein Postfach-Anbieter kein SMTP erlaubt |
+
+### Optional, später
+
+| Posten | Kosten | Hinweis |
+|---|---|---|
+| Marke beim DPMA (Deutschland) | ca. 290 € für 10 Jahre (bis 3 Klassen) | Schützt den Namen in Deutschland |
+| EU-Marke (EUIPO) | ca. 850 € (1 Klasse) | Schützt den Namen EU-weit |
+| Android-Testhandy | ca. 100–200 € | Nur wenn du keins hast. Der Emulator reicht für viel |
+| Gewerbeanmeldung | ca. 20–60 € | Erst wenn Geld fließt (Premium). Dann auch Steuern beachten |
+
+### Was das unterm Strich heißt
+
+| Zeitraum | Minimum | Realistisch (mit Anwalt) |
+|---|---|---|
+| Bis zur Beta | ca. 140 € | ca. 140 € |
+| Erstes Jahr bis einschließlich Start | ca. 300 € | ca. 600–900 € |
+| Jedes weitere Jahr (laufend) | ca. 450 € (Apple 99 € + Supabase ca. 325 € + Domains/Mail) | dito |
+
+### Kostenfallen
+
+- **Supabase rechnet pro Organisation, nicht pro Projekt.** In deiner jetzigen Organisation liegen *Intervelo* und das Booksquad-Dev-Projekt. Würdest du sie auf Pro umstellen, zahlst du für beide Projekte mit. **Lege für die Produktion eine neue Organisation „Booksquad“ an** und stelle nur diese auf Pro. Die alte bleibt kostenlos.
+- **Die Beta läuft kostenlos auf dem Dev-Projekt.** Dein Konto hat schon zwei Gratis-Projekte, ein drittes geht nicht ohne Pro. Für die Beta reicht das Dev-Projekt. Zwei Einschränkungen: Gratis-Projekte pausieren nach **einer Woche ohne Nutzung**, und es gibt keine automatischen Backups. Sag den Testern, dass ihre Beta-Daten beim Start nicht übernommen werden.
+- **Domain-Lockangebote:** „0 € im ersten Jahr“ heißt oft 15–20 €/Jahr danach, und Mail-Pakete werden nach dem ersten Jahr teurer. Vergleiche die Verlängerungspreise.
+- **Domain über einen Bekannten (z. B. Jonas):** Gerne, aber die Domain muss **auf deinen Namen** registriert sein. Du bist dort Inhaber und hast den Zugang. Sonst hängt deine App an jemand anderem.
+- **Apple verlängert automatisch.** Ohne Mitgliedschaft verschwindet die App aus dem Store.
+
+---
+
+## 3. Was ist Pflicht, was kann warten?
+
+| | Vor der Beta | Vor dem Start | Kann warten |
+|---|---|---|---|
+| Marke prüfen | ✅ | | |
+| Domain und Postfach | ✅ (Mails an Tester) | | |
+| Rechtstexte online | ✅ (Stores verlangen den Link) | | |
+| Rechtstexte anwaltlich geprüft | | ✅ | |
+| Datenbank-Einstellungen (Mail, Links) | ✅ | | |
+| Google-Login | ✅ | | |
+| Apple-Login | ✅ für TestFlight | | |
+| 15–20 Tester | ✅ | | |
+| Eigenes Produktions-Backend (Pro) | | ✅ | |
+| Webseite / Landingpage | | | ✅ (die Rechtstexte-Seite reicht zum Start) |
+| Marke anmelden | | | ✅ |
+| Englische Version | | | ✅ |
+| Push-Benachrichtigungen | | | ✅ |
+| Premium-Funktionen | | | ✅ |
+
+---
+
+## 4. Phase 0 · Jetzt: App selbst ansehen (0 €)
+
+Zwei Wege, beide im iPhone-Simulator auf deinem Mac:
+
+**a) Die echte App, mit echter Datenbank**
+- [ ] → Claude: „Starte die App“
+- [ ] Mit deinem **bestehenden Dev-Konto** anmelden (deine Gmail-Adresse, das Passwort kennst du). Das Konto ist bereits **Admin**, du siehst also auch „Meldungen prüfen“
+- Feed, Entdecken und Lesekreise sind noch fast leer, weil du der einzige Nutzer bist. Lege ruhig Bücher, Beiträge und einen Lesekreis an
+
+**b) Der Demo-Modus, mit Beispieldaten**
+- [ ] → Claude: „Starte den Demo-Modus“. Die App ist dann voll mit Lesern, Beiträgen und Lesekreisen, so wie auf den Store-Bildern. Nichts davon landet in der Datenbank
+
+**Feedback:** Notiere, was dir auffällt, am besten mit Screenshot (im Simulator ⌘S) → Claude. Design schlicht lassen, Fokus auf Kernfunktionen: Regal, Beitrag schreiben, Feed, Lesekreis.
+
+---
+
+## 5. Phase A · Vorbereitung
+
+### A1 Marke prüfen (10 Min., 0 €)
+- [ ] [TMview](https://www.tmdn.org/tmview/) (EU und weltweit) und [DPMA-Register](https://register.dpma.de) (Deutschland) nach „Booksquad“ durchsuchen. Relevant sind die Klassen 9 (Software), 38 (Telekommunikation), 41 (Bildung, Unterhaltung), 42 (IT-Dienste) und 45 (soziale Netzwerke)
+- [ ] Optional: [USPTO](https://tmsearch.uspto.gov/) (USA), wegen des weltweiten Starts
+- Treffer in diesen Klassen → Claude, bevor du etwas kaufst
+
+### A2 Domains und Postfach (30 Min., ca. 5–60 €/Jahr)
+- [ ] `getbooksquad.com` und `booksquad.de` kaufen, **auf deinen Namen**
+- [ ] Postfächer anlegen: `support@getbooksquad.com` (Kontakt) und `noreply@getbooksquad.com` (App-Mails)
+- [ ] Beim Anbieter die **SMTP-Daten** nachsehen: Server, Port, Benutzer, Passwort
+- [ ] → Claude: „Domains sind da“, dazu den Anbieter nennen. Claude merged die Umbenennung (PR #9) und nennt dir die DNS-Einträge für:
+  - die Webseite (`getbooksquad.com` → GitHub Pages)
+  - die Weiterleitung von `booksquad.de`
+  - die Mail-Absicherung (SPF, DKIM), damit App-Mails nicht im Spam landen
+- [ ] DNS-Einträge beim Anbieter eintragen
+
+### A3 Rechtstexte (Prüfung 1–2 Wochen, ca. 150–600 €)
+Name, Anschrift und E-Mail stehen schon drin.
+- [ ] → Claude: „Rechtstexte veröffentlichen“ (sobald die Domain steht). Die Seiten gehen unter `getbooksquad.com` online
+- [ ] Texte prüfen lassen (Anwalt oder Rechtstext-Dienst). Fragen für den Prüfer:
   - Reicht eine E-Mail-Adresse ohne Telefonnummer im Impressum?
-  - Ist die Übermittlung an Open Library (USA) so korrekt beschrieben?
-- [ ] → Claude: „Texte sind freigegeben“. Claude veröffentlicht die Seiten unter `getbooksquad.com`
+  - Ist die Übermittlung an Open Library (USA) richtig beschrieben?
+  - Passen die Nutzungsbedingungen (inkl. Digital Services Act) zu einem kostenlosen Angebot?
+- [ ] Änderungswünsche → Claude
 
-### Schritt 3: E-Mail-Versand im Dev-Projekt einrichten (15 Min.)
+### A4 Datenbank: alles, was du im Supabase-Dashboard selbst machst (45 Min., 0 €)
+Gilt jetzt für das **Dev-Projekt** (das ist auch das Beta-Backend). Für die Produktion wiederholst du es in Phase C. Dashboard: [supabase.com/dashboard](https://supabase.com/dashboard) → Projekt „marcellomerico's Project“ (Ref `thkfqvvzldkfxaqehjqn`).
 
-Ohne diesen Schritt kommen Bestätigungs- und Passwort-Mails nicht an. Der eingebaute Supabase-Mailer schickt nur an Adressen aus deinem Supabase-Team und nur wenige Mails pro Stunde.
-
-1. [ ] Beim Domain-Anbieter ein zweites Postfach `noreply@getbooksquad.com` anlegen und die **SMTP-Zugangsdaten** nachsehen (Server, Port, Benutzer, Passwort)
-2. [ ] → Claude: Den Namen des Anbieters nennen. Claude trägt ihn als Maildienst in die Datenschutzerklärung ein (das Passwort behältst du)
-3. [ ] Supabase Dashboard → Dev-Projekt → **Authentication → Emails → SMTP Settings** → „Enable custom SMTP“:
-   - Host, Port, Benutzer und Passwort vom Anbieter
-   - Sender email: `noreply@getbooksquad.com`, Sender name: `Booksquad`
-4. [ ] **Authentication → Sign In / Providers → Email:** „Confirm email“ ist **an**
-5. [ ] **Authentication → URL Configuration:**
+1. [ ] **Dein Supabase-Konto absichern:** Konto (oben rechts) → Account → **Multi-Factor Authentication** an. Wer dein Konto hat, hat alle Nutzerdaten
+2. [ ] **Authentication → URL Configuration:**
    - Site URL: `booksquad://auth-callback`
-   - Redirect URLs: `booksquad://auth-callback` (falls nicht schon eingetragen)
+   - Redirect URLs: `booksquad://auth-callback`. Ein alter Eintrag mit dem früheren Namen kann weg. Ohne diesen Eintrag öffnen Bestätigungs- und Passwort-Links die App nicht
+3. [ ] **Authentication → Emails → SMTP Settings** → „Enable custom SMTP“ mit den Daten aus A2:
+   - Sender: `noreply@getbooksquad.com`, Name `Booksquad`
+   - Ohne eigenes SMTP schickt Supabase nur an Mitglieder deines Supabase-Teams. Deine Tester bekämen keine Mails
+4. [ ] **Authentication → Emails → Templates:** deutsche Texte für „Confirm signup“ und „Reset password“ → Claude liefert die fertigen Vorlagen zum Einfügen
+5. [ ] **Authentication → Sign In / Providers → Email:** „Confirm email“ **an**, minimale Passwortlänge **8**
+6. [ ] **Authentication → Rate Limits:** Standardwerte ansehen. Mails pro Stunde ggf. auf 30 erhöhen, sobald eigenes SMTP läuft
+7. [ ] **Advisors → Security Advisor:** Erwartet sind nur die bekannten Hinweise. Neue Warnungen → Claude
+8. [ ] **Table Editor:** einfach mal reinschauen (Tabellen `profiles`, `posts`, `groups`, `reports`). Ändere hier nichts von Hand, dafür gibt es die App und die Moderation
+9. [ ] Weitere Admins (z. B. eine Mitmoderatorin) später im **SQL Editor** eintragen:
+   ```sql
+   insert into private.admins (user_id)
+   select id from auth.users where email = 'mail@beispiel.de';
+   ```
+10. [ ] Merken: Das Dev-Projekt pausiert nach einer Woche ohne Nutzung. Dann im Dashboard auf „Restore“ klicken (oder → Claude)
 
-### Schritt 4: Google-Login einrichten (30 Min.)
-
+### A5 Google-Login (30 Min., 0 €)
 1. [ ] [console.cloud.google.com](https://console.cloud.google.com) → neues Projekt „Booksquad“
-2. [ ] **APIs & Dienste → OAuth-Zustimmungsbildschirm** (heißt teils „Google Auth Platform → Branding“):
-   - App-Name „Booksquad“, Support-E-Mail aus Schritt 1
-   - Zielgruppe „Extern“
-   - Links auf Datenschutz und Nutzungsbedingungen, sobald die Seiten aus Schritt 2 online sind
-3. [ ] **Clients → Client erstellen**, dreimal:
-   - **Webanwendung**, Name „Supabase“. Autorisierte Weiterleitungs-URI: `https://thkfqvvzldkfxaqehjqn.supabase.co/auth/v1/callback`
+2. [ ] **Google Auth Platform → Branding:**
+   - App-Name „Booksquad“, Support-Mail `support@getbooksquad.com`
+   - Links: `https://getbooksquad.com/privacy.html` und `https://getbooksquad.com/terms.html`
+   - Autorisierte Domain: `getbooksquad.com`
+3. [ ] **Zielgruppe:** „Extern“. Im Status „Testen“ können sich nur eingetragene Test-Nutzer (bis 100) anmelden, also die Beta-Tester eintragen. Vor dem Start auf **„In Produktion“** stellen. Für die einfachen Berechtigungen (E-Mail, Profil) braucht es keine Google-Prüfung
+4. [ ] **Clients → Client erstellen**, dreimal:
+   - **Webanwendung** „Supabase“, Weiterleitungs-URI: `https://thkfqvvzldkfxaqehjqn.supabase.co/auth/v1/callback`
    - **iOS**, Bundle-ID `com.booksquad.app`
-   - **Android**, Paketname `com.booksquad.app`, SHA-1 `99:0F:08:74:EC:06:37:2E:16:87:DE:79:18:07:9B:16:2F:03:03:20` (das ist der Debug-Schlüssel dieses Macs)
-4. [ ] Supabase → Dev-Projekt → **Authentication → Sign In / Providers → Google** → aktivieren:
-   - Client ID und Client Secret vom **Web**-Client eintragen
-   - Speichern
-5. [ ] → Claude: **Web-Client-ID** und **iOS-Client-ID** schicken (beide enden auf `.apps.googleusercontent.com`; das sind keine Geheimnisse). Das Client Secret bleibt bei dir. Claude trägt die IDs in `.env` und `Info.plist` ein
+   - **Android**, Paket `com.booksquad.app`, SHA-1 `99:0F:08:74:EC:06:37:2E:16:87:DE:79:18:07:9B:16:2F:03:03:20` (Debug-Schlüssel dieses Macs)
+5. [ ] Supabase → **Authentication → Sign In / Providers → Google:** Client ID und Secret vom **Web**-Client eintragen
+6. [ ] → Claude: Web- und iOS-Client-ID schicken (keine Geheimnisse). Das Secret behältst du
 
-### Schritt 5: Test-Konten anlegen (15 Min.)
+### A6 Tester sammeln (laufend, 0 €)
+- [ ] **15–20 Leute** finden (Freunde, Familie, Lesekreis, Kolleginnen). Google verlangt 12, der Rest ist Puffer
+- [ ] Liste führen mit Name, **Google-Konto-Mail** (für Play), **Apple-ID-Mail** (für TestFlight) und Gerät (iPhone/Android)
+- [ ] Mit den Testern absprechen:
+  - die App 14 Tage installiert lassen
+  - sie ab und zu benutzen
+  - Feedback geben
 
-Du brauchst vier E-Mail-Adressen. Mit Gmail geht das über Aliasse, alle Mails landen im selben Postfach: `deinname+a@gmail.com`, `+b`, `+c`, `+extra`.
-
-1. [ ] → Claude: „App starten“. Claude startet die App im iPhone-Simulator
-2. [ ] Mit deiner Haupt-Adresse registrieren. Der Bestätigungslink muss **im Simulator** geöffnet werden, nicht im Mac-Browser. Deshalb in der Mail am Mac: Rechtsklick auf den Link → „Link kopieren“ → → Claude schicken. Claude öffnet ihn im Simulator, die App meldet dich an. Auf einem echten Handy tippst du den Link einfach in der Mail-App an
-3. [ ] → Claude: „Bin registriert, mach mich zum Admin“
-4. [ ] Konten **A**, **B** und **C** genauso registrieren (für Social- und Moderations-Tests)
-
-### Schritt 6: Testen (2–3 Std., gern auf mehrere Tage verteilt)
-
-Die Tabellen mit Schritten und erwartetem Ergebnis stehen in `TESTING.md`. Du gehst sie in dieser Reihenfolge durch und hakst ab:
-
-| # | Teil in `TESTING.md` | Worum es geht | Wo |
-|---|---------------------|---------------|----|
-| 1 | D (Auth) + Registrierung | Login, Logout, Passwort-Reset-Mail **inkl. Link öffnen**, Google-Login | iOS-Simulator |
-| 2 | E (Profil & Regal) | Avatar, Bücher, Sterne, Statistik | iOS-Simulator |
-| 3 | F (Feed & Beiträge) | Posten mit Buch und Bild, Liken, Kommentieren, Melden, Blockieren | iOS-Simulator |
-| 4 | G (Social) | Folgen, Feed von anderen, Blockieren (Konten A und B) | iOS-Simulator |
-| 5 | H (Lesekreise) | Öffentlich, privat, Beitritt per Code | iOS-Simulator |
-| 6 | M (Moderation) | Melden mit A, B, C, Admin-Queue, Rate-Limit | iOS-Simulator |
-| 7 | F2 (Feed & Bücher) | Endlos-Scroll, Like offline, Buch-Detailseite, Onboarding | iOS-Simulator |
-| 8 | J (UI) | Große Schrift, VoiceOver, Flugmodus, Tastatur | iOS-Simulator |
-| 9 | D, F, G, J noch einmal kurz | Android-Verhalten (Zurück-Taste, Google-Login, Tastatur) | Android, siehe unten |
-| 10 | I (Konto löschen) | **Nur mit dem Konto `+extra`, ganz am Ende** | beliebig |
-
-**Android:**
-- Mit echtem Android-Handy: Einstellungen → Telefoninfo → 7× auf „Build-Nummer“ tippen → Entwickleroptionen → USB-Debugging an → per Kabel an den Mac → → Claude: „Handy ist dran“. Claude installiert die App
-- Ohne Handy: → Claude: „Android-Emulator starten“. Ein Emulator ist auf dem Mac schon eingerichtet
-
-**Wenn etwas nicht stimmt:** Test-ID (z. B. „F4“), was du gemacht hast, was passiert ist, am besten mit Screenshot → Claude. Claude behebt es, du testest die Stelle danach noch einmal.
-
-### Schritt 7: Screenshots ansehen (5 Min.)
-
-Die Store-Bilder sind fertig: `docs/store/` (App Store 6,9", 1320 × 2868), aufgenommen im Demo-Modus mit Beispieldaten. Rohbilder aller Screens liegen in `docs/screenshots/`.
-
-- [ ] Bilder ansehen und freigeben, oder → Claude sagen, was anders sein soll (Texte, Reihenfolge, andere Screens)
-
-**Ende von Teil 1:** Die App ist durchgetestet, die Rechtstexte sind geprüft und online, die Screenshots liegen bereit.
+### A7 Selbst testen (2–3 Std., 0 €)
+- [ ] Testreihenfolge aus `TESTING.md` im iPhone-Simulator durchgehen: D → E → F → G → H → M → F2 → J, Konto löschen (I) zuletzt mit einem Wegwerf-Konto
+- [ ] Für Social-Tests zweite und dritte Adresse nutzen (Gmail-Alias: `deinname+b@gmail.com`)
+- [ ] Android: Handy per USB anschließen (Entwickleroptionen → USB-Debugging) oder → Claude startet den Emulator
+- [ ] Fehler mit Test-ID und Screenshot → Claude
 
 ---
 
-## Teil 2 – Am Schluss, kostet Geld
+## 6. Phase B · Beta (ca. 125 €, mind. 14 Tage)
 
-> **Zeitplan beachten, wenn die App dieses Jahr erscheinen soll:**
-> - **Google** verlangt von neuen privaten Konten vor dem Produktivstart einen **geschlossenen Test mit mindestens 12 Personen über 14 Tage**. Danach folgt die Prüfung (einige Tage). Das Play-Konto sollte deshalb **spätestens Anfang Dezember** stehen, und die 12 Tester solltest du schon in Teil 1 suchen (Freunde, Familie, Lesekreis).
-> - **Apple:** Die Kontoprüfung dauert 1–2 Tage (als Firma mit D-U-N-S-Nummer länger), das App-Review meist 1–3 Tage. Über die Feiertage arbeitet Apple langsamer.
-
-### Schritt 8: Supabase Pro und Prod-Projekt (ca. 25 $/Monat)
-
-1. [ ] Supabase → Organization → Billing → Plan **Pro**
-2. [ ] Organization → Legal Documents → **AVV/DPA** abschließen (Pflicht nach DSGVO)
-3. [ ] → Claude: „Prod-Projekt anlegen“. Claude legt es in Frankfurt an (nach deinem OK zu den Kosten), spielt Schema und Edge Function ein und trägt die Prod-Werte in `.env` ein
-4. [ ] Im **Prod**-Projekt Schritt 3 (SMTP, Confirm email, URL Configuration) wiederholen
-5. [ ] Authentication → Sign In / Providers → **Leaked password protection** an (nur im Pro-Plan verfügbar). Am besten im Dev-Projekt auch
-6. [ ] Google Cloud: beim **Web**-Client zusätzlich die Weiterleitungs-URI des Prod-Projekts eintragen (`https://<prod-ref>.supabase.co/auth/v1/callback`; Claude nennt dir die Ref). Dann im Prod-Projekt den Google-Provider mit demselben Web-Client aktivieren
-7. [ ] In der App (mit Prod-Build, → Claude) registrieren → → Claude: „Mach mich in Prod zum Admin“
-8. [ ] Demo-Konto für das Apple-Review in Prod registrieren → → Claude füllt es mit Beispieldaten
-
-### Schritt 9: Apple (99 €/Jahr)
-
-1. [ ] [developer.apple.com/programs](https://developer.apple.com/programs/) → beitreten. Als Privatperson geht es am schnellsten
-2. [ ] Xcode → Einstellungen → Accounts → mit dem Apple-Konto anmelden → → Claude: „Apple-Konto ist in Xcode“. Claude stellt Signing und Team ein
+### B1 Apple Developer Program (99 €/Jahr)
+1. [ ] [developer.apple.com/programs](https://developer.apple.com/programs/) → als **Privatperson** registrieren (ein bis zwei Tage Prüfung). Als Firma bräuchtest du eine D-U-N-S-Nummer, das dauert länger
+2. [ ] Xcode → Einstellungen → Accounts → mit dem Apple-Konto anmelden → → Claude: „Apple-Konto ist in Xcode“ (Claude stellt Team und Signing ein)
 3. [ ] **Sign in with Apple** einrichten (developer.apple.com → Certificates, Identifiers & Profiles):
-   - Unter Identifiers eine **Services ID** anlegen (z. B. `com.booksquad.app.signin`). Domain: `<prod-ref>.supabase.co`, Return URL: `https://<prod-ref>.supabase.co/auth/v1/callback`
-   - Unter Keys einen **Key** mit „Sign in with Apple“ anlegen und die `.p8`-Datei herunterladen (gibt es nur einmal, sicher aufbewahren)
-   - Supabase Prod → Providers → **Apple**: Services ID, Team ID, Key ID und Inhalt der `.p8` eintragen
-4. [ ] [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Apps → **+ Neue App**:
-   - Name „Booksquad – Lesen mit Freunden“ (ist er vergeben → Claude, für eine Alternative), Sprache Deutsch
-   - Bundle-ID `com.booksquad.app`, SKU `booksquad`
-5. [ ] Texte aus `docs/STORE_LISTING.md` einfügen, Bilder aus `docs/store/` hochladen
-6. [ ] **App-Datenschutz**, **Altersfreigabe** und Prüfnotizen nach `docs/STORE_PRIVACY.md` ausfüllen. Demo-Konto-Zugangsdaten **nur hier** eintragen
-7. [ ] → Claude: „iOS-Build bauen“. Danach die `.ipa` mit der kostenlosen Mac-App **Transporter** (App Store) hochladen, Anmeldung mit deinem Apple-Konto
-8. [ ] App Store Connect → **TestFlight**: Dich selbst als internen Tester eintragen, auf dem iPhone die App **TestFlight** installieren und Booksquad darüber laden
-9. [ ] Auf dem **echten iPhone** testen: Apple-Login, Google-Login, Registrierung mit Bestätigungslink, Passwort-Reset-Link, Foto-Upload, Teil J aus `TESTING.md`. Fehler → Claude
-10. [ ] Build der Version zuordnen → **Zur Prüfung einreichen**
+   - **Services ID** anlegen, z. B. `com.booksquad.app.signin`
+     - Domain: `thkfqvvzldkfxaqehjqn.supabase.co`
+     - Return URL: `https://thkfqvvzldkfxaqehjqn.supabase.co/auth/v1/callback`
+   - **Key** mit „Sign in with Apple“ erzeugen, die `.p8`-Datei laden (gibt es nur einmal, sicher aufbewahren)
+   - Supabase → Providers → **Apple**: Services ID, Team ID, Key ID und Inhalt der `.p8`
+   - Pflicht: Apple verlangt Apple-Login, sobald eine App Google-Login anbietet
+4. [ ] [App Store Connect](https://appstoreconnect.apple.com) → **Neue App**: Name „Booksquad – Lesen mit Freunden“, Deutsch, Bundle-ID `com.booksquad.app`, SKU `booksquad`
 
-### Schritt 10: Google Play (einmalig 25 $)
+### B2 TestFlight
+1. [ ] → Claude: „iOS-Beta bauen“. Claude baut die App gegen das Dev-Backend
+2. [ ] Die `.ipa` mit der kostenlosen Mac-App **Transporter** hochladen. Anmeldung mit deiner Apple-ID
+3. [ ] App Store Connect → TestFlight → **Interne Tester:** dich selbst eintragen (bis 100 Personen, die in deinem App-Store-Connect-Team sind, ohne Prüfung)
+4. [ ] **Externe Tester:** Gruppe „Beta“ anlegen, Testinfos ausfüllen (was testen, Kontakt), zur **Beta-Prüfung** einreichen. Die erste Prüfung dauert meist 1–2 Tage. Danach Einladung per Mail oder öffentlichem Link (bis 10.000 Tester)
+5. [ ] Tester installieren die App **TestFlight** aus dem App Store und dann Booksquad darüber
+6. [ ] Builds laufen nach **90 Tagen** ab. Bei längeren Betas → Claude baut neu
 
-1. [ ] [play.google.com/console](https://play.google.com/console) → Konto als Privatperson anlegen, Identität bestätigen (dauert einige Tage)
-2. [ ] **Upload-Schlüssel erzeugen:** → Claude gibt dir den fertigen `keytool`-Befehl. Du führst ihn im Terminal aus und vergibst die Passwörter selbst. Danach legst du `android/key.properties` nach der Vorlage in `docs/RELEASE.md` an. Keystore-Datei und Passwörter im Passwort-Manager sichern
-3. [ ] Play Console → **App erstellen** (Name, Deutsch, App, kostenlos)
-4. [ ] Store-Eintrag aus `docs/STORE_LISTING.md`, Screenshots, Feature-Grafik (→ Claude erstellt sie)
-5. [ ] **App-Inhalte** ausfüllen: Datenschutz-URL, Datensicherheit, Einstufungsfragebogen, Zielgruppe ab 16, keine Werbung (alles in `docs/STORE_PRIVACY.md`)
-6. [ ] → Claude: „Android-Build bauen“. Dann **Testen → Interner Test → Release erstellen** → `.aab` hochladen, Play App Signing akzeptieren
-7. [ ] Play Console → Einrichtung → **App-Signatur**: Beide SHA-1-Werte (App-Signaturschlüssel und Upload-Schlüssel) kopieren und in Google Cloud je als weiteren **Android**-Client anlegen. Sonst funktioniert der Google-Login in der Play-Version nicht
-8. [ ] **Geschlossener Test:** Release übernehmen, die 12 Tester per E-Mail-Liste einladen, Opt-in-Link verschicken. Die Tester müssen die App **14 Tage** installiert behalten
-9. [ ] Danach **Zugriff auf Produktion beantragen**, die Fragen zum Test beantworten, Release in Produktion übernehmen
+### B3 Google Play (25 $ einmalig)
+1. [ ] [play.google.com/console](https://play.google.com/console) → Konto als **Privatperson** anlegen, Identität bestätigen (ein paar Tage)
+2. [ ] **Upload-Schlüssel:** → Claude gibt dir den `keytool`-Befehl. Du führst ihn aus und vergibst die Passwörter selbst. Danach `android/key.properties` nach Vorlage anlegen. Schlüssel und Passwörter im Passwort-Manager sichern
+3. [ ] **App erstellen:** Name, Deutsch, App, kostenlos. Unter **App-Inhalte** ausfüllen: Datenschutz-URL, Datensicherheit, Einstufung, Zielgruppe ab 16, keine Werbung. Die Antworten stehen in `docs/STORE_PRIVACY.md`
+4. [ ] → Claude: „Android-Beta bauen“ → unter **Testen → Interner Test** die `.aab` hochladen, „Play App Signing“ akzeptieren
+5. [ ] **Einrichtung → App-Signatur:** beide SHA-1-Werte (App-Signatur und Upload) in der Google Cloud je als weiteren **Android-Client** anlegen. Sonst geht der Google-Login in der Play-Version nicht
+6. [ ] **Testen → Geschlossener Test:** Release übernehmen, Tester-Liste mit den Google-Mails aus A6 anlegen, Opt-in-Link verschicken
+7. [ ] **14 Tage abwarten** und darauf achten, dass mindestens 12 Tester angemeldet bleiben
 
-### Schritt 11: Nach der Freigabe
+### B4 Feedback-Runde
+- [ ] Rückmeldungen sammeln (TestFlight hat eine eingebaute Feedback-Funktion, Google Play nicht: also Mail an `support@`)
+- [ ] Wichtiges → Claude, neue Beta-Builds nach Bedarf
 
-- [ ] → Claude: „Ist live“. Claude taggt die Version und bereitet das nächste Update vor
-- [ ] Meldungen in der App regelmäßig prüfen (Einstellungen → Meldungen prüfen)
+---
+
+## 7. Phase C · Öffentlicher Start (ca. 27 €/Monat)
+
+### C1 Produktions-Backend
+1. [ ] Supabase → **neue Organisation „Booksquad“** → Plan **Pro** (nicht deine bestehende Organisation, siehe Kostenfallen)
+2. [ ] In der neuen Organisation: Legal Documents → **AVV/DPA** abschließen (DSGVO-Pflicht)
+3. [ ] → Claude: „Prod-Projekt anlegen“. Claude legt es in Frankfurt an, spielt Schema und Edge Function ein, prüft alles und stellt die App auf Prod um
+4. [ ] A4 Schritte 2–6 im **Prod-Projekt** wiederholen, zusätzlich: **Leaked password protection** an (gibt es nur im Pro-Plan)
+5. [ ] Google Cloud: beim Web-Client die Prod-Weiterleitungs-URI ergänzen, Google- und Apple-Provider im Prod-Projekt eintragen (dieselben Werte wie in Dev, nur die Supabase-Adresse ist neu)
+6. [ ] In der Prod-App registrieren → im SQL Editor dich selbst als Admin eintragen (Befehl aus A4.9)
+7. [ ] **Demo-Konto für die Apple-Prüfung** registrieren → Claude füllt es mit Beispieldaten. Zugangsdaten nur in App Store Connect eintragen
+
+### C2 Store-Einträge
+- [ ] **Apple:**
+  - Texte aus `docs/STORE_LISTING.md`, Bilder aus `docs/store/`
+  - App-Datenschutz, Altersfreigabe und Prüfnotizen aus `docs/STORE_PRIVACY.md`
+- [ ] **Google:**
+  - Store-Eintrag aus `docs/STORE_LISTING.md`, Bilder aus `docs/store/`
+  - Feature-Grafik 1024 × 500 → Claude erstellt sie
+
+### C3 Veröffentlichen
+- [ ] → Claude: „Release-Builds bauen“ (Prod-Backend, neue Build-Nummer)
+- [ ] **Apple:** Build hochladen, der Version zuordnen → **Zur Prüfung einreichen**
+- [ ] **Google:** nach den 14 Tagen **Zugriff auf Produktion beantragen** (Fragen zum Test beantworten), dann Release in Produktion übernehmen
+- [ ] Nach Freigabe → Claude: „Ist live“ (Version taggen, nächstes Update vorbereiten)
+- [ ] Ab dann regelmäßig: Meldungen in der App prüfen (Einstellungen → Meldungen prüfen)
+
+---
+
+## 8. Phase D · Später
+
+| Thema | Was | Kosten |
+|---|---|---|
+| **Webseite** | Landingpage auf `getbooksquad.com` mit Store-Bildern, Download-Buttons und Rechtstexten. → Claude baut sie, Hosting über GitHub Pages | 0 € |
+| **Marke anmelden** | DPMA oder EUIPO, wenn die App anläuft | 290–850 € |
+| **Englische Version** | App-Texte, Store-Einträge und Rechtstexte auf Englisch, für den weltweiten Start | 0 € (ggf. Übersetzungsprüfung) |
+| **Push-Benachrichtigungen** | Likes, Kommentare, neue Beiträge im Lesekreis. Braucht Firebase (kostenlos) und den Apple-Push-Schlüssel | 0 € |
+| **Premium** | Erst Community aufbauen. Bei Einnahmen: Gewerbe, Steuern, Abo-Abwicklung über die Stores (15 % Provision im ersten Jahr für kleine Entwickler) | – |
+| **Deutsche Buchbeschreibungen** | Zweite Buchquelle neben Open Library | 0 € |
