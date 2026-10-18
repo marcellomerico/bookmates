@@ -44,20 +44,23 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     if (!mounted) return;
     final selected = await showModalBottomSheet<UserBook>(
       context: context,
+      useRootNavigator: true,
       showDragHandle: true,
-      builder: (context) => ListView(
-        children: [
-          const ListTile(title: Text('Buch aus deinem Regal')),
-          ...books
-              .where((entry) => entry.book != null)
-              .map(
-                (entry) => ListTile(
-                  title: Text(entry.book!.title),
-                  subtitle: Text(entry.book!.author ?? ''),
-                  onTap: () => Navigator.pop(context, entry),
+      builder: (context) => SafeArea(
+        child: ListView(
+          children: [
+            const ListTile(title: Text('Buch aus deinem Regal')),
+            ...books
+                .where((entry) => entry.book != null)
+                .map(
+                  (entry) => ListTile(
+                    title: Text(entry.book!.title),
+                    subtitle: Text(entry.book!.author ?? ''),
+                    onTap: () => Navigator.pop(context, entry),
+                  ),
                 ),
-              ),
-        ],
+          ],
+        ),
       ),
     );
     if (selected != null) setState(() => _selectedBook = selected);

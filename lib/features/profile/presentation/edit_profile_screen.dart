@@ -105,7 +105,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
     if (image == null) return;
     try {
-      final bytes = await sanitizeImage(await image.readAsBytes(), maxEdge: 512);
+      final bytes = await sanitizeImage(
+        await image.readAsBytes(),
+        maxEdge: 512,
+      );
       if (mounted) setState(() => _avatarBytes = bytes);
     } on FormatException {
       if (!mounted) return;

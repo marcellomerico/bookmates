@@ -37,8 +37,9 @@ class UserProfileScreen extends ConsumerWidget {
       ref.invalidate(activityProvider);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
   }
 
@@ -107,7 +108,9 @@ class UserProfileScreen extends ConsumerWidget {
                   ref.invalidate(profileStatsProvider(userId));
                   ref.invalidate(bookshelfByUserProvider(userId));
                   await ref
-                      .read(pagedPostsProvider(PostSource.author(userId)).notifier)
+                      .read(
+                        pagedPostsProvider(PostSource.author(userId)).notifier,
+                      )
                       .refresh();
                 },
                 child: ListView(
@@ -139,18 +142,23 @@ class UserProfileScreen extends ConsumerWidget {
                       ),
                     const SizedBox(height: 16),
                     stats.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (_, _) => const Text('Statistiken konnten nicht geladen werden.'),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (_, _) => const Text(
+                        'Statistiken konnten nicht geladen werden.',
+                      ),
                       data: (value) => Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _Stat('${value.postCount}', 'Beiträge'),
                           InkWell(
-                            onTap: () => context.push('/users/$userId/followers'),
+                            onTap: () =>
+                                context.push('/users/$userId/followers'),
                             child: _Stat('${value.followerCount}', 'Follower'),
                           ),
                           InkWell(
-                            onTap: () => context.push('/users/$userId/following'),
+                            onTap: () =>
+                                context.push('/users/$userId/following'),
                             child: _Stat('${value.followingCount}', 'Folgt'),
                           ),
                         ],
@@ -159,10 +167,16 @@ class UserProfileScreen extends ConsumerWidget {
                     if (!ownProfile && currentUser != null) ...[
                       const SizedBox(height: 16),
                       following.when(
-                        loading: () => const Center(child: CircularProgressIndicator()),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
                         error: (_, _) => const SizedBox.shrink(),
                         data: (value) => ElevatedButton(
-                          onPressed: () => _toggleFollow(context, ref, currentUser.id, value),
+                          onPressed: () => _toggleFollow(
+                            context,
+                            ref,
+                            currentUser.id,
+                            value,
+                          ),
                           child: Text(value ? 'Entfolgen' : 'Folgen'),
                         ),
                       ),
@@ -175,14 +189,22 @@ class UserProfileScreen extends ConsumerWidget {
                               child: Wrap(
                                 alignment: WrapAlignment.center,
                                 spacing: 8,
-                                children: items.map((genre) => Chip(label: Text(genre))).toList(),
+                                children: items
+                                    .map((genre) => Chip(label: Text(genre)))
+                                    .toList(),
                               ),
                             ),
                       loading: () => const SizedBox.shrink(),
                       error: (_, _) => const SizedBox.shrink(),
                     ),
                     const SizedBox(height: 24),
-                    Text('Beiträge', style: Theme.of(context).textTheme.titleLarge),
+                    // Shelf before posts: the post list pages endlessly, anything below it is unreachable.
+                    BookshelfWidget(userId: userId),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Beiträge',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 8),
                     ...pagedPostListItems(
                       ref,
@@ -193,8 +215,6 @@ class UserProfileScreen extends ConsumerWidget {
                         title: 'Noch keine Beiträge',
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    BookshelfWidget(userId: userId),
                   ],
                 ),
               );
@@ -212,9 +232,9 @@ class _Stat extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) => Column(
-        children: [
-          Text(value, style: Theme.of(context).textTheme.titleLarge),
-          Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 11)),
-        ],
-      );
+    children: [
+      Text(value, style: Theme.of(context).textTheme.titleLarge),
+      Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 11)),
+    ],
+  );
 }

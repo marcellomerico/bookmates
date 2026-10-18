@@ -206,7 +206,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 onRetry: () => ref.invalidate(groupsProvider(null)),
               ),
             ],
+            // Circles the user hasn't joined first; joined ones only fill up the rest.
             data: (items) => items
+                .where((g) => !g.isMember)
+                .followedBy(items.where((g) => g.isMember))
                 .take(3)
                 .map(
                   (group) => _DiscoverClub(

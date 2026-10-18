@@ -102,6 +102,27 @@ class DemoStore {
       'Lese meinen Kindern vor und mir selbst nachts.',
       ['Jugendbuch', 'Fantasy'],
     );
+    person(
+      'u-clara',
+      'clara.liest',
+      'Clara',
+      'Krimis, Kaffee und Katzen. Meistens gleichzeitig.',
+      ['Krimi', 'Roman'],
+    );
+    person(
+      'u-tom',
+      'tom_turns_pages',
+      'Tom',
+      'Fantasy-Nerd und Hörbuch-Pendler.',
+      ['Fantasy', 'Science-Fiction'],
+    );
+    person(
+      'u-yuki',
+      'yuki.reads',
+      'Yuki',
+      'Klassiker im Original, Manga zum Abschalten.',
+      ['Klassiker', 'Fantasy'],
+    );
 
     void book(
       String id,
@@ -217,6 +238,9 @@ class DemoStore {
     shelf('u-hanna', 'b-momo', BookStatus.read, 5);
     shelf('u-hanna', 'b-unendlich', BookStatus.reading);
     shelf('u-hanna', 'b-hp', BookStatus.read, 5);
+    shelf('u-clara', 'b-parfum', BookStatus.read, 5);
+    shelf('u-tom', 'b-hobbit', BookStatus.reading);
+    shelf('u-yuki', 'b-stolz', BookStatus.read, 4);
 
     following[meId] = {'u-jonas', 'u-lena', 'u-sophie', 'u-amir'};
     following['u-jonas'] = {meId, 'u-amir'};
@@ -540,7 +564,7 @@ class DemoStore {
       ModerationReport(
         reportId: 'r1',
         reportedAt: ago(hours: 2),
-        reason: 'spam',
+        reason: 'Werbung für illegale E-Book-Downloads',
         reporterUsername: 'lena.seitenweise',
         targetUserId: 'u-spam',
         targetUsername: 'gratis_ebooks_4u',

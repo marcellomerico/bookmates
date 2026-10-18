@@ -90,11 +90,17 @@ Future<void> _blockUser(
     message = authErrorMessage(e);
   }
   if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
-Future<bool> _confirmDelete(BuildContext context, String title, String body) async {
+Future<bool> _confirmDelete(
+  BuildContext context,
+  String title,
+  String body,
+) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog.adaptive(
@@ -129,6 +135,7 @@ Future<void> showPostActionsMenu(
   final isOwner = post.authorId == user.id;
   final action = await showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     showDragHandle: true,
     builder: (context) => SafeArea(
       child: Column(
@@ -136,7 +143,10 @@ Future<void> showPostActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+              leading: Icon(
+                Icons.delete_outline,
+                color: Theme.of(context).colorScheme.error,
+              ),
               title: const Text('Beitrag löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )
@@ -217,6 +227,7 @@ Future<void> showUserActionsMenu(
 
   final action = await showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     showDragHandle: true,
     builder: (context) => SafeArea(
       child: Column(
@@ -259,6 +270,7 @@ Future<void> showCommentActionsMenu(
   final authorName = comment.author?.displayName ?? comment.author?.username;
   final action = await showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     showDragHandle: true,
     builder: (context) => SafeArea(
       child: Column(
@@ -266,7 +278,10 @@ Future<void> showCommentActionsMenu(
         children: [
           if (isOwner)
             ListTile(
-              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+              leading: Icon(
+                Icons.delete_outline,
+                color: Theme.of(context).colorScheme.error,
+              ),
               title: const Text('Kommentar löschen'),
               onTap: () => Navigator.pop(context, 'delete'),
             )

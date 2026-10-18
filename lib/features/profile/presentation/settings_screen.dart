@@ -62,7 +62,9 @@ class SettingsScreen extends ConsumerWidget {
       await repo.deleteAccount();
       container.invalidate(currentProfileProvider);
       container.invalidate(authStateProvider);
-      messenger.showSnackBar(const SnackBar(content: Text('Konto wurde gelöscht.')));
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Konto wurde gelöscht.')),
+      );
       router.go('/login');
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(authErrorMessage(e))));

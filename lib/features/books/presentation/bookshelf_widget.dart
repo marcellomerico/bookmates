@@ -138,7 +138,11 @@ class _BookshelfWidgetState extends ConsumerState<BookshelfWidget> {
 }
 
 class _BookshelfTile extends ConsumerStatefulWidget {
-  const _BookshelfTile({super.key, required this.entry, required this.readOnly});
+  const _BookshelfTile({
+    super.key,
+    required this.entry,
+    required this.readOnly,
+  });
 
   final UserBook entry;
   final bool readOnly;
@@ -158,8 +162,9 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
       ref.invalidate(bookshelfByUserProvider(widget.entry.userId));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
       }
     } finally {
       if (mounted) setState(() => _updating = false);
@@ -167,11 +172,13 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
   }
 
   Future<void> _updateStatus(BookStatus status) => _run(
-    () => ref.read(bookRepositoryProvider).updateStatus(widget.entry.id, status),
+    () =>
+        ref.read(bookRepositoryProvider).updateStatus(widget.entry.id, status),
   );
 
   Future<void> _updateRating(int? rating) => _run(
-    () => ref.read(bookRepositoryProvider).updateRating(widget.entry.id, rating),
+    () =>
+        ref.read(bookRepositoryProvider).updateRating(widget.entry.id, rating),
   );
 
   Future<void> _remove() async {
@@ -207,48 +214,13 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
     if (book == null) return const SizedBox.shrink();
 
     final workId = book.openLibraryId;
-    return ListTile(
+    final tile = ListTile(
       onTap: workId == null
           ? null
           : () => context.push('/books/${normalizeWorkId(workId)}'),
       leading: _Cover(url: book.coverUrl),
       title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (book.author != null) Text(book.author!),
-          if (widget.entry.status == BookStatus.read) ...[
-            const SizedBox(height: 4),
-            Semantics(
-              label: '${widget.entry.rating ?? 0} von 5 Sternen',
-              child: Wrap(
-              children: List.generate(5, (index) {
-                final star = index + 1;
-                return IconButton(
-                  tooltip: widget.readOnly
-                      ? null
-                      : 'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'} setzen',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 48,
-                    minHeight: 48,
-                  ),
-                  onPressed: _updating || widget.readOnly
-                      ? null
-                      : () => _updateRating(star),
-                  icon: Icon(
-                    star <= (widget.entry.rating ?? 0)
-                        ? Icons.star
-                        : Icons.star_border,
-                    color: AppColors.gold,
-                    size: 20,
-                  ),
-                );
-              }),
-            )),
-          ],
-        ],
-      ),
+      subtitle: book.author == null ? null : Text(book.author!),
       trailing: widget.readOnly
           ? null
           : _updating
@@ -278,6 +250,48 @@ class _BookshelfTileState extends ConsumerState<_BookshelfTile> {
               ],
             ),
     );
+    if (widget.entry.status != BookStatus.read) return tile;
+    // Stars get their own row under the tile: five 48-pt targets don't fit next to the menu.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        tile,
+        Padding(
+          // Aligns the first star icon with the title (16 padding + 40 cover + 16 gap − 14 button inset).
+          padding: const EdgeInsets.only(left: 58, bottom: 4),
+          child: Semantics(
+            label: '${widget.entry.rating ?? 0} von 5 Sternen',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(5, (index) {
+                final star = index + 1;
+                return IconButton(
+                  tooltip: widget.readOnly
+                      ? null
+                      : 'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'} setzen',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
+                  onPressed: _updating || widget.readOnly
+                      ? null
+                      : () => _updateRating(star),
+                  icon: Icon(
+                    star <= (widget.entry.rating ?? 0)
+                        ? Icons.star
+                        : Icons.star_border,
+                    color: AppColors.gold,
+                    size: 20,
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -304,7 +318,9 @@ class _Cover extends StatelessWidget {
         width: 40,
         height: 56,
         fit: BoxFit.cover,
-        memCacheWidth: (40 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300),
+        memCacheWidth: (40 * MediaQuery.devicePixelRatioOf(context))
+            .round()
+            .clamp(1, 300),
         errorWidget: (_, _, _) => Container(
           width: 40,
           height: 56,

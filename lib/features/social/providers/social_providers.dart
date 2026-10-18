@@ -114,10 +114,15 @@ final discoverPeopleProvider = FutureProvider.autoDispose<List<Profile>>((
   final blocked = await ref
       .read(moderationRepositoryProvider)
       .getBlockedUserIds(user.id);
+  final following = await ref
+      .read(followRepositoryProvider)
+      .getFollowingIds(user.id);
   final people = await ref
       .watch(profileRepositoryProvider)
       .recommendByGenres(user.id);
-  return people.where((p) => !blocked.contains(p.id)).toList();
+  return people
+      .where((p) => !blocked.contains(p.id) && !following.contains(p.id))
+      .toList();
 });
 
 final groupsProvider = FutureProvider.autoDispose
@@ -187,6 +192,9 @@ final onboardingSuggestionsProvider =
         for (final row in results[3] as List)
           if (myGenreNames.contains(row['name'])) row['id'] as String,
       };
-      final groups = await groupRepo.suggestPublicGroups(userId: user.id, genreIds: myGenreIds);
+      final groups = await groupRepo.suggestPublicGroups(
+        userId: user.id,
+        genreIds: myGenreIds,
+      );
       return OnboardingSuggestions(people: people, groups: groups);
     });
