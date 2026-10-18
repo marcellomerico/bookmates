@@ -1,6 +1,6 @@
 # Datenschutzerklärung — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: support@getbooksquad.com und [MAILDIENST] (folgen nach Domain-Kauf).
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: [MAILDIENST].
 
 **Stand:** Oktober 2026
 
@@ -10,7 +10,7 @@ Marcello Antonio Merico
 Kiesgrabenweg 19
 69245 Bammental
 Deutschland
-E-Mail: support@getbooksquad.com
+E-Mail: support@booksquad.de
 
 Booksquad ist ein privates, nicht kommerzielles Projekt. Ein Datenschutzbeauftragter ist nicht bestellt, weil dafür keine gesetzliche Pflicht besteht.
 
@@ -71,7 +71,7 @@ Du kannst Beiträge, Kommentare und Nutzer melden sowie Nutzer blockieren. Werde
 ## 10. Speicherdauer und Löschung
 
 - Deine Daten speichern wir, solange dein Konto besteht.
-- **Konto löschen:** In der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen*. Dabei werden dein Konto, Profil, Beiträge, Kommentare, Likes, Folgen, Mitgliedschaften, Blockierungen, deine Meldungen und alle hochgeladenen Bilder sofort gelöscht. Alternativ per E-Mail an support@getbooksquad.com von der registrierten Adresse. Dann löschen wir innerhalb von 7 Tagen.
+- **Konto löschen:** In der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen*. Dabei werden dein Konto, Profil, Beiträge, Kommentare, Likes, Folgen, Mitgliedschaften, Blockierungen, deine Meldungen und alle hochgeladenen Bilder sofort gelöscht. Alternativ per E-Mail an support@booksquad.de von der registrierten Adresse. Dann löschen wir innerhalb von 7 Tagen.
 - Lesekreise, die du gegründet hast, werden mit deinem Konto gelöscht.
 - Support-E-Mails löschen wir, sobald die Anfrage erledigt ist und keine Aufbewahrungspflicht besteht.
 - Sicherungskopien und Server-Logs des Hosting-Anbieters werden spätestens nach **30 Tagen** überschrieben.
@@ -86,7 +86,7 @@ Du hast das Recht auf
 - Datenübertragbarkeit (Art. 20 DSGVO)
 - **Widerspruch** gegen Verarbeitungen auf Grundlage berechtigter Interessen, aus Gründen, die sich aus deiner besonderen Situation ergeben (Art. 21 DSGVO)
 
-Wende dich dafür an support@getbooksquad.com.
+Wende dich dafür an support@booksquad.de.
 
 Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere in dem EU-Staat deines Wohnorts. Für uns zuständig ist: Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg, Lautenschlagerstraße 20, 70173 Stuttgart, https://www.baden-wuerttemberg.datenschutz.de
 

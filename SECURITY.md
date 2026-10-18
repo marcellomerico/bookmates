@@ -4,7 +4,7 @@
 
 Bitte **keine öffentlichen Issues** für Sicherheitslücken. Melde sie vertraulich über
 **GitHub → Security → Report a vulnerability** (private Meldung) oder per E-Mail an
-`support@getbooksquad.com`.
+`support@booksquad.de`.
 
 Hilfreich sind: betroffene Stelle (Datei, Endpunkt, Screen), Schritte zum Nachstellen und
 mögliche Auswirkungen. Du bekommst innerhalb von 7 Tagen eine Rückmeldung.

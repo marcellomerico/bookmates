@@ -1,6 +1,6 @@
 # Booksquad-Konto löschen
 
-> Entwurf – offen: support@getbooksquad.com (folgt nach Domain-Kauf).
+> Entwurf.
 
 Du kannst dein Booksquad-Konto jederzeit löschen – direkt in der App oder per E-Mail.
 
@@ -14,7 +14,7 @@ Du kannst dein Booksquad-Konto jederzeit löschen – direkt in der App oder per
 
 ## Per E-Mail
 
-Schreib von der E-Mail-Adresse, mit der du registriert bist, an **support@getbooksquad.com** mit dem Betreff „Konto löschen“. Wir löschen dein Konto innerhalb von **7 Tagen** und bestätigen dir die Löschung.
+Schreib von der E-Mail-Adresse, mit der du registriert bist, an **support@booksquad.de** mit dem Betreff „Konto löschen“. Wir löschen dein Konto innerhalb von **7 Tagen** und bestätigen dir die Löschung.
 
 ## Was gelöscht wird
 

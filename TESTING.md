@@ -544,7 +544,7 @@ Simulator / Gerät, iOS: …
 | Thema | Grund |
 |-------|--------|
 | Google/Apple Login | Dashboard-Config → `docs/GOOGLE_APPLE_AUTH.md` |
-| Legal-URLs | `getbooksquad.com` (nach Domain-Kauf) |
+| Legal-URLs | `booksquad.de` |
 | „Policy already exists“ | Migration teilweise gelaufen — B.6 entscheidet |
 
 ---
