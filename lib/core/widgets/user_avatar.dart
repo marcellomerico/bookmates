@@ -21,8 +21,11 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final px = (radius * 2 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300);
-    final label = semanticLabel ??
+    final px = (radius * 2 * MediaQuery.devicePixelRatioOf(context))
+        .round()
+        .clamp(1, 300);
+    final label =
+        semanticLabel ??
         ((name == null || name!.trim().isEmpty)
             ? 'Profilbild'
             : 'Profilbild von ${name!.trim()}');

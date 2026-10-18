@@ -59,79 +59,81 @@ class AppTheme {
       ),
     );
 
-    final serif = base.textTheme.apply(fontFamily: _serifFamily).copyWith(
-      displayLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 40,
-        fontWeight: FontWeight.w700,
-        height: 1.05,
-      ),
-      displayMedium: _serif(
-        color: AppColors.ink,
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        height: 1.1,
-      ),
-      headlineLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
-        height: 1.12,
-      ),
-      headlineMedium: _serif(
-        color: AppColors.ink,
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        height: 1.15,
-      ),
-      headlineSmall: _serif(
-        color: AppColors.ink,
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      titleLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      titleMedium: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      bodyLarge: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        height: 1.45,
-      ),
-      bodyMedium: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.4,
-      ),
-      bodySmall: const TextStyle(
-        color: AppColors.muted,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        height: 1.35,
-      ),
-      labelLarge: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.1,
-      ),
-      labelMedium: const TextStyle(
-        color: AppColors.muted,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
-    );
+    final serif = base.textTheme
+        .apply(fontFamily: _serifFamily)
+        .copyWith(
+          displayLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 40,
+            fontWeight: FontWeight.w700,
+            height: 1.05,
+          ),
+          displayMedium: _serif(
+            color: AppColors.ink,
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            height: 1.1,
+          ),
+          headlineLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            height: 1.12,
+          ),
+          headlineMedium: _serif(
+            color: AppColors.ink,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
+          headlineSmall: _serif(
+            color: AppColors.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          titleLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          titleMedium: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          bodyLarge: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            height: 1.45,
+          ),
+          bodyMedium: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.4,
+          ),
+          bodySmall: const TextStyle(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            height: 1.35,
+          ),
+          labelLarge: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
+          labelMedium: const TextStyle(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        );
 
     return base.copyWith(
       textTheme: serif,

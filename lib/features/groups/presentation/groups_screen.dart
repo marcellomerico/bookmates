@@ -296,8 +296,9 @@ class _GroupRow extends ConsumerWidget {
                         ),
                         TextButton(
                           style: TextButton.styleFrom(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.error,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
                           ),
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('Löschen'),

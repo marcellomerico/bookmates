@@ -51,17 +51,17 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     setState(() => _searching = true);
     try {
       final user = ref.read(currentUserProvider);
-      final users = await ref.read(profileRepositoryProvider).searchProfiles(
-            query,
-            excludeUserId: user?.id,
-          );
+      final users = await ref
+          .read(profileRepositoryProvider)
+          .searchProfiles(query, excludeUserId: user?.id);
       final blocked = user == null
           ? <String>[]
-          : await ref.read(moderationRepositoryProvider).getBlockedUserIds(user.id);
-      final groups = await ref.read(groupRepositoryProvider).listGroups(
-            currentUserId: user?.id,
-            query: query,
-          );
+          : await ref
+                .read(moderationRepositoryProvider)
+                .getBlockedUserIds(user.id);
+      final groups = await ref
+          .read(groupRepositoryProvider)
+          .listGroups(currentUserId: user?.id, query: query);
       if (mounted) {
         setState(() {
           _userResults = users.where((p) => !blocked.contains(p.id)).toList();
@@ -93,8 +93,9 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   void _showError(Object e) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
   }
 
   @override
@@ -127,25 +128,32 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : IconButton(tooltip: 'Suchen', onPressed: _search, icon: const Icon(Icons.arrow_forward)),
+                  : IconButton(
+                      tooltip: 'Suchen',
+                      onPressed: _search,
+                      icon: const Icon(Icons.arrow_forward),
+                    ),
             ),
           ),
           const SizedBox(height: 18),
           if (_userResults != null || _groupResults != null) ...[
-            Text('Suchergebnisse', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Suchergebnisse',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 10),
-            if ((_userResults?.isEmpty ?? true) && (_groupResults?.isEmpty ?? true))
+            if ((_userResults?.isEmpty ?? true) &&
+                (_groupResults?.isEmpty ?? true))
               const Text('Keine Treffer gefunden.'),
             ...?_userResults?.map(
-              (profile) => _PersonRow(
-                profile: profile,
-                onToggleFollow: _toggleFollow,
-              ),
+              (profile) =>
+                  _PersonRow(profile: profile, onToggleFollow: _toggleFollow),
             ),
             ...?_groupResults?.map(
               (group) => _DiscoverClub(
                 name: group.name,
-                meta: '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
+                meta:
+                    '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
                 joined: group.isMember,
                 onTap: () => context.push('/groups/${group.id}'),
                 onJoin: () async {
@@ -187,13 +195,13 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     ),
                   ]
                 : items
-                    .map(
-                      (profile) => _PersonRow(
-                        profile: profile,
-                        onToggleFollow: _toggleFollow,
-                      ),
-                    )
-                    .toList(),
+                      .map(
+                        (profile) => _PersonRow(
+                          profile: profile,
+                          onToggleFollow: _toggleFollow,
+                        ),
+                      )
+                      .toList(),
           ),
           const SizedBox(height: 18),
           const _DiscoverSectionTitle('Lesekreise für dich'),
@@ -214,7 +222,8 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 .map(
                   (group) => _DiscoverClub(
                     name: group.name,
-                    meta: '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
+                    meta:
+                        '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
                     joined: group.isMember,
                     onTap: () => context.push('/groups/${group.id}'),
                     onJoin: () async {
@@ -223,9 +232,15 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       final repo = ref.read(groupRepositoryProvider);
                       try {
                         if (group.isMember) {
-                          await repo.leaveGroup(groupId: group.id, userId: user.id);
+                          await repo.leaveGroup(
+                            groupId: group.id,
+                            userId: user.id,
+                          );
                         } else {
-                          await repo.joinGroup(groupId: group.id, userId: user.id);
+                          await repo.joinGroup(
+                            groupId: group.id,
+                            userId: user.id,
+                          );
                         }
                         ref.invalidate(groupsProvider(null));
                       } catch (e) {
@@ -246,7 +261,8 @@ class _DiscoverSectionTitle extends StatelessWidget {
   const _DiscoverSectionTitle(this.title);
   final String title;
   @override
-  Widget build(BuildContext context) => Text(title, style: Theme.of(context).textTheme.titleLarge);
+  Widget build(BuildContext context) =>
+      Text(title, style: Theme.of(context).textTheme.titleLarge);
 }
 
 class _PersonRow extends ConsumerWidget {
@@ -279,11 +295,17 @@ class _PersonRow extends ConsumerWidget {
                   children: [
                     Text(
                       profile.displayName ?? profile.username,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       '@${profile.username}',
-                      style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.muted,
+                      ),
                     ),
                   ],
                 ),
@@ -341,15 +363,31 @@ class _DiscoverClub extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.menu_book_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                    Text(meta, style: const TextStyle(color: AppColors.muted, fontSize: 11)),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      meta,
+                      style: const TextStyle(
+                        color: AppColors.muted,
+                        fontSize: 11,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -46,13 +46,24 @@ class _TermsLinksTextState extends State<TermsLinksText> {
       decoration: TextDecoration.underline,
     );
     return Text.rich(
-      TextSpan(style: base, children: [
-        TextSpan(text: widget.before),
-        TextSpan(text: 'Nutzungsbedingungen', style: link, recognizer: _terms),
-        const TextSpan(text: ' und '),
-        TextSpan(text: 'Datenschutzerklärung', style: link, recognizer: _privacy),
-        TextSpan(text: widget.after),
-      ]),
+      TextSpan(
+        style: base,
+        children: [
+          TextSpan(text: widget.before),
+          TextSpan(
+            text: 'Nutzungsbedingungen',
+            style: link,
+            recognizer: _terms,
+          ),
+          const TextSpan(text: ' und '),
+          TextSpan(
+            text: 'Datenschutzerklärung',
+            style: link,
+            recognizer: _privacy,
+          ),
+          TextSpan(text: widget.after),
+        ],
+      ),
       textAlign: widget.textAlign,
     );
   }

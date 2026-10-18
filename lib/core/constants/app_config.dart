@@ -15,10 +15,10 @@ class AppConfig {
   static const authRedirectUrl = 'booksquad://auth-callback';
 
   static Uri get supportMailto => Uri(
-        scheme: 'mailto',
-        path: supportEmail,
-        query: 'subject=Booksquad Support',
-      );
+    scheme: 'mailto',
+    path: supportEmail,
+    query: 'subject=Booksquad Support',
+  );
 }
 
 /// Mirrors CHECK constraints in 20261016120000_security_hardening.sql.

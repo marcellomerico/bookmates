@@ -141,7 +141,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         if (mounted) setState(() => _step = 2);
       } catch (e) {
         if (mounted) {
-          setState(() => _error = 'Genres konnten nicht gespeichert werden. ${authErrorMessage(e)}');
+          setState(
+            () => _error =
+                'Genres konnten nicht gespeichert werden. ${authErrorMessage(e)}',
+          );
         }
       } finally {
         if (mounted) setState(() => _loading = false);
@@ -207,7 +210,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (_error != null) ...[
-                    Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                   ],
                   ElevatedButton(

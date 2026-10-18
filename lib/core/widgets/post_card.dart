@@ -30,8 +30,9 @@ class PostCard extends ConsumerWidget {
           .toggle(post, userId: user.id);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
   }
 
@@ -40,7 +41,8 @@ class PostCard extends ConsumerWidget {
     final author = post.author;
     final displayName = author?.displayName ?? author?.username ?? 'Leser';
     final handle = author != null ? '@${author.username}' : '';
-    final like = ref.watch(likeOverridesProvider)[post.id] ??
+    final like =
+        ref.watch(likeOverridesProvider)[post.id] ??
         (liked: post.likedByMe, count: post.likeCount);
 
     return SoftCard(
@@ -136,7 +138,11 @@ class PostCard extends ConsumerWidget {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 180,
-                    memCacheWidth: _memWidth(context, MediaQuery.sizeOf(context).width, 1080),
+                    memCacheWidth: _memWidth(
+                      context,
+                      MediaQuery.sizeOf(context).width,
+                      1080,
+                    ),
                   ),
                 ),
               ),
@@ -150,68 +156,76 @@ class PostCard extends ConsumerWidget {
                   label: 'Gefällt mir, ${like.count}',
                   excludeSemantics: true,
                   child: InkWell(
-                  onTap: () => _toggleLike(context, ref),
-                  borderRadius: BorderRadius.circular(20),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
+                    onTap: () => _toggleLike(context, ref),
+                    borderRadius: BorderRadius.circular(20),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      child: Center(
+                        widthFactor: 1,
+                        child: Row(
+                          children: [
+                            Icon(
+                              like.liked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              size: 17,
+                              color: like.liked
+                                  ? AppColors.burgundy
+                                  : AppColors.muted,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${like.count}',
+                              style: const TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Center(widthFactor: 1, child: Row(
-                      children: [
-                        Icon(
-                          like.liked
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 17,
-                          color: like.liked
-                              ? AppColors.burgundy
-                              : AppColors.muted,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${like.count}',
-                          style: const TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    )),
                   ),
-                )),
+                ),
                 const SizedBox(width: 12),
                 Semantics(
                   button: true,
                   label: 'Kommentare, ${post.commentCount}',
                   excludeSemantics: true,
                   child: InkWell(
-                  onTap: () => context.push('/posts/${post.id}'),
-                  borderRadius: BorderRadius.circular(20),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
+                    onTap: () => context.push('/posts/${post.id}'),
+                    borderRadius: BorderRadius.circular(20),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      child: Center(
+                        widthFactor: 1,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.chat_bubble_outline,
+                              size: 17,
+                              color: AppColors.muted,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${post.commentCount}',
+                              style: const TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Center(widthFactor: 1, child: Row(
-                      children: [
-                        const Icon(
-                          Icons.chat_bubble_outline,
-                          size: 17,
-                          color: AppColors.muted,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${post.commentCount}',
-                          style: const TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    )),
                   ),
-                )),
+                ),
               ],
             ),
           ],

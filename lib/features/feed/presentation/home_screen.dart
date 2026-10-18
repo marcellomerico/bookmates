@@ -26,7 +26,8 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           TextField(
             textInputAction: TextInputAction.search,
-            onSubmitted: (query) => context.go('/discover?q=${Uri.encodeComponent(query)}'),
+            onSubmitted: (query) =>
+                context.go('/discover?q=${Uri.encodeComponent(query)}'),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
               hintText: 'Leser, Lesekreise oder Stichworte suchen',
@@ -66,7 +67,10 @@ class _HomeHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text('Dein Feed', style: Theme.of(context).textTheme.headlineMedium),
+          child: Text(
+            'Dein Feed',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
         ),
         IconButton(
           tooltip: 'Suchen',
@@ -76,7 +80,11 @@ class _HomeHeader extends StatelessWidget {
         IconButton(
           tooltip: 'Benachrichtigungen',
           onPressed: onActivity,
-          icon: const Icon(Icons.notifications_none, size: 20, color: AppColors.ink),
+          icon: const Icon(
+            Icons.notifications_none,
+            size: 20,
+            color: AppColors.ink,
+          ),
         ),
       ],
     );
