@@ -1,4 +1,4 @@
-# Bookmates — Feature-Roadmap
+# Booksquad — Feature-Roadmap
 
 Stand: August 2026 — **Client vollständig implementiert**
 

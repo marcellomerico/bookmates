@@ -32,8 +32,8 @@ Prüfen: Aufruf ohne Token → `401`.
 ## 4. Auth (Marcello, Dashboard → Authentication)
 
 - **E-Mail-Bestätigung:** an. Templates auf Deutsch anpassen (Bestätigen, Passwort zurücksetzen)
-- **Site URL:** `bookmates://auth-callback`
-- **Redirect URLs:** `bookmates://auth-callback`
+- **Site URL:** `booksquad://auth-callback`
+- **Redirect URLs:** `booksquad://auth-callback`
 - **Leaked Password Protection:** an (Settings → Password Security)
 - **Mindestlänge Passwort:** 8
 - **SMTP:** eigener Absender (z. B. Resend, Postmark). Der eingebaute Supabase-Mailer ist auf wenige Mails pro Stunde begrenzt und für Prod ungeeignet

@@ -1,4 +1,4 @@
-# Bookmates — Publish-Plan
+# Booksquad — Publish-Plan
 
 Stand: August 2026
 
@@ -31,7 +31,7 @@ Stand: August 2026
 
 ### Store
 - [ ] App-Icon + Screenshots
-- [ ] Legal-URLs live hosten (aktuell Platzhalter `bookmates.app`)
+- [ ] Legal-URLs live hosten (aktuell `getbooksquad.com` (nach Domain-Kauf))
 - [ ] Datenschutz/AGB rechtlich prüfen
 - [ ] Demo-Account für Apple Review
 

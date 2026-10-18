@@ -121,7 +121,7 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.article_outlined),
             title: const Text('Lizenzen'),
             onTap: () =>
-                showLicensePage(context: context, applicationName: 'Bookmates'),
+                showLicensePage(context: context, applicationName: 'Booksquad'),
           ),
           const Divider(height: 32),
           ListTile(

@@ -10,49 +10,50 @@ Die Reihenfolge ist absichtlich so gewählt:
 
 ## Teil 1 – Jetzt, kostenlos
 
-### Schritt 1: Support-Adresse festlegen (5 Min.)
+### Schritt 1: Marke prüfen, Domains und Postfach kaufen (30 Min., ca. 2–5 €/Monat)
 
-In der App und in den Texten steht bisher `support@bookmates.app`. Diese Adresse gibt es nur, wenn dir die Domain gehört.
+Der App-Name ist **Booksquad**. In App, Rechtstexten und Store-Texten stehen schon `getbooksquad.com` als Webseite und `support@getbooksquad.com` als Kontakt.
 
-- [ ] Entscheide dich für eine Adresse, die du wirklich liest. Einfachste Lösung: ein eigenes, kostenloses Gmail-Konto für Bookmates
-- [ ] → Claude: Adresse nennen. Claude ersetzt sie überall (App, Rechtstexte, Store-Texte)
+1. [ ] **Marke prüfen:** Bei [TMview](https://www.tmdn.org/tmview/) (EU und weltweit) und [USPTO](https://tmsearch.uspto.gov/) (USA) nach „Booksquad“ suchen. Gibt es eine eingetragene Marke für Apps, Software oder soziale Netzwerke (Klassen 9, 38, 42, 45) → Claude, bevor du etwas kaufst
+2. [ ] **Domains kaufen:** `getbooksquad.com` und `booksquad.de`, am besten zusammen mit einem **E-Mail-Postfach** bei einem deutschen Anbieter (z. B. all-inkl, netcup, IONOS, Strato)
+3. [ ] Postfach `support@getbooksquad.com` anlegen
+4. [ ] → Claude: „Domains und Postfach sind da“, dazu den Anbieter nennen. Claude sagt dir, welche DNS-Einträge du für die Webseite (GitHub Pages) und die Weiterleitung von `booksquad.de` setzen musst
+5. [ ] **Supabase Dev-Projekt → Authentication → URL Configuration:** Die Redirect-URL heißt jetzt `booksquad://auth-callback` (statt `bookmates://…`). Ohne diese Änderung öffnen Bestätigungs- und Passwort-Links die App nicht
 
-### Schritt 2: Angaben für die Rechtstexte (10 Min.)
+### Schritt 2: Rechtstexte prüfen lassen
 
-- [ ] → Claude: Diese Angaben schicken (fürs Impressum gesetzlich vorgeschrieben):
-  - vollständiger Name, oder Firma mit Rechtsform
-  - ladungsfähige Anschrift (Straße, PLZ, Ort; kein Postfach)
-  - E-Mail-Adresse (aus Schritt 1)
-  - optional: Telefonnummer, USt-ID (falls vorhanden)
-- [ ] Claude füllt die Texte aus, baut die Seiten und schaltet nach deinem OK GitHub Pages frei
-- [ ] **Du:** Die fertigen Texte (Datenschutz, Nutzungsbedingungen, Impressum) rechtlich prüfen lassen, z. B. durch einen Anwalt oder einen Generator-Dienst. Das geht parallel zu allen weiteren Schritten, muss aber vor Teil 2 fertig sein
+Name und Anschrift sind eingetragen, die E-Mail-Adresse auch.
+
+- [ ] Die Texte in `docs/legal/` (Datenschutz, Nutzungsbedingungen, Impressum, Konto löschen) rechtlich prüfen lassen, z. B. durch einen Anwalt. Das geht parallel zu allen weiteren Schritten, muss aber vor Teil 2 fertig sein. Fragen für den Prüfer:
+  - Reicht eine E-Mail-Adresse ohne Telefonnummer im Impressum?
+  - Ist die Übermittlung an Open Library (USA) so korrekt beschrieben?
+- [ ] → Claude: „Texte sind freigegeben“. Claude veröffentlicht die Seiten unter `getbooksquad.com`
 
 ### Schritt 3: E-Mail-Versand im Dev-Projekt einrichten (15 Min.)
 
 Ohne diesen Schritt kommen Bestätigungs- und Passwort-Mails nicht an. Der eingebaute Supabase-Mailer schickt nur an Adressen aus deinem Supabase-Team und nur wenige Mails pro Stunde.
 
-1. [ ] Im Google-Konto aus Schritt 1 die **Bestätigung in zwei Schritten** einschalten (myaccount.google.com → Sicherheit)
-2. [ ] Dort ein **App-Passwort** erzeugen (Sicherheit → App-Passwörter, Name „Supabase“). Die 16 Zeichen kopieren
+1. [ ] Beim Domain-Anbieter ein zweites Postfach `noreply@getbooksquad.com` anlegen und die **SMTP-Zugangsdaten** nachsehen (Server, Port, Benutzer, Passwort)
+2. [ ] → Claude: Den Namen des Anbieters nennen. Claude trägt ihn als Maildienst in die Datenschutzerklärung ein (das Passwort behältst du)
 3. [ ] Supabase Dashboard → Dev-Projekt → **Authentication → Emails → SMTP Settings** → „Enable custom SMTP“:
-   - Host `smtp.gmail.com`, Port `587`
-   - Username: die Gmail-Adresse, Passwort: das App-Passwort
-   - Sender email: dieselbe Gmail-Adresse, Sender name: `Bookmates`
+   - Host, Port, Benutzer und Passwort vom Anbieter
+   - Sender email: `noreply@getbooksquad.com`, Sender name: `Booksquad`
 4. [ ] **Authentication → Sign In / Providers → Email:** „Confirm email“ ist **an**
 5. [ ] **Authentication → URL Configuration:**
-   - Site URL: `bookmates://auth-callback`
-   - Redirect URLs: `bookmates://auth-callback` (falls nicht schon eingetragen)
+   - Site URL: `booksquad://auth-callback`
+   - Redirect URLs: `booksquad://auth-callback` (falls nicht schon eingetragen)
 
 ### Schritt 4: Google-Login einrichten (30 Min.)
 
-1. [ ] [console.cloud.google.com](https://console.cloud.google.com) → neues Projekt „Bookmates“
+1. [ ] [console.cloud.google.com](https://console.cloud.google.com) → neues Projekt „Booksquad“
 2. [ ] **APIs & Dienste → OAuth-Zustimmungsbildschirm** (heißt teils „Google Auth Platform → Branding“):
-   - App-Name „Bookmates“, Support-E-Mail aus Schritt 1
+   - App-Name „Booksquad“, Support-E-Mail aus Schritt 1
    - Zielgruppe „Extern“
    - Links auf Datenschutz und Nutzungsbedingungen, sobald die Seiten aus Schritt 2 online sind
 3. [ ] **Clients → Client erstellen**, dreimal:
    - **Webanwendung**, Name „Supabase“. Autorisierte Weiterleitungs-URI: `https://thkfqvvzldkfxaqehjqn.supabase.co/auth/v1/callback`
-   - **iOS**, Bundle-ID `com.bookmates.bookmates`
-   - **Android**, Paketname `com.bookmates.bookmates`, SHA-1 `99:0F:08:74:EC:06:37:2E:16:87:DE:79:18:07:9B:16:2F:03:03:20` (das ist der Debug-Schlüssel dieses Macs)
+   - **iOS**, Bundle-ID `com.booksquad.app`
+   - **Android**, Paketname `com.booksquad.app`, SHA-1 `99:0F:08:74:EC:06:37:2E:16:87:DE:79:18:07:9B:16:2F:03:03:20` (das ist der Debug-Schlüssel dieses Macs)
 4. [ ] Supabase → Dev-Projekt → **Authentication → Sign In / Providers → Google** → aktivieren:
    - Client ID und Client Secret vom **Web**-Client eintragen
    - Speichern
@@ -123,16 +124,16 @@ Die Tabellen mit Schritten und erwartetem Ergebnis stehen in `TESTING.md`. Du ge
 1. [ ] [developer.apple.com/programs](https://developer.apple.com/programs/) → beitreten. Als Privatperson geht es am schnellsten
 2. [ ] Xcode → Einstellungen → Accounts → mit dem Apple-Konto anmelden → → Claude: „Apple-Konto ist in Xcode“. Claude stellt Signing und Team ein
 3. [ ] **Sign in with Apple** einrichten (developer.apple.com → Certificates, Identifiers & Profiles):
-   - Unter Identifiers eine **Services ID** anlegen (z. B. `com.bookmates.bookmates.signin`). Domain: `<prod-ref>.supabase.co`, Return URL: `https://<prod-ref>.supabase.co/auth/v1/callback`
+   - Unter Identifiers eine **Services ID** anlegen (z. B. `com.booksquad.app.signin`). Domain: `<prod-ref>.supabase.co`, Return URL: `https://<prod-ref>.supabase.co/auth/v1/callback`
    - Unter Keys einen **Key** mit „Sign in with Apple“ anlegen und die `.p8`-Datei herunterladen (gibt es nur einmal, sicher aufbewahren)
    - Supabase Prod → Providers → **Apple**: Services ID, Team ID, Key ID und Inhalt der `.p8` eintragen
 4. [ ] [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Apps → **+ Neue App**:
-   - Name „Bookmates – Lesen mit Freunden“ (ist er vergeben → Claude, für eine Alternative), Sprache Deutsch
-   - Bundle-ID `com.bookmates.bookmates`, SKU `bookmates`
+   - Name „Booksquad – Lesen mit Freunden“ (ist er vergeben → Claude, für eine Alternative), Sprache Deutsch
+   - Bundle-ID `com.booksquad.app`, SKU `booksquad`
 5. [ ] Texte aus `docs/STORE_LISTING.md` einfügen, Screenshots aus Schritt 7 hochladen
 6. [ ] **App-Datenschutz**, **Altersfreigabe** und Prüfnotizen nach `docs/STORE_PRIVACY.md` ausfüllen. Demo-Konto-Zugangsdaten **nur hier** eintragen
 7. [ ] → Claude: „iOS-Build bauen“. Danach die `.ipa` mit der kostenlosen Mac-App **Transporter** (App Store) hochladen, Anmeldung mit deinem Apple-Konto
-8. [ ] App Store Connect → **TestFlight**: Dich selbst als internen Tester eintragen, auf dem iPhone die App **TestFlight** installieren und Bookmates darüber laden
+8. [ ] App Store Connect → **TestFlight**: Dich selbst als internen Tester eintragen, auf dem iPhone die App **TestFlight** installieren und Booksquad darüber laden
 9. [ ] Auf dem **echten iPhone** testen: Apple-Login, Google-Login, Registrierung mit Bestätigungslink, Passwort-Reset-Link, Foto-Upload, Teil J aus `TESTING.md`. Fehler → Claude
 10. [ ] Build der Version zuordnen → **Zur Prüfung einreichen**
 

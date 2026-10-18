@@ -1,4 +1,4 @@
-# Bookmates
+# Booksquad
 
 Social App für Bücherfreunde — Profile, Feed, Gruppen, Bücherregal.
 

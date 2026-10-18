@@ -7,7 +7,7 @@ import 'package:http/testing.dart';
 
 OpenLibraryRepository repo(int status, Object body) => OpenLibraryRepository(
   client: MockClient((req) async {
-    expect(req.headers['User-Agent'], contains('Bookmates'));
+    expect(req.headers['User-Agent'], contains('Booksquad'));
     expect(req.url.path, '/works/OL1W.json');
     return http.Response(jsonEncode(body), status);
   }),

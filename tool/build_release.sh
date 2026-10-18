@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds a store release after the same checks CI runs plus release-only guards.
-# Usage: BOOKMATES_PROD_REF=<prod project ref> tool/build_release.sh <android|ios> [build-number]
+# Usage: BOOKSQUAD_PROD_REF=<prod project ref> tool/build_release.sh <android|ios> [build-number]
 #   build-number defaults to the +N part of pubspec's version; it must grow with every store upload.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -14,10 +14,10 @@ build=${2:-${version#*+}}
 fail() { echo "✗ $1"; exit 1; }
 
 # The app bundles .env as an asset, so the release talks to whatever project it points at.
-[[ -n "${BOOKMATES_PROD_REF:-}" ]] || fail "BOOKMATES_PROD_REF is not set (prod Supabase project ref)"
+[[ -n "${BOOKSQUAD_PROD_REF:-}" ]] || fail "BOOKSQUAD_PROD_REF is not set (prod Supabase project ref)"
 [[ -f .env ]] || fail ".env missing"
-grep -q "^SUPABASE_URL=https://${BOOKMATES_PROD_REF}.supabase.co$" .env \
-  || fail ".env does not point at prod project ${BOOKMATES_PROD_REF}"
+grep -q "^SUPABASE_URL=https://${BOOKSQUAD_PROD_REF}.supabase.co$" .env \
+  || fail ".env does not point at prod project ${BOOKSQUAD_PROD_REF}"
 grep -q "your-" .env && fail ".env still contains placeholder values"
 
 if [[ "$platform" == "android" ]]; then

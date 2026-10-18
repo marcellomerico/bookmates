@@ -1,4 +1,4 @@
-// Renders the Bookmates app icon and splash images from code.
+// Renders the Booksquad app icon and splash images from code.
 // Run: flutter test tool/branding/render_branding_test.dart
 // Output: assets/branding/{icon,icon_foreground,splash}.png
 // To use a designer icon later, replace those PNGs and re-run the icon/splash generators.

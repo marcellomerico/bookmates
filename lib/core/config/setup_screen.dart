@@ -15,7 +15,7 @@ class SetupScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 32),
               Text(
-                'Bookmates Setup',
+                'Booksquad Setup',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: AppColors.burgundy,
                   fontWeight: FontWeight.bold,

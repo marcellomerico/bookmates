@@ -4,7 +4,7 @@
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → OAuth Client IDs:
    - **Web** (für Supabase)
-   - **iOS** (Bundle ID: `com.bookmates.bookmates`)
+   - **iOS** (Bundle ID: `com.booksquad.app`)
    - **Android** (SHA-1 vom Debug/Release Keystore)
 
 2. `.env`:

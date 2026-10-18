@@ -1,4 +1,4 @@
-package com.bookmates.bookmates
+package com.booksquad.app
 
 import io.flutter.embedding.android.FlutterActivity
 

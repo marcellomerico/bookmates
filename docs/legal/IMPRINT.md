@@ -1,6 +1,6 @@
-# Impressum — Bookmates
+# Impressum — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: [E-MAIL] (folgt nach Domain-Kauf).
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: support@getbooksquad.com (folgt nach Domain-Kauf).
 
 ## Angaben gemäß § 5 DDG
 
@@ -11,7 +11,7 @@ Deutschland
 
 ## Kontakt
 
-E-Mail: [E-MAIL]
+E-Mail: support@getbooksquad.com
 
 ## Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
 

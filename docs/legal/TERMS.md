@@ -1,18 +1,18 @@
-# Nutzungsbedingungen — Bookmates
+# Nutzungsbedingungen — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: [E-MAIL] (folgt nach Domain-Kauf).
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: support@getbooksquad.com (folgt nach Domain-Kauf).
 
 **Stand:** Oktober 2026
 
 ## 1. Geltung und Anbieter
 
-Diese Bedingungen gelten für die Nutzung der App Bookmates. Anbieter ist Marcello Antonio Merico, Kiesgrabenweg 19, 69245 Bammental, Deutschland („wir“). Mit der Registrierung stimmst du diesen Bedingungen zu.
+Diese Bedingungen gelten für die Nutzung der App Booksquad. Anbieter ist Marcello Antonio Merico, Kiesgrabenweg 19, 69245 Bammental, Deutschland („wir“). Mit der Registrierung stimmst du diesen Bedingungen zu.
 
-Die Nutzung von Bookmates ist derzeit **kostenlos**. Sollten wir später kostenpflichtige Zusatzfunktionen anbieten, sind diese freiwillig und werden vorher klar gekennzeichnet. Die bestehenden Grundfunktionen bleiben davon unberührt.
+Die Nutzung von Booksquad ist derzeit **kostenlos**. Sollten wir später kostenpflichtige Zusatzfunktionen anbieten, sind diese freiwillig und werden vorher klar gekennzeichnet. Die bestehenden Grundfunktionen bleiben davon unberührt.
 
 ## 2. Mindestalter
 
-Du musst mindestens **16 Jahre** alt sein, um Bookmates zu nutzen.
+Du musst mindestens **16 Jahre** alt sein, um Booksquad zu nutzen.
 
 ## 3. Konto
 
@@ -20,7 +20,7 @@ Halte deine Zugangsdaten geheim. Du bist für Aktivitäten unter deinem Konto ve
 
 ## 4. Verhaltensregeln – Null-Toleranz
 
-Bookmates soll ein respektvoller Ort für Leserinnen und Leser sein. Für anstößige Inhalte und missbräuchliches Verhalten gilt **Null-Toleranz**. Verboten sind insbesondere:
+Booksquad soll ein respektvoller Ort für Leserinnen und Leser sein. Für anstößige Inhalte und missbräuchliches Verhalten gilt **Null-Toleranz**. Verboten sind insbesondere:
 
 - Hass, Hetze und Diskriminierung, Belästigung, Mobbing und Drohungen
 - sexuelle Inhalte mit Minderjährigen, pornografische oder gewaltverherrlichende Inhalte
@@ -42,10 +42,10 @@ Du kannst Beiträge, Kommentare und Nutzer in der App jederzeit melden und Nutze
 
 ## 7. Meldungen nach dem Digital Services Act und Kontaktstelle
 
-- **Kontaktstelle** für Nutzer und für Behörden (Art. 11 und 12 DSA): [E-MAIL]. Wir kommunizieren auf Deutsch und Englisch.
-- **Rechtswidrige Inhalte melden** kann jede Person, auch ohne Konto, per E-Mail an [E-MAIL]. Die Meldung sollte enthalten: wo der Inhalt zu finden ist (z. B. Benutzername und Beitrag), warum er rechtswidrig ist, deinen Namen und deine E-Mail-Adresse (außer bei Meldungen zu Darstellungen des sexuellen Missbrauchs von Kindern) und die Erklärung, dass deine Angaben nach bestem Wissen richtig und vollständig sind. Wir bestätigen den Eingang und teilen dir unsere Entscheidung mit.
+- **Kontaktstelle** für Nutzer und für Behörden (Art. 11 und 12 DSA): support@getbooksquad.com. Wir kommunizieren auf Deutsch und Englisch.
+- **Rechtswidrige Inhalte melden** kann jede Person, auch ohne Konto, per E-Mail an support@getbooksquad.com. Die Meldung sollte enthalten: wo der Inhalt zu finden ist (z. B. Benutzername und Beitrag), warum er rechtswidrig ist, deinen Namen und deine E-Mail-Adresse (außer bei Meldungen zu Darstellungen des sexuellen Missbrauchs von Kindern) und die Erklärung, dass deine Angaben nach bestem Wissen richtig und vollständig sind. Wir bestätigen den Eingang und teilen dir unsere Entscheidung mit.
 - **Begründung:** Wenn wir einen Inhalt von dir entfernen oder ausblenden oder dein Konto einschränken oder sperren, teilen wir dir das mit einer Begründung mit (Art. 17 DSA). Davon ausgenommen sind Fälle, in denen eine Behörde das untersagt, und massenhafte Spam-Inhalte.
-- **Widerspruch:** Gegen eine Moderationsentscheidung kannst du innerhalb von sechs Monaten per E-Mail an [E-MAIL] widersprechen. Wir prüfen den Fall erneut. Dein Recht, Gerichte anzurufen, bleibt unberührt.
+- **Widerspruch:** Gegen eine Moderationsentscheidung kannst du innerhalb von sechs Monaten per E-Mail an support@getbooksquad.com widersprechen. Wir prüfen den Fall erneut. Dein Recht, Gerichte anzurufen, bleibt unberührt.
 
 ## 8. Deine Inhalte
 
@@ -57,7 +57,7 @@ Wir bemühen uns um einen stabilen Betrieb, können aber keine ununterbrochene V
 
 ## 10. Kündigung und Kontolöschung
 
-Du kannst dein Konto jederzeit in der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen* löschen. Wir können das Nutzungsverhältnis bei Verstößen gegen diese Bedingungen beenden, bei schweren Verstößen fristlos. Stellen wir Bookmates ganz ein, informieren wir dich mindestens 30 Tage vorher in der App.
+Du kannst dein Konto jederzeit in der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen* löschen. Wir können das Nutzungsverhältnis bei Verstößen gegen diese Bedingungen beenden, bei schweren Verstößen fristlos. Stellen wir Booksquad ganz ein, informieren wir dich mindestens 30 Tage vorher in der App.
 
 ## 11. Änderungen
 
@@ -66,4 +66,4 @@ Wir können diese Bedingungen anpassen, wenn sich die App oder die Rechtslage ä
 ## 12. Recht und Kontakt
 
 Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Zwingende Verbraucherschutzvorschriften deines Wohnsitzstaates bleiben unberührt.
-Kontakt: [E-MAIL]
+Kontakt: support@getbooksquad.com

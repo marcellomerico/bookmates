@@ -1,12 +1,12 @@
-# Bookmates-Konto löschen
+# Booksquad-Konto löschen
 
-> Entwurf – offen: [E-MAIL] (folgt nach Domain-Kauf).
+> Entwurf – offen: support@getbooksquad.com (folgt nach Domain-Kauf).
 
-Du kannst dein Bookmates-Konto jederzeit löschen – direkt in der App oder per E-Mail.
+Du kannst dein Booksquad-Konto jederzeit löschen – direkt in der App oder per E-Mail.
 
 ## In der App (sofort)
 
-1. Öffne Bookmates und melde dich an.
+1. Öffne Booksquad und melde dich an.
 2. Tippe unten auf **Profil**.
 3. Tippe oben rechts auf das **Zahnrad** (Einstellungen).
 4. Tippe auf **Konto löschen**.
@@ -14,7 +14,7 @@ Du kannst dein Bookmates-Konto jederzeit löschen – direkt in der App oder per
 
 ## Per E-Mail
 
-Schreib von der E-Mail-Adresse, mit der du registriert bist, an **[E-MAIL]** mit dem Betreff „Konto löschen“. Wir löschen dein Konto innerhalb von **7 Tagen** und bestätigen dir die Löschung.
+Schreib von der E-Mail-Adresse, mit der du registriert bist, an **support@getbooksquad.com** mit dem Betreff „Konto löschen“. Wir löschen dein Konto innerhalb von **7 Tagen** und bestätigen dir die Löschung.
 
 ## Was gelöscht wird
 

@@ -40,7 +40,7 @@ class _SetupApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bookmates Setup',
+      title: 'Booksquad Setup',
       debugShowCheckedModeBanner: false,
       home: const SetupScreen(),
     );

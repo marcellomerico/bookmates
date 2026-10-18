@@ -7,6 +7,6 @@ void main() {
   testWidgets('Setup screen renders when env missing', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: SetupScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('Bookmates Setup'), findsOneWidget);
+    expect(find.text('Booksquad Setup'), findsOneWidget);
   });
 }

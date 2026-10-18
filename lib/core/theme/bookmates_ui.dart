@@ -32,10 +32,10 @@ class BookmatesWordmark extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       header: true,
-      label: 'Bookmates',
+      label: 'Booksquad',
       excludeSemantics: true,
       child: Text(
-        'BOOKMATES',
+        'BOOKSQUAD',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: AppColors.goldText,
           letterSpacing: 2.6,

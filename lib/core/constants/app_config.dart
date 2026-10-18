@@ -2,9 +2,9 @@
 class AppConfig {
   AppConfig._();
 
-  static const supportEmail = 'support@bookmates.app';
+  static const supportEmail = 'support@getbooksquad.com';
   // Live once GitHub Pages is enabled — see docs/RELEASE.md (Rechtstexte veröffentlichen).
-  static const _legalBase = 'https://marcellomerico.github.io/bookmates';
+  static const _legalBase = 'https://getbooksquad.com';
   static const privacyPolicyUrl = '$_legalBase/privacy.html';
   static const termsUrl = '$_legalBase/terms.html';
   static const imprintUrl = '$_legalBase/imprint.html';
@@ -12,12 +12,12 @@ class AppConfig {
 
   /// Deep link Supabase redirects to after e-mail confirmation / password reset.
   /// Must also be listed under Auth → URL Configuration → Redirect URLs.
-  static const authRedirectUrl = 'bookmates://auth-callback';
+  static const authRedirectUrl = 'booksquad://auth-callback';
 
   static Uri get supportMailto => Uri(
         scheme: 'mailto',
         path: supportEmail,
-        query: 'subject=Bookmates Support',
+        query: 'subject=Booksquad Support',
       );
 }
 

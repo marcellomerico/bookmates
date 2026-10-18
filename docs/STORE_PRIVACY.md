@@ -22,7 +22,7 @@ Diese Angaben entsprechen `ios/Runner/PrivacyInfo.xcprivacy`.
 
 - **Werden Daten erhoben oder geteilt?** Erhoben: ja. Geteilt: nein. Die Weitergabe an Auftragsverarbeiter (Supabase) und die nutzerinitiierte Anzeige für andere Nutzer gelten nach Play-Definition nicht als „Teilen“.
 - **Verschlüsselung bei der Übertragung:** Ja (TLS).
-- **Löschanfrage möglich:** Ja, in der App und per Web: `https://marcellomerico.github.io/bookmates/delete-account.html`.
+- **Löschanfrage möglich:** Ja, in der App und per Web: `https://getbooksquad.com/delete-account.html`.
 - **Kontoerstellung:** E-Mail und Passwort. Optional „Mit Apple anmelden“ und „Mit Google anmelden“, sobald konfiguriert.
 
 | Kategorie → Datentyp | Erhoben | Pflicht/optional | Zweck |
@@ -46,7 +46,7 @@ Die App enthält **nutzergenerierte Inhalte** und **Interaktion zwischen Nutzern
 ```
 Demo account: [E-Mail] / [Passwort]  (contains sample posts, a public and a private group)
 
-Bookmates is a community app for readers. User-generated content is moderated:
+Booksquad is a community app for readers. User-generated content is moderated:
 - Report: tap "…" on any post, comment or profile → "Melden".
 - Block: tap "…" on a post, comment or profile → "Blockieren". Blocked users can no longer see
   or interact with the blocker's content (enforced server-side).
@@ -56,16 +56,16 @@ Bookmates is a community app for readers. User-generated content is moderated:
 - Users must accept the Terms of Use (zero tolerance for objectionable content)
   at sign-up.
 - Account deletion: Profil → Einstellungen → "Konto löschen" (deletes all data and images).
-Contact: [support@bookmates.app]
+Contact: [support@getbooksquad.com]
 ```
 
 ## 5. Pflichtfelder in den Stores
 
 | Feld | Wert |
 |---|---|
-| Datenschutz-URL | `https://marcellomerico.github.io/bookmates/privacy.html` (nach Veröffentlichung) |
-| Support-URL / -E-Mail | `[support@bookmates.app]` bzw. Index-Seite |
-| Nutzungsbedingungen (EULA) | `https://marcellomerico.github.io/bookmates/terms.html` |
-| Web-Löschseite (Play) | `https://marcellomerico.github.io/bookmates/delete-account.html` |
+| Datenschutz-URL | `https://getbooksquad.com/privacy.html` (nach Veröffentlichung) |
+| Support-URL / -E-Mail | `[support@getbooksquad.com]` bzw. Index-Seite |
+| Nutzungsbedingungen (EULA) | `https://getbooksquad.com/terms.html` |
+| Web-Löschseite (Play) | `https://getbooksquad.com/delete-account.html` |
 | Marketing-URL | optional |
 | Kategorie | Soziale Netzwerke (Alternative: Bücher) |

@@ -132,7 +132,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const Center(child: BookmatesWordmark()),
                 const SizedBox(height: 24),
                 Text(
-                  'Willkommen\nbei Bookmates.',
+                  'Willkommen\nbei Booksquad.',
                   style: Theme.of(context).textTheme.displayMedium,
                 ),
                 const SizedBox(height: 10),
