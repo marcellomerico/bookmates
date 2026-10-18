@@ -19,21 +19,8 @@ class HomeScreen extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
-          _HomeHeader(
-            onSearch: () => context.go('/discover'),
-            onActivity: () => context.push('/activity'),
-          ),
+          _HomeHeader(onActivity: () => context.push('/activity')),
           const SizedBox(height: 12),
-          TextField(
-            textInputAction: TextInputAction.search,
-            onSubmitted: (query) =>
-                context.go('/discover?q=${Uri.encodeComponent(query)}'),
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Leser, Lesekreise oder Stichworte suchen',
-            ),
-          ),
-          const SizedBox(height: 16),
           ...pagedPostListItems(
             ref,
             PostSource.feed,
@@ -57,9 +44,8 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.onSearch, required this.onActivity});
+  const _HomeHeader({required this.onActivity});
 
-  final VoidCallback onSearch;
   final VoidCallback onActivity;
 
   @override
@@ -67,22 +53,23 @@ class _HomeHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            'Dein Feed',
-            style: Theme.of(context).textTheme.headlineMedium,
+          child: Semantics(
+            header: true,
+            child: Text(
+              'Booksquad',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
           ),
         ),
         IconButton(
-          tooltip: 'Suchen',
-          onPressed: onSearch,
-          icon: const Icon(Icons.search, size: 20, color: AppColors.ink),
-        ),
-        IconButton(
-          tooltip: 'Benachrichtigungen',
+          tooltip: 'Aktivität',
           onPressed: onActivity,
           icon: const Icon(
-            Icons.notifications_none,
-            size: 20,
+            Icons.favorite_border_rounded,
+            size: 26,
             color: AppColors.ink,
           ),
         ),

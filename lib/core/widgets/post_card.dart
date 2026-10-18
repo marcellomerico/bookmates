@@ -62,7 +62,7 @@ class PostCard extends ConsumerWidget {
                   child: UserAvatar(
                     url: author?.avatarUrl,
                     name: displayName,
-                    radius: 16,
+                    radius: 20,
                     semanticLabel: 'Profil von $displayName',
                   ),
                 ),
@@ -79,15 +79,32 @@ class PostCard extends ConsumerWidget {
                           displayName,
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
-                            fontSize: 13,
+                            fontSize: 14,
                           ),
                         ),
-                        Text(
-                          '$handle • ${formatRelativeTime(post.createdAt)}',
-                          style: const TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 11,
-                          ),
+                        // Long handles get cut, the time always stays readable.
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                handle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.muted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              ' · ${formatRelativeTime(post.createdAt)}',
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -109,10 +126,14 @@ class PostCard extends ConsumerWidget {
               const HiddenContentHint(),
             ],
             const SizedBox(height: 12),
-            Text(
-              post.content,
-              style: const TextStyle(fontSize: 13, height: 1.45),
-            ),
+            _TypeLabel(post.postType),
+            const SizedBox(height: 6),
+            post.postType == PostType.quote
+                ? _QuoteText(post.content)
+                : Text(
+                    post.content,
+                    style: const TextStyle(fontSize: 15, height: 1.45),
+                  ),
             if (post.book != null) ...[
               const SizedBox(height: 12),
               _BookChip(
@@ -171,7 +192,7 @@ class PostCard extends ConsumerWidget {
                               like.liked
                                   ? Icons.favorite
                                   : Icons.favorite_border,
-                              size: 17,
+                              size: 22,
                               color: like.liked
                                   ? AppColors.burgundy
                                   : AppColors.muted,
@@ -181,7 +202,7 @@ class PostCard extends ConsumerWidget {
                               '${like.count}',
                               style: const TextStyle(
                                 color: AppColors.muted,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -209,7 +230,7 @@ class PostCard extends ConsumerWidget {
                           children: [
                             const Icon(
                               Icons.chat_bubble_outline,
-                              size: 17,
+                              size: 22,
                               color: AppColors.muted,
                             ),
                             const SizedBox(width: 4),
@@ -217,7 +238,7 @@ class PostCard extends ConsumerWidget {
                               '${post.commentCount}',
                               style: const TextStyle(
                                 color: AppColors.muted,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -341,4 +362,45 @@ class HiddenContentHint extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Small caps label for the post type (Rezension, Zitat, …).
+class _TypeLabel extends StatelessWidget {
+  const _TypeLabel(this.type);
+  final PostType type;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    type.label.toUpperCase(),
+    style: const TextStyle(
+      color: AppColors.burgundy,
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.1,
+    ),
+  );
+}
+
+/// Quotes read like a passage from the book: serif, italic, rule on the left.
+class _QuoteText extends StatelessWidget {
+  const _QuoteText(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.only(left: 12),
+    decoration: const BoxDecoration(
+      border: Border(left: BorderSide(color: AppColors.gold, width: 3)),
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: 'SourceSerif4',
+        fontStyle: FontStyle.italic,
+        fontSize: 17,
+        height: 1.45,
+        color: AppColors.ink,
+      ),
+    ),
+  );
 }
