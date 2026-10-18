@@ -54,6 +54,29 @@ class OpenLibraryWork {
       : null;
 }
 
+/// Open Library subjects are raw catalogue tags: near-duplicates
+/// ("Science fiction" / "Science-fiction"), qualified entries ("Dune
+/// (Imaginary place), fiction") and list markers ("New York Times reviewed").
+/// Keeps up to [max] short, distinct topics.
+List<String> cleanSubjects(Iterable<String> raw, {int max = 5}) {
+  final seen = <String>{};
+  final result = <String>[];
+  for (final s in raw) {
+    final t = s.trim();
+    if (t.isEmpty || t.length > 30) continue;
+    if (t.contains(',') || t.contains('(') || t.contains(':')) continue;
+    if (t.toLowerCase().contains('reviewed') ||
+        t.toLowerCase().startsWith('nyt:')) {
+      continue;
+    }
+    final key = t.toLowerCase().replaceAll(RegExp(r'[^a-z0-9äöüß]'), '');
+    if (!seen.add(key)) continue;
+    result.add(t);
+    if (result.length == max) break;
+  }
+  return result;
+}
+
 class OpenLibraryRepository {
   OpenLibraryRepository({http.Client? client})
     : _client = client ?? http.Client();
@@ -108,10 +131,9 @@ class OpenLibraryRepository {
     final description = desc is String && desc.trim().isNotEmpty
         ? desc.trim()
         : null;
-    final subjects = (data['subjects'] as List<dynamic>? ?? [])
-        .whereType<String>()
-        .take(8)
-        .toList();
+    final subjects = cleanSubjects(
+      (data['subjects'] as List<dynamic>? ?? []).whereType<String>(),
+    );
     final covers = data['covers'] as List<dynamic>?;
     final coverId = covers?.whereType<int>().where((c) => c > 0).firstOrNull;
     return OpenLibraryWork(
