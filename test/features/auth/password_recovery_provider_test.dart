@@ -21,7 +21,9 @@ void main() {
 
     expect(container.read(passwordRecoveryProvider), isFalse);
 
-    controller.add(AuthState(AuthChangeEvent.passwordRecovery, testSession('u1')));
+    controller.add(
+      AuthState(AuthChangeEvent.passwordRecovery, testSession('u1')),
+    );
     await Future<void>.delayed(Duration.zero);
     expect(container.read(passwordRecoveryProvider), isTrue);
 
@@ -40,7 +42,9 @@ void main() {
     });
     container.listen(passwordRecoveryProvider, (_, _) {});
 
-    controller.add(AuthState(AuthChangeEvent.passwordRecovery, testSession('u1')));
+    controller.add(
+      AuthState(AuthChangeEvent.passwordRecovery, testSession('u1')),
+    );
     await Future<void>.delayed(Duration.zero);
     controller.add(signedOut());
     await Future<void>.delayed(Duration.zero);

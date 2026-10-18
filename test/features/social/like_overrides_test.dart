@@ -57,7 +57,8 @@ void main() {
   tearDown(() => container.dispose());
 
   LikeOverrides likes() => container.read(likeOverridesProvider.notifier);
-  ({bool liked, int count})? override() => container.read(likeOverridesProvider)['p1'];
+  ({bool liked, int count})? override() =>
+      container.read(likeOverridesProvider)['p1'];
 
   test('toggle applies the like immediately, then unlike reverts', () async {
     repo.gate = Completer();
@@ -119,19 +120,22 @@ void main() {
     await f;
   });
 
-  test('failure after a user switch does not roll back into new state', () async {
-    await likes().toggle(_post, userId: 'me'); // override (true, 4)
-    repo
-      ..gate = Completer()
-      ..fail = true;
-    final f = likes().toggle(_post, userId: 'me');
-    container.updateOverrides([
-      currentUserProvider.overrideWithValue(testUser('other')),
-      postRepositoryProvider.overrideWithValue(repo),
-    ]);
-    expect(override(), isNull);
-    repo.gate!.complete();
-    await expectLater(f, throwsException);
-    expect(override(), isNull);
-  });
+  test(
+    'failure after a user switch does not roll back into new state',
+    () async {
+      await likes().toggle(_post, userId: 'me'); // override (true, 4)
+      repo
+        ..gate = Completer()
+        ..fail = true;
+      final f = likes().toggle(_post, userId: 'me');
+      container.updateOverrides([
+        currentUserProvider.overrideWithValue(testUser('other')),
+        postRepositoryProvider.overrideWithValue(repo),
+      ]);
+      expect(override(), isNull);
+      repo.gate!.complete();
+      await expectLater(f, throwsException);
+      expect(override(), isNull);
+    },
+  );
 }

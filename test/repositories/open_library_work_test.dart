@@ -48,10 +48,7 @@ void main() {
   });
 
   test('404 throws', () {
-    expect(
-      repo(404, {}).getWork('OL1W'),
-      throwsA(isA<OpenLibraryException>()),
-    );
+    expect(repo(404, {}).getWork('OL1W'), throwsA(isA<OpenLibraryException>()));
   });
 
   test('follows a /type/redirect stub once', () async {

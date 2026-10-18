@@ -7,7 +7,11 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: EmptyState(icon: Icons.book, title: 'Titel', message: 'Nachricht'),
+          body: EmptyState(
+            icon: Icons.book,
+            title: 'Titel',
+            message: 'Nachricht',
+          ),
         ),
       ),
     );
@@ -18,7 +22,9 @@ void main() {
   testWidgets('ErrorState retry calls callback', (tester) async {
     var calls = 0;
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: ErrorState(onRetry: () => calls++))),
+      MaterialApp(
+        home: Scaffold(body: ErrorState(onRetry: () => calls++)),
+      ),
     );
     expect(find.text('Das hat nicht geklappt.'), findsOneWidget);
     await tester.tap(find.text('Erneut versuchen'));

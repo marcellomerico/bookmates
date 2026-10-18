@@ -12,13 +12,13 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/auth_fixtures.dart';
 
 Post _post(int i, {String prefix = 'p', DateTime? at}) => Post(
-      id: '$prefix$i',
-      authorId: 'a',
-      content: 'post $i',
-      postType: PostType.discussion,
-      // Newest first: p0 is the most recent.
-      createdAt: at ?? DateTime.utc(2026, 1, 1).subtract(Duration(minutes: i)),
-    );
+  id: '$prefix$i',
+  authorId: 'a',
+  content: 'post $i',
+  postType: PostType.discussion,
+  // Newest first: p0 is the most recent.
+  createdAt: at ?? DateTime.utc(2026, 1, 1).subtract(Duration(minutes: i)),
+);
 
 class FakePostRepository extends PostRepository {
   FakePostRepository(this.posts) : super(offlineClient());
@@ -47,9 +47,11 @@ class FakePostRepository extends PostRepository {
     if (after == null) return posts.take(limit).toList();
     final ts = after.createdAt.add(beforeShift);
     return posts
-        .where((p) =>
-            p.createdAt.isBefore(ts) ||
-            (p.createdAt == ts && p.id.compareTo(after.id) < 0))
+        .where(
+          (p) =>
+              p.createdAt.isBefore(ts) ||
+              (p.createdAt == ts && p.id.compareTo(after.id) < 0),
+        )
         .take(limit)
         .toList();
   }
@@ -73,8 +75,7 @@ class FakePostRepository extends PostRepository {
     String? currentUserId,
     PostCursor? after,
     int limit = 20,
-  }) =>
-      _page(after, limit);
+  }) => _page(after, limit);
 }
 
 class FakeFollowRepository extends FollowRepository {
@@ -102,12 +103,16 @@ void main() {
   });
   tearDown(() => container.dispose());
 
-  PagedPostsNotifier notifier() => container.read(pagedPostsProvider(src).notifier);
+  PagedPostsNotifier notifier() =>
+      container.read(pagedPostsProvider(src).notifier);
 
   test('PostSource equality makes it usable as a family key', () {
     expect(const PostSource.group('x'), PostSource.group('x'.toString()));
     expect(PostSource.author('x').hashCode, PostSource.author('x').hashCode);
-    expect(const PostSource.group('x') == const PostSource.author('x'), isFalse);
+    expect(
+      const PostSource.group('x') == const PostSource.author('x'),
+      isFalse,
+    );
   });
 
   test('pages through 45 posts: 20, 40, 45, then no-op', () async {
@@ -129,7 +134,10 @@ void main() {
     final callsBefore = repo.calls;
     await notifier().loadMore();
     expect(repo.calls, callsBefore);
-    expect(container.read(pagedPostsProvider(src)).requireValue.items.length, 45);
+    expect(
+      container.read(pagedPostsProvider(src)).requireValue.items.length,
+      45,
+    );
   });
 
   test('dedupes overlapping pages by id', () async {
@@ -145,10 +153,16 @@ void main() {
   test('loadMore while loading more is ignored', () async {
     await container.read(pagedPostsProvider(src).future);
     final a = notifier().loadMore();
-    expect(container.read(pagedPostsProvider(src)).requireValue.loadingMore, isTrue);
+    expect(
+      container.read(pagedPostsProvider(src)).requireValue.loadingMore,
+      isTrue,
+    );
     final b = notifier().loadMore();
     await Future.wait([a, b]);
-    expect(container.read(pagedPostsProvider(src)).requireValue.items.length, 40);
+    expect(
+      container.read(pagedPostsProvider(src)).requireValue.items.length,
+      40,
+    );
   });
 
   test('refresh resets to the first page', () async {
@@ -160,18 +174,21 @@ void main() {
     expect(page.hasMore, isTrue);
   });
 
-  test('cursor carries the last id so equal timestamps are not skipped', () async {
-    final at = DateTime.utc(2026);
-    // Same createdAt for all; two-digit ids p34..p10 sort like id desc.
-    repo.posts = [for (var i = 34; i >= 10; i--) _post(i, at: at)];
-    await container.read(pagedPostsProvider(src).future);
-    await notifier().refresh(); // setUp already loaded the old list
-    await notifier().loadMore();
-    expect(repo.lastAfter, (createdAt: at, id: 'p15'));
-    final items = container.read(pagedPostsProvider(src)).requireValue.items;
-    expect(items.length, 25);
-    expect(items.map((p) => p.id).toSet().length, 25);
-  });
+  test(
+    'cursor carries the last id so equal timestamps are not skipped',
+    () async {
+      final at = DateTime.utc(2026);
+      // Same createdAt for all; two-digit ids p34..p10 sort like id desc.
+      repo.posts = [for (var i = 34; i >= 10; i--) _post(i, at: at)];
+      await container.read(pagedPostsProvider(src).future);
+      await notifier().refresh(); // setUp already loaded the old list
+      await notifier().loadMore();
+      expect(repo.lastAfter, (createdAt: at, id: 'p15'));
+      final items = container.read(pagedPostsProvider(src)).requireValue.items;
+      expect(items.length, 25);
+      expect(items.map((p) => p.id).toSet().length, 25);
+    },
+  );
 
   test('refresh during loadMore wins; loadMore result is discarded', () async {
     await container.read(pagedPostsProvider(src).future);

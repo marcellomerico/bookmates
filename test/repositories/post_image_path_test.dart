@@ -5,13 +5,17 @@ void main() {
   const base = 'https://abc.supabase.co/storage/v1/object/public';
 
   test('extracts the object path from a public URL', () {
-    expect(postImagePathFromUrl('$base/post-images/u1/1700000000.jpg'),
-        'u1/1700000000.jpg');
+    expect(
+      postImagePathFromUrl('$base/post-images/u1/1700000000.jpg'),
+      'u1/1700000000.jpg',
+    );
   });
 
   test('ignores the query string', () {
-    expect(postImagePathFromUrl('$base/post-images/u1/1700000000.jpg?t=1'),
-        'u1/1700000000.jpg');
+    expect(
+      postImagePathFromUrl('$base/post-images/u1/1700000000.jpg?t=1'),
+      'u1/1700000000.jpg',
+    );
   });
 
   test('returns null when post-images is not the bucket segment', () {

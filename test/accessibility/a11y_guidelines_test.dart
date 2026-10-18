@@ -11,7 +11,10 @@ import 'package:intl/date_symbol_data_local.dart';
 Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
   ProviderScope(
     overrides: [currentUserProvider.overrideWithValue(null)],
-    child: MaterialApp(theme: AppTheme.light, home: Scaffold(body: child)),
+    child: MaterialApp(
+      theme: AppTheme.light,
+      home: Scaffold(body: child),
+    ),
   ),
 );
 

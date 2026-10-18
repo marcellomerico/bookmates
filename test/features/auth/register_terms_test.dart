@@ -13,7 +13,11 @@ class _FakeAuth extends AuthRepository {
   int signUpCalls = 0;
 
   @override
-  Future<SignUpResult> signUp(String email, String password, String username) async {
+  Future<SignUpResult> signUp(
+    String email,
+    String password,
+    String username,
+  ) async {
     signUpCalls++;
     return const SignUpResult(needsEmailConfirmation: true);
   }
@@ -34,13 +38,15 @@ void main() {
   testWidgets('sign-up is blocked until terms are accepted', (tester) async {
     final auth = _FakeAuth();
     final profiles = _FakeProfiles();
-    await tester.pumpWidget(ProviderScope(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(auth),
-        profileRepositoryProvider.overrideWithValue(profiles),
-      ],
-      child: const MaterialApp(home: RegisterScreen()),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(auth),
+          profileRepositoryProvider.overrideWithValue(profiles),
+        ],
+        child: const MaterialApp(home: RegisterScreen()),
+      ),
+    );
 
     await tester.enterText(find.byType(TextField).at(0), 'leser');
     await tester.enterText(find.byType(TextField).at(1), 'a@b.de');
@@ -52,7 +58,9 @@ void main() {
     await tester.pump();
 
     expect(
-      find.text('Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.'),
+      find.text(
+        'Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.',
+      ),
       findsOneWidget,
     );
     expect(auth.signUpCalls, 0);

@@ -9,13 +9,15 @@ import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:booksquad/models/profile.dart';
 
 Widget _app(Future<Profile?> Function() future) => ProviderScope(
-      overrides: [currentProfileProvider.overrideWith((ref) => future())],
-      child: const MaterialApp(home: SplashScreen()),
-    );
+  overrides: [currentProfileProvider.overrideWith((ref) => future())],
+  child: const MaterialApp(home: SplashScreen()),
+);
 
 void main() {
   testWidgets('shows retry when profile fails', (tester) async {
-    await tester.pumpWidget(_app(() => Future<Profile?>.error(Exception('net'))));
+    await tester.pumpWidget(
+      _app(() => Future<Profile?>.error(Exception('net'))),
+    );
     await tester.pump();
     await tester.pump();
     expect(find.text('Erneut versuchen'), findsOneWidget);
