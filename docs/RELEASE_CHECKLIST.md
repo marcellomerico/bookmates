@@ -1,69 +1,154 @@
-# Release-Checkliste (Marcello)
+# Release-Anleitung für Marcello
 
-Alles, was Konten, Geld, Zugangsdaten oder rechtliche Verantwortung braucht. In dieser Reihenfolge abarbeiten; spätere Schritte bauen auf früheren auf. Wo **„→ Claude“** steht, sag Bescheid, dann übernimmt Claude den Rest.
+Hier steht nur, was Claude **nicht** selbst erledigen kann: Konten, Passwörter, Geld, rechtliche Verantwortung und das Tippen in der App mit deinen Test-Konten. Alles andere übernimmt Claude. Wo **„→ Claude“** steht, gib kurz Bescheid, dann macht Claude weiter.
 
-Grobe Kosten: Apple 99 €/Jahr, Google einmalig 25 $, Supabase Pro ca. 25 $/Monat, Mail-Versand (SMTP) meist gratis im Einstiegstarif.
+Die Reihenfolge ist absichtlich so gewählt:
+- **Teil 1 ist kostenlos** und läuft komplett auf dem Dev-Projekt. Dein Supabase-Konto hat schon zwei Gratis-Projekte, ein drittes für Prod geht nur mit dem kostenpflichtigen Plan.
+- **Teil 2 kostet Geld** und kommt ganz am Schluss.
 
-## 1. Konten und Adressen (Vorlauf: Tage)
+---
 
-- [ ] **Apple Developer Program** beitreten (Privatperson oder Firma; Firma braucht eine D-U-N-S-Nummer, das dauert länger). Team-ID `73W5K48926` ist im Projekt schon gesetzt. Bei einem anderen Konto die Team-ID nennen → Claude
-- [ ] **Google Play Console** Konto anlegen. Neue private Konten müssen vor dem Produktionsstart **12 Testpersonen über 14 Tage** im geschlossenen Test haben. Früh anfangen
-- [ ] **Support-Adresse** muss echt erreichbar sein. Im Code und in den Texten steht `support@bookmates.app`. Gehört dir die Domain nicht, eine andere Adresse nennen → Claude ersetzt sie überall
-- [ ] **App-Name** in App Store Connect reservieren („Bookmates – Lesen mit Freunden“). Ist er vergeben, Alternative nennen → Claude passt die Store-Texte an
+## Teil 1 – Jetzt, kostenlos
 
-## 2. Rechtstexte (vor jedem öffentlichen Test)
+### Schritt 1: Support-Adresse festlegen (5 Min.)
 
-- [ ] Platzhalter in `docs/legal/*.md` ausfüllen (Name, Anschrift, E-Mail, Fristen)
-- [ ] Rechtlich prüfen lassen (Datenschutzerklärung, Nutzungsbedingungen, Impressum)
-- [ ] Veröffentlichen nach `docs/RELEASE.md` → „Rechtstexte veröffentlichen“ (GitHub Pages, ein Befehl) → oder Claude Bescheid geben, dann baut und pusht Claude die Seiten
+In der App und in den Texten steht bisher `support@bookmates.app`. Diese Adresse gibt es nur, wenn dir die Domain gehört.
 
-## 3. Produktions-Backend
+- [ ] Entscheide dich für eine Adresse, die du wirklich liest. Einfachste Lösung: ein eigenes, kostenloses Gmail-Konto für Bookmates
+- [ ] → Claude: Adresse nennen. Claude ersetzt sie überall (App, Rechtstexte, Store-Texte)
 
-- [ ] Supabase-Prod-Projekt anlegen: Frankfurt, Pro-Plan, AVV abschließen (`docs/SUPABASE_PRODUCTION.md` Schritt 1) → Projekt-Ref an Claude
-- [ ] → Claude: Schema, Edge Function, Advisor-Checks (Schritte 2, 3, 6)
-- [ ] Auth-Einstellungen im Dashboard (Schritt 4): E-Mail-Bestätigung, Redirect-URL `bookmates://auth-callback`, Leaked-Password-Schutz, **eigener SMTP-Versand**
-- [ ] Google- und Apple-Login einrichten (`docs/GOOGLE_APPLE_AUTH.md`), danach die iOS-Client-ID nennen → Claude trägt den URL-Scheme in `Info.plist` ein
-- [ ] Gleiches auch für das **Dev**-Projekt: Leaked-Password-Schutz einschalten (einziger offener Advisor-Hinweis)
-- [ ] Prod-Werte in `.env` eintragen (nicht committen; `.env` ist ignoriert)
-- [ ] In der Prod-App registrieren → Claude macht dich zum Admin (Schritt 5)
-- [ ] Optional: Benachrichtigung bei neuen Meldungen (Database Webhook auf `reports` → Mail-Dienst). Ohne das Moderations-Queue regelmäßig in der App prüfen
+### Schritt 2: Angaben für die Rechtstexte (10 Min.)
 
-## 4. Signieren
+- [ ] → Claude: Diese Angaben schicken (fürs Impressum gesetzlich vorgeschrieben):
+  - vollständiger Name, oder Firma mit Rechtsform
+  - ladungsfähige Anschrift (Straße, PLZ, Ort; kein Postfach)
+  - E-Mail-Adresse (aus Schritt 1)
+  - optional: Telefonnummer, USt-ID (falls vorhanden)
+- [ ] Claude füllt die Texte aus, baut die Seiten und schaltet nach deinem OK GitHub Pages frei
+- [ ] **Du:** Die fertigen Texte (Datenschutz, Nutzungsbedingungen, Impressum) rechtlich prüfen lassen, z. B. durch einen Anwalt oder einen Generator-Dienst. Das geht parallel zu allen weiteren Schritten, muss aber vor Teil 2 fertig sein
 
-- [ ] **Android:** Upload-Keystore erzeugen und `android/key.properties` anlegen (`docs/RELEASE.md` → Android). Keystore und Passwörter sicher sichern; Verlust ist mit Play App Signing reparierbar, aber mühsam
-- [ ] **Android:** Flutter ein JDK ≤ 25 geben: `flutter config --jdk-dir /Users/marcello/Library/Java/JavaVirtualMachines/openjdk-23.0.2/Contents/Home`
-- [ ] **iOS:** In Xcode (Runner → Signing & Capabilities) mit dem Apple-Konto anmelden, „Automatically manage signing“ an. App-ID `com.bookmates.bookmates` mit „Sign in with Apple“ wird dabei angelegt
+### Schritt 3: E-Mail-Versand im Dev-Projekt einrichten (15 Min.)
 
-## 5. Store-Einträge anlegen
+Ohne diesen Schritt kommen Bestätigungs- und Passwort-Mails nicht an. Der eingebaute Supabase-Mailer schickt nur an Adressen aus deinem Supabase-Team und nur wenige Mails pro Stunde.
 
-- [ ] App Store Connect: neue App, Bundle-ID `com.bookmates.bookmates`, Texte aus `docs/STORE_LISTING.md`
-- [ ] Play Console: neue App, Texte aus `docs/STORE_LISTING.md`
-- [ ] Datenschutz-Angaben, Altersfreigabe, Data Safety aus `docs/STORE_PRIVACY.md`
-- [ ] **Demo-Konto für Apple Review** in Prod anlegen (mit ein paar Beiträgen, einem öffentlichen und einem privaten Lesekreis); Zugangsdaten nur in App Store Connect eintragen, nicht im Repo
-- [ ] Screenshots nach dem Plan in `docs/STORE_LISTING.md` (iOS 6,9", Android Telefon, Play-Feature-Grafik)
+1. [ ] Im Google-Konto aus Schritt 1 die **Bestätigung in zwei Schritten** einschalten (myaccount.google.com → Sicherheit)
+2. [ ] Dort ein **App-Passwort** erzeugen (Sicherheit → App-Passwörter, Name „Supabase“). Die 16 Zeichen kopieren
+3. [ ] Supabase Dashboard → Dev-Projekt → **Authentication → Emails → SMTP Settings** → „Enable custom SMTP“:
+   - Host `smtp.gmail.com`, Port `587`
+   - Username: die Gmail-Adresse, Passwort: das App-Passwort
+   - Sender email: dieselbe Gmail-Adresse, Sender name: `Bookmates`
+4. [ ] **Authentication → Sign In / Providers → Email:** „Confirm email“ ist **an**
+5. [ ] **Authentication → URL Configuration:**
+   - Site URL: `bookmates://auth-callback`
+   - Redirect URLs: `bookmates://auth-callback` (falls nicht schon eingetragen)
 
-## 6. Testbuilds
+### Schritt 4: Google-Login einrichten (30 Min.)
 
-**iOS → TestFlight**
-1. `BOOKMATES_PROD_REF=<ref> tool/build_release.sh ios`
-2. `build/ios/ipa/*.ipa` mit der App **Transporter** hochladen (oder `open build/ios/archive/Runner.xcarchive` → Xcode Organizer → Distribute App)
-3. In App Store Connect → TestFlight: Build erscheint nach der Verarbeitung (10–30 Min.). Interne Tester (bis 100, ohne Review) hinzufügen. Externe Tester brauchen eine kurze Beta-Review
-4. Jeder weitere Upload: Build-Nummer erhöhen (`tool/build_release.sh ios 2`, dann 3 …)
+1. [ ] [console.cloud.google.com](https://console.cloud.google.com) → neues Projekt „Bookmates“
+2. [ ] **APIs & Dienste → OAuth-Zustimmungsbildschirm** (heißt teils „Google Auth Platform → Branding“):
+   - App-Name „Bookmates“, Support-E-Mail aus Schritt 1
+   - Zielgruppe „Extern“
+   - Links auf Datenschutz und Nutzungsbedingungen, sobald die Seiten aus Schritt 2 online sind
+3. [ ] **Clients → Client erstellen**, dreimal:
+   - **Webanwendung**, Name „Supabase“. Autorisierte Weiterleitungs-URI: `https://thkfqvvzldkfxaqehjqn.supabase.co/auth/v1/callback`
+   - **iOS**, Bundle-ID `com.bookmates.bookmates`
+   - **Android**, Paketname `com.bookmates.bookmates`, SHA-1 `99:0F:08:74:EC:06:37:2E:16:87:DE:79:18:07:9B:16:2F:03:03:20` (das ist der Debug-Schlüssel dieses Macs)
+4. [ ] Supabase → Dev-Projekt → **Authentication → Sign In / Providers → Google** → aktivieren:
+   - Client ID und Client Secret vom **Web**-Client eintragen
+   - Speichern
+5. [ ] → Claude: **Web-Client-ID** und **iOS-Client-ID** schicken (beide enden auf `.apps.googleusercontent.com`; das sind keine Geheimnisse). Das Client Secret bleibt bei dir. Claude trägt die IDs in `.env` und `Info.plist` ein
 
-**Android → Internal Testing**
-1. `BOOKMATES_PROD_REF=<ref> tool/build_release.sh android`
-2. Play Console → Testen → Interner Test → Neuen Release erstellen → `build/app/outputs/bundle/release/app-release.aab` hochladen. Play App Signing bestätigen
-3. Tester-Liste (E-Mails) anlegen, Opt-in-Link an Tester schicken
-4. Danach **geschlossener Test** mit mindestens 12 Personen über 14 Tage (Pflicht für neue private Konten), erst dann Produktion beantragen
+### Schritt 5: Test-Konten anlegen (15 Min.)
 
-## 7. Auf echten Geräten testen
+Du brauchst vier E-Mail-Adressen. Mit Gmail geht das über Aliasse, alle Mails landen im selben Postfach: `deinname+a@gmail.com`, `+b`, `+c`, `+extra`.
 
-- [ ] `TESTING.md`: Teile D–M, dazu die UI-Checks (Teil J) und „Feed & Bücher“, auf je einem iPhone und einem Android-Gerät
-- [ ] Besonders: Registrierung mit Bestätigungsmail, Passwort-Reset-Link öffnet die App, Google-/Apple-Login, Foto-Upload, Konto löschen
-- [ ] Gefundene Fehler an Claude geben
+1. [ ] → Claude: „App starten“. Claude startet die App im iPhone-Simulator
+2. [ ] Mit deiner Haupt-Adresse registrieren. Der Bestätigungslink muss **im Simulator** geöffnet werden, nicht im Mac-Browser. Deshalb in der Mail am Mac: Rechtsklick auf den Link → „Link kopieren“ → → Claude schicken. Claude öffnet ihn im Simulator, die App meldet dich an. Auf einem echten Handy tippst du den Link einfach in der Mail-App an
+3. [ ] → Claude: „Bin registriert, mach mich zum Admin“
+4. [ ] Konten **A**, **B** und **C** genauso registrieren (für Social- und Moderations-Tests)
 
-## 8. Einreichen
+### Schritt 6: Testen (2–3 Std., gern auf mehrere Tage verteilt)
 
-- [ ] iOS: Build in App Store Connect der Version zuordnen → Zur Prüfung einreichen
-- [ ] Android: Release vom geschlossenen Test in Produktion übernehmen
-- [ ] Nach Freigabe: Version taggen (`git tag v1.0.0+<build>` und pushen) → oder Claude
+Die Tabellen mit Schritten und erwartetem Ergebnis stehen in `TESTING.md`. Du gehst sie in dieser Reihenfolge durch und hakst ab:
+
+| # | Teil in `TESTING.md` | Worum es geht | Wo |
+|---|---------------------|---------------|----|
+| 1 | D (Auth) + Registrierung | Login, Logout, Passwort-Reset-Mail **inkl. Link öffnen**, Google-Login | iOS-Simulator |
+| 2 | E (Profil & Regal) | Avatar, Bücher, Sterne, Statistik | iOS-Simulator |
+| 3 | F (Feed & Beiträge) | Posten mit Buch und Bild, Liken, Kommentieren, Melden, Blockieren | iOS-Simulator |
+| 4 | G (Social) | Folgen, Feed von anderen, Blockieren (Konten A und B) | iOS-Simulator |
+| 5 | H (Lesekreise) | Öffentlich, privat, Beitritt per Code | iOS-Simulator |
+| 6 | M (Moderation) | Melden mit A, B, C, Admin-Queue, Rate-Limit | iOS-Simulator |
+| 7 | F2 (Feed & Bücher) | Endlos-Scroll, Like offline, Buch-Detailseite, Onboarding | iOS-Simulator |
+| 8 | J (UI) | Große Schrift, VoiceOver, Flugmodus, Tastatur | iOS-Simulator |
+| 9 | D, F, G, J noch einmal kurz | Android-Verhalten (Zurück-Taste, Google-Login, Tastatur) | Android, siehe unten |
+| 10 | I (Konto löschen) | **Nur mit dem Konto `+extra`, ganz am Ende** | beliebig |
+
+**Android:**
+- Mit echtem Android-Handy: Einstellungen → Telefoninfo → 7× auf „Build-Nummer“ tippen → Entwickleroptionen → USB-Debugging an → per Kabel an den Mac → → Claude: „Handy ist dran“. Claude installiert die App
+- Ohne Handy: → Claude: „Android-Emulator starten“. Ein Emulator ist auf dem Mac schon eingerichtet
+
+**Wenn etwas nicht stimmt:** Test-ID (z. B. „F4“), was du gemacht hast, was passiert ist, am besten mit Screenshot → Claude. Claude behebt es, du testest die Stelle danach noch einmal.
+
+### Schritt 7: Demo-Konto und Screenshots (30 Min.)
+
+1. [ ] Ein Demo-Konto registrieren (z. B. `+demo`), Profilname wie eine echte Leserin oder ein echter Leser, kein echter Name
+2. [ ] → Claude: „Demo-Konto ist da“. Claude füllt Regal, Beiträge und Lesekreise mit Beispieldaten im Dev-Projekt
+3. [ ] Im iPhone-Simulator mit dem Demo-Konto eingeloggt lassen → → Claude: „Screenshots machen“. Claude nimmt die Screens auf und baut die Store-Bilder mit Bildtexten
+4. [ ] Bilder ansehen und freigeben
+
+**Ende von Teil 1:** Die App ist durchgetestet, die Rechtstexte sind geprüft und online, die Screenshots liegen bereit.
+
+---
+
+## Teil 2 – Am Schluss, kostet Geld
+
+> **Zeitplan beachten, wenn die App dieses Jahr erscheinen soll:**
+> - **Google** verlangt von neuen privaten Konten vor dem Produktivstart einen **geschlossenen Test mit mindestens 12 Personen über 14 Tage**. Danach folgt die Prüfung (einige Tage). Das Play-Konto sollte deshalb **spätestens Anfang Dezember** stehen, und die 12 Tester solltest du schon in Teil 1 suchen (Freunde, Familie, Lesekreis).
+> - **Apple:** Die Kontoprüfung dauert 1–2 Tage (als Firma mit D-U-N-S-Nummer länger), das App-Review meist 1–3 Tage. Über die Feiertage arbeitet Apple langsamer.
+
+### Schritt 8: Supabase Pro und Prod-Projekt (ca. 25 $/Monat)
+
+1. [ ] Supabase → Organization → Billing → Plan **Pro**
+2. [ ] Organization → Legal Documents → **AVV/DPA** abschließen (Pflicht nach DSGVO)
+3. [ ] → Claude: „Prod-Projekt anlegen“. Claude legt es in Frankfurt an (nach deinem OK zu den Kosten), spielt Schema und Edge Function ein und trägt die Prod-Werte in `.env` ein
+4. [ ] Im **Prod**-Projekt Schritt 3 (SMTP, Confirm email, URL Configuration) wiederholen
+5. [ ] Authentication → Sign In / Providers → **Leaked password protection** an (nur im Pro-Plan verfügbar). Am besten im Dev-Projekt auch
+6. [ ] Google Cloud: beim **Web**-Client zusätzlich die Weiterleitungs-URI des Prod-Projekts eintragen (`https://<prod-ref>.supabase.co/auth/v1/callback`; Claude nennt dir die Ref). Dann im Prod-Projekt den Google-Provider mit demselben Web-Client aktivieren
+7. [ ] In der App (mit Prod-Build, → Claude) registrieren → → Claude: „Mach mich in Prod zum Admin“
+8. [ ] Demo-Konto für das Apple-Review in Prod registrieren → → Claude füllt es mit Beispieldaten
+
+### Schritt 9: Apple (99 €/Jahr)
+
+1. [ ] [developer.apple.com/programs](https://developer.apple.com/programs/) → beitreten. Als Privatperson geht es am schnellsten
+2. [ ] Xcode → Einstellungen → Accounts → mit dem Apple-Konto anmelden → → Claude: „Apple-Konto ist in Xcode“. Claude stellt Signing und Team ein
+3. [ ] **Sign in with Apple** einrichten (developer.apple.com → Certificates, Identifiers & Profiles):
+   - Unter Identifiers eine **Services ID** anlegen (z. B. `com.bookmates.bookmates.signin`). Domain: `<prod-ref>.supabase.co`, Return URL: `https://<prod-ref>.supabase.co/auth/v1/callback`
+   - Unter Keys einen **Key** mit „Sign in with Apple“ anlegen und die `.p8`-Datei herunterladen (gibt es nur einmal, sicher aufbewahren)
+   - Supabase Prod → Providers → **Apple**: Services ID, Team ID, Key ID und Inhalt der `.p8` eintragen
+4. [ ] [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Apps → **+ Neue App**:
+   - Name „Bookmates – Lesen mit Freunden“ (ist er vergeben → Claude, für eine Alternative), Sprache Deutsch
+   - Bundle-ID `com.bookmates.bookmates`, SKU `bookmates`
+5. [ ] Texte aus `docs/STORE_LISTING.md` einfügen, Screenshots aus Schritt 7 hochladen
+6. [ ] **App-Datenschutz**, **Altersfreigabe** und Prüfnotizen nach `docs/STORE_PRIVACY.md` ausfüllen. Demo-Konto-Zugangsdaten **nur hier** eintragen
+7. [ ] → Claude: „iOS-Build bauen“. Danach die `.ipa` mit der kostenlosen Mac-App **Transporter** (App Store) hochladen, Anmeldung mit deinem Apple-Konto
+8. [ ] App Store Connect → **TestFlight**: Dich selbst als internen Tester eintragen, auf dem iPhone die App **TestFlight** installieren und Bookmates darüber laden
+9. [ ] Auf dem **echten iPhone** testen: Apple-Login, Google-Login, Registrierung mit Bestätigungslink, Passwort-Reset-Link, Foto-Upload, Teil J aus `TESTING.md`. Fehler → Claude
+10. [ ] Build der Version zuordnen → **Zur Prüfung einreichen**
+
+### Schritt 10: Google Play (einmalig 25 $)
+
+1. [ ] [play.google.com/console](https://play.google.com/console) → Konto als Privatperson anlegen, Identität bestätigen (dauert einige Tage)
+2. [ ] **Upload-Schlüssel erzeugen:** → Claude gibt dir den fertigen `keytool`-Befehl. Du führst ihn im Terminal aus und vergibst die Passwörter selbst. Danach legst du `android/key.properties` nach der Vorlage in `docs/RELEASE.md` an. Keystore-Datei und Passwörter im Passwort-Manager sichern
+3. [ ] Play Console → **App erstellen** (Name, Deutsch, App, kostenlos)
+4. [ ] Store-Eintrag aus `docs/STORE_LISTING.md`, Screenshots, Feature-Grafik (→ Claude erstellt sie)
+5. [ ] **App-Inhalte** ausfüllen: Datenschutz-URL, Datensicherheit, Einstufungsfragebogen, Zielgruppe ab 16, keine Werbung (alles in `docs/STORE_PRIVACY.md`)
+6. [ ] → Claude: „Android-Build bauen“. Dann **Testen → Interner Test → Release erstellen** → `.aab` hochladen, Play App Signing akzeptieren
+7. [ ] Play Console → Einrichtung → **App-Signatur**: Beide SHA-1-Werte (App-Signaturschlüssel und Upload-Schlüssel) kopieren und in Google Cloud je als weiteren **Android**-Client anlegen. Sonst funktioniert der Google-Login in der Play-Version nicht
+8. [ ] **Geschlossener Test:** Release übernehmen, die 12 Tester per E-Mail-Liste einladen, Opt-in-Link verschicken. Die Tester müssen die App **14 Tage** installiert behalten
+9. [ ] Danach **Zugriff auf Produktion beantragen**, die Fragen zum Test beantworten, Release in Produktion übernehmen
+
+### Schritt 11: Nach der Freigabe
+
+- [ ] → Claude: „Ist live“. Claude taggt die Version und bereitet das nächste Update vor
+- [ ] Meldungen in der App regelmäßig prüfen (Einstellungen → Meldungen prüfen)
