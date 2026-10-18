@@ -1,6 +1,5 @@
 # Booksquad-Konto löschen
 
-> Entwurf.
 
 Du kannst dein Booksquad-Konto jederzeit löschen – direkt in der App oder per E-Mail.
 

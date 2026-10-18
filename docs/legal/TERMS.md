@@ -1,6 +1,5 @@
 # Nutzungsbedingungen — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen.
 
 **Stand:** Oktober 2026
 

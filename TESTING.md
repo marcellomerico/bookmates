@@ -303,7 +303,7 @@ limit 5;
 | E8 | Stats Beiträge/Follower/Folgt | Echte Zahlen | |
 | E9 | Follower / Folgt tippen | Listen öffnen | |
 | E10 | Support kontaktieren | Mail-App öffnet | |
-| E11 | Datenschutz / AGB / Impressum | Link öffnet (Platzhalter ok) | |
+| E11 | Datenschutz / AGB / Impressum | Link öffnet die Seite auf booksquad.de | |
 
 ---
 
@@ -520,7 +520,7 @@ M6 RLS: ✅ / ❌
 M7 Auth-Trigger: ✅ / ❌
 
 === APP ===
-C.3 Zwei Accounts: ✅ / ❌  [E-Mails: …]
+C.3 Zwei Accounts: ✅ / ❌
 D Auth: ✅ / ❌
 E Profil: ✅ / ❌
 F Feed: ✅ / ❌

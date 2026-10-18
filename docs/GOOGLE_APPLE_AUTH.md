@@ -15,9 +15,8 @@
 
 3. **Supabase** → Authentication → Providers → Google: Web Client ID + Secret
 
-4. **iOS** `Info.plist` → `CFBundleURLSchemes`:
-   Ersetze `REPLACE_WITH_IOS_CLIENT_ID` durch die **reversed iOS Client ID**  
-   (z.B. `com.googleusercontent.apps.123456789-abc`)
+4. **iOS** `Info.plist` → `CFBundleURLTypes`: einen Eintrag mit der **reversed iOS Client ID** als URL-Scheme ergänzen
+   (Form `com.googleusercontent.apps.<Client-ID ohne .apps.googleusercontent.com>`). `tool/build_release.sh` prüft das.
 
 ## Apple
 
