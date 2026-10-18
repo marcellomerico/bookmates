@@ -1,6 +1,6 @@
 # Release Builds
 
-Was vor dem Release zu tun ist und wer es macht: [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md). Store-Texte: [`STORE_LISTING.md`](STORE_LISTING.md).
+Store-Texte: [`STORE_LISTING.md`](STORE_LISTING.md).
 
 ## Versionierung
 

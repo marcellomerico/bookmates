@@ -18,6 +18,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 8 | `20261017150000_moderation_followups.sql` | **Pflicht:** Bild-URL in der Admin-Queue (Bild wird beim Löschen entfernt), Admins dürfen Post-Bilder löschen, Kommentar-Meldungen brauchen die Post-ID |
 | 9 | `20261017180000_feed_indexes.sql` | Indizes für seitenweise Feeds und Like-Status |
 | 10 | `20261018120000_book_status_unread.sql` | Regal-Status „ungelesen“ (rein additiv, bestehende Einträge bleiben unverändert) |
+| 11 | `20261018150000_revoke_unused_client_grants.sql` | **Pflicht:** entzieht API-Rollen TRUNCATE/TRIGGER/REFERENCES und `anon` Schreibrechte auf `public` (Schutz zusätzlich zu RLS) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 

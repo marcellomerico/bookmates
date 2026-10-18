@@ -561,7 +561,6 @@ Simulator / Gerät, iOS: …
 | `supabase/functions/delete-account` | Edge Function |
 | `supabase/tests/rls_smoke.sql` | RLS-Test (nur DEV) |
 | `supabase/APPLY_MIGRATIONS.md` | Kurz-Anleitung |
-| `PUBLISH_PLAN.md` | Nach erfolgreichem Test |
 
 ---
 

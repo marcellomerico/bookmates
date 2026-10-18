@@ -2,8 +2,12 @@ name: Flutter CI
 
 on:
   push:
-    branches: [main, master, 'cursor/**', 'phase-*/**']
+    branches: [main]
   pull_request:
+
+# Read-only token: CI only checks out and tests.
+permissions:
+  contents: read
 
 jobs:
   analyze-and-test:

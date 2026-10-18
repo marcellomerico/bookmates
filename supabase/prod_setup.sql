@@ -1164,4 +1164,20 @@ create index if not exists likes_user_post_idx on public.likes (user_id, post_id
 -- Shelf = reading | unread | read; want_to_read is the separate wishlist.
 alter type public.book_status add value if not exists 'unread' before 'read';
 
+-- ===== 20261018150000_revoke_unused_client_grants.sql =====
+-- 11: Least privilege for client roles. Removes table privileges the app never uses.
+-- RLS already blocks these paths; TRUNCATE in particular bypasses RLS, so it must not be
+-- grantable to API roles at all. No data is changed.
+
+-- Never needed by the API roles.
+revoke truncate, trigger, references on all tables in schema public from anon, authenticated;
+-- Signed-out clients only read (genres) and call username_available; they never write.
+revoke insert, update, delete on all tables in schema public from anon;
+
+-- Same for tables created by later migrations.
+alter default privileges for role postgres in schema public
+  revoke truncate, trigger, references on tables from anon, authenticated;
+alter default privileges for role postgres in schema public
+  revoke insert, update, delete on tables from anon;
+
 commit;

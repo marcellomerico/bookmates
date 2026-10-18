@@ -85,6 +85,15 @@ do $$ begin
     raise exception 'FAIL: trigger functions callable'; end if;
   if has_table_privilege('authenticated', 'private.admins', 'select') then
     raise exception 'FAIL: authenticated can read private.admins'; end if;
+  -- Migration 11: no RLS-bypassing or unused privileges for API roles.
+  if exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+             where n.nspname = 'public' and c.relkind = 'r'
+               and (has_table_privilege('anon', c.oid, 'truncate')
+                 or has_table_privilege('authenticated', c.oid, 'truncate')
+                 or has_table_privilege('anon', c.oid, 'insert')
+                 or has_table_privilege('anon', c.oid, 'update')
+                 or has_table_privilege('anon', c.oid, 'delete'))) then
+    raise exception 'FAIL: API roles keep truncate or anon write privileges'; end if;
 end $$;
 
 -- ---------------- as BOB (outsider) ----------------
