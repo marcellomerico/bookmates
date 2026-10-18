@@ -22,7 +22,7 @@ Diese Angaben entsprechen `ios/Runner/PrivacyInfo.xcprivacy`.
 
 - **Werden Daten erhoben oder geteilt?** Erhoben: ja. Geteilt: nein. Die Weitergabe an Auftragsverarbeiter (Supabase) und die nutzerinitiierte Anzeige für andere Nutzer gelten nach Play-Definition nicht als „Teilen“.
 - **Verschlüsselung bei der Übertragung:** Ja (TLS).
-- **Löschanfrage möglich:** Ja, in der App und per Web: `https://getbooksquad.com/delete-account.html`.
+- **Löschanfrage möglich:** Ja, in der App und per Web: `https://booksquad.de/delete-account.html`.
 - **Kontoerstellung:** E-Mail und Passwort. Optional „Mit Apple anmelden“ und „Mit Google anmelden“, sobald konfiguriert.
 
 | Kategorie → Datentyp | Erhoben | Pflicht/optional | Zweck |
@@ -56,16 +56,16 @@ Booksquad is a community app for readers. User-generated content is moderated:
 - Users must accept the Terms of Use (zero tolerance for objectionable content)
   at sign-up.
 - Account deletion: Profil → Einstellungen → "Konto löschen" (deletes all data and images).
-Contact: [support@getbooksquad.com]
+Contact: [support@booksquad.de]
 ```
 
 ## 5. Pflichtfelder in den Stores
 
 | Feld | Wert |
 |---|---|
-| Datenschutz-URL | `https://getbooksquad.com/privacy.html` (nach Veröffentlichung) |
-| Support-URL / -E-Mail | `[support@getbooksquad.com]` bzw. Index-Seite |
-| Nutzungsbedingungen (EULA) | `https://getbooksquad.com/terms.html` |
-| Web-Löschseite (Play) | `https://getbooksquad.com/delete-account.html` |
+| Datenschutz-URL | `https://booksquad.de/privacy.html` (nach Veröffentlichung) |
+| Support-URL / -E-Mail | `[support@booksquad.de]` bzw. Index-Seite |
+| Nutzungsbedingungen (EULA) | `https://booksquad.de/terms.html` |
+| Web-Löschseite (Play) | `https://booksquad.de/delete-account.html` |
 | Marketing-URL | optional |
 | Kategorie | Soziale Netzwerke (Alternative: Bücher) |

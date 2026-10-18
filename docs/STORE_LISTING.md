@@ -59,7 +59,7 @@ SICHER UND RESPEKTVOLL
 • Konto und alle Daten jederzeit in der App löschen
 • Keine Werbung, kein Verkauf deiner Daten
 
-Booksquad wird in Deutschland entwickelt und ist noch jung. Über Feedback an support@getbooksquad.com freuen wir uns sehr.
+Booksquad wird in Deutschland entwickelt und ist noch jung. Über Feedback an support@booksquad.de freuen wir uns sehr.
 ```
 
 ### Neuerungen in dieser Version (max 4000)
@@ -73,8 +73,8 @@ Willkommen bei Booksquad! Das ist die erste Version. Wir freuen uns auf dein Fee
 | Primäre Kategorie | Soziale Netze |
 | Sekundäre Kategorie | Bücher |
 | Altersfreigabe | 12+ (nutzergenerierte Inhalte, siehe `docs/STORE_PRIVACY.md`) |
-| Support-URL | `https://getbooksquad.com/` (nach Veröffentlichung der Seiten) |
-| Datenschutz-URL | `https://getbooksquad.com/privacy.html` |
+| Support-URL | `https://booksquad.de/` (nach Veröffentlichung der Seiten) |
+| Datenschutz-URL | `https://booksquad.de/privacy.html` |
 | Copyright | `2026 <Name aus dem Impressum>` |
 | Preis | Gratis |
 
@@ -100,9 +100,9 @@ Gleicher Text wie die App-Store-Beschreibung oben. Play erlaubt keine Emojis im 
 |------|------|
 | Kategorie | Soziale Netzwerke |
 | Tags | Bücher, Lesen, Community |
-| E-Mail | support@getbooksquad.com |
+| E-Mail | support@booksquad.de |
 | Datenschutz-URL | wie App Store |
-| Web-Löschseite | `https://getbooksquad.com/delete-account.html` |
+| Web-Löschseite | `https://booksquad.de/delete-account.html` |
 | Inhaltsfreigabe | Fragebogen: nutzergenerierte Inhalte mit Moderation, Melden und Blockieren (Ergebnis meist USK 12 / PEGI 12) |
 | Zielgruppe | 16+ (unter 16 nicht Zielgruppe, passt zu den Nutzungsbedingungen) |
 | Werbung | Nein |

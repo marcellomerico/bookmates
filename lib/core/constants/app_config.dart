@@ -2,9 +2,9 @@
 class AppConfig {
   AppConfig._();
 
-  static const supportEmail = 'support@getbooksquad.com';
+  static const supportEmail = 'support@booksquad.de';
   // Live once GitHub Pages is enabled — see docs/RELEASE.md (Rechtstexte veröffentlichen).
-  static const _legalBase = 'https://getbooksquad.com';
+  static const _legalBase = 'https://booksquad.de';
   static const privacyPolicyUrl = '$_legalBase/privacy.html';
   static const termsUrl = '$_legalBase/terms.html';
   static const imprintUrl = '$_legalBase/imprint.html';

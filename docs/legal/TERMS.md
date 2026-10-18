@@ -1,6 +1,6 @@
 # Nutzungsbedingungen — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: support@getbooksquad.com (folgt nach Domain-Kauf).
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen.
 
 **Stand:** Oktober 2026
 
@@ -42,10 +42,10 @@ Du kannst Beiträge, Kommentare und Nutzer in der App jederzeit melden und Nutze
 
 ## 7. Meldungen nach dem Digital Services Act und Kontaktstelle
 
-- **Kontaktstelle** für Nutzer und für Behörden (Art. 11 und 12 DSA): support@getbooksquad.com. Wir kommunizieren auf Deutsch und Englisch.
-- **Rechtswidrige Inhalte melden** kann jede Person, auch ohne Konto, per E-Mail an support@getbooksquad.com. Die Meldung sollte enthalten: wo der Inhalt zu finden ist (z. B. Benutzername und Beitrag), warum er rechtswidrig ist, deinen Namen und deine E-Mail-Adresse (außer bei Meldungen zu Darstellungen des sexuellen Missbrauchs von Kindern) und die Erklärung, dass deine Angaben nach bestem Wissen richtig und vollständig sind. Wir bestätigen den Eingang und teilen dir unsere Entscheidung mit.
+- **Kontaktstelle** für Nutzer und für Behörden (Art. 11 und 12 DSA): support@booksquad.de. Wir kommunizieren auf Deutsch und Englisch.
+- **Rechtswidrige Inhalte melden** kann jede Person, auch ohne Konto, per E-Mail an support@booksquad.de. Die Meldung sollte enthalten: wo der Inhalt zu finden ist (z. B. Benutzername und Beitrag), warum er rechtswidrig ist, deinen Namen und deine E-Mail-Adresse (außer bei Meldungen zu Darstellungen des sexuellen Missbrauchs von Kindern) und die Erklärung, dass deine Angaben nach bestem Wissen richtig und vollständig sind. Wir bestätigen den Eingang und teilen dir unsere Entscheidung mit.
 - **Begründung:** Wenn wir einen Inhalt von dir entfernen oder ausblenden oder dein Konto einschränken oder sperren, teilen wir dir das mit einer Begründung mit (Art. 17 DSA). Davon ausgenommen sind Fälle, in denen eine Behörde das untersagt, und massenhafte Spam-Inhalte.
-- **Widerspruch:** Gegen eine Moderationsentscheidung kannst du innerhalb von sechs Monaten per E-Mail an support@getbooksquad.com widersprechen. Wir prüfen den Fall erneut. Dein Recht, Gerichte anzurufen, bleibt unberührt.
+- **Widerspruch:** Gegen eine Moderationsentscheidung kannst du innerhalb von sechs Monaten per E-Mail an support@booksquad.de widersprechen. Wir prüfen den Fall erneut. Dein Recht, Gerichte anzurufen, bleibt unberührt.
 
 ## 8. Deine Inhalte
 
@@ -66,4 +66,4 @@ Wir können diese Bedingungen anpassen, wenn sich die App oder die Rechtslage ä
 ## 12. Recht und Kontakt
 
 Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Zwingende Verbraucherschutzvorschriften deines Wohnsitzstaates bleiben unberührt.
-Kontakt: support@getbooksquad.com
+Kontakt: support@booksquad.de
