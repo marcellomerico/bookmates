@@ -22,7 +22,7 @@ import '../../features/groups/presentation/group_detail_screen.dart';
 import '../../repositories/open_library_repository.dart';
 import '../../models/user_book.dart';
 import 'auth_redirect.dart';
-import 'bookmates_page_transitions.dart';
+import 'booksquad_page_transitions.dart';
 import 'splash_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {

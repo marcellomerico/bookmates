@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bookmates/repositories/open_library_repository.dart';
+import 'package:booksquad/repositories/open_library_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

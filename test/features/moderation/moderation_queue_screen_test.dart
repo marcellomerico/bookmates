@@ -1,6 +1,6 @@
-import 'package:bookmates/features/moderation/presentation/moderation_queue_screen.dart';
-import 'package:bookmates/features/social/providers/social_providers.dart';
-import 'package:bookmates/models/moderation_report.dart';
+import 'package:booksquad/features/moderation/presentation/moderation_queue_screen.dart';
+import 'package:booksquad/features/social/providers/social_providers.dart';
+import 'package:booksquad/models/moderation_report.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

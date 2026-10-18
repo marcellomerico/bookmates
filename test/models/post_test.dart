@@ -1,7 +1,7 @@
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:bookmates/core/utils/time_ago.dart';
-import 'package:bookmates/models/post.dart';
+import 'package:booksquad/core/utils/time_ago.dart';
+import 'package:booksquad/models/post.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

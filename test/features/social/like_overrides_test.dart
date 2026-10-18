@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
-import 'package:bookmates/features/social/providers/like_overrides.dart';
-import 'package:bookmates/features/social/providers/social_providers.dart';
-import 'package:bookmates/models/post.dart';
-import 'package:bookmates/repositories/post_repository.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/features/social/providers/like_overrides.dart';
+import 'package:booksquad/features/social/providers/social_providers.dart';
+import 'package:booksquad/models/post.dart';
+import 'package:booksquad/repositories/post_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

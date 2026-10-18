@@ -1,8 +1,8 @@
-import 'package:bookmates/core/theme/app_theme.dart';
-import 'package:bookmates/core/widgets/post_card.dart';
-import 'package:bookmates/features/auth/presentation/login_screen.dart';
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
-import 'package:bookmates/models/post.dart';
+import 'package:booksquad/core/theme/app_theme.dart';
+import 'package:booksquad/core/widgets/post_card.dart';
+import 'package:booksquad/features/auth/presentation/login_screen.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/models/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

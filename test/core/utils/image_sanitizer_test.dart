@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:bookmates/core/utils/image_sanitizer.dart';
+import 'package:booksquad/core/utils/image_sanitizer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 

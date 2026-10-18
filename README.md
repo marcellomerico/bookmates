@@ -13,8 +13,8 @@ Social App für Bücherfreunde — Profile, Feed, Gruppen, Bücherregal.
 ## Quick Start
 
 ```bash
-git clone https://github.com/<user>/bookmates.git
-cd bookmates
+git clone https://github.com/<user>/booksquad.git
+cd booksquad
 flutter pub get
 cp .env.example .env   # Supabase-Keys
 flutter run

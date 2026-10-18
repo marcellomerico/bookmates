@@ -8,7 +8,7 @@ import '../../features/social/providers/like_overrides.dart';
 import '../../models/post.dart';
 import '../../repositories/open_library_repository.dart';
 import '../theme/app_theme.dart';
-import '../theme/bookmates_ui.dart';
+import '../theme/booksquad_ui.dart';
 import '../utils/time_ago.dart';
 import 'moderation_actions.dart';
 import 'user_avatar.dart';

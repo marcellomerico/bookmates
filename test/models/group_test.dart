@@ -1,4 +1,4 @@
-import 'package:bookmates/models/group.dart';
+import 'package:booksquad/models/group.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

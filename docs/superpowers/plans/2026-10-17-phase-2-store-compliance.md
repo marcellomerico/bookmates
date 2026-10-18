@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development. Checkbox steps (`- [ ]`).
 
-**Goal:** Bookmates erfüllt die Store-Anforderungen für Apps mit nutzergenerierten Inhalten (Apple 1.2, 5.1.1, Privacy Manifest; Google Play UGC- und Data-Safety-Richtlinien). Dazu kommen ein funktionierender Moderations-Workflow, Spam-Bremsen und DSGVO-taugliche Rechtstexte.
+**Goal:** Booksquad erfüllt die Store-Anforderungen für Apps mit nutzergenerierten Inhalten (Apple 1.2, 5.1.1, Privacy Manifest; Google Play UGC- und Data-Safety-Richtlinien). Dazu kommen ein funktionierender Moderations-Workflow, Spam-Bremsen und DSGVO-taugliche Rechtstexte.
 
 **Architecture:**
 - **Datenbank:** Migration 7 legt die Admin-Rolle in `private.admins` ab. Die App kann sie nicht setzen, die API nicht erreichen. Dazu kommen ausgeblendete Inhalte (`hidden_at`), ein Report-Status, Auto-Hide ab 3 Meldungen, Admin-RPCs und Rate-Limit-Trigger.
@@ -20,7 +20,7 @@
 ## Bleibt bei Marcello (nicht automatisierbar)
 - Impressum: Name, Adresse, Kontakt. Rechtliche Prüfung der Texte. Veröffentlichung (GitHub Pages oder eigene Domain).
 - Google Cloud OAuth-Client-IDs plus Supabase-Provider (Google). Apple Service ID plus Key (Apple-Provider).
-- Supabase-Dashboard: Redirect-URL `bookmates://auth-callback`, Leaked-Password-Schutz, Auth-Rate-Limits/CAPTCHA.
+- Supabase-Dashboard: Redirect-URL `booksquad://auth-callback`, Leaked-Password-Schutz, Auth-Rate-Limits/CAPTCHA.
 - Demo-Account für das Apple Review (Accounts legt Claude im gehosteten Supabase nicht an).
 - Apple-Developer- und Play-Console-Konten, Store-Formulare mit den Antworten aus `docs/STORE_PRIVACY.md`.
 
@@ -335,7 +335,7 @@ create index if not exists comments_author_created_idx on public.comments (autho
   - `NSPrivacyCollectedDataTypes`: EmailAddress, Name, UserID, PhotosorVideos, OtherUserContent. Jeweils Linked true, Tracking false, Purpose `NSPrivacyCollectedDataTypePurposeAppFunctionality`.
   - `NSPrivacyAccessedAPITypes`: UserDefaults mit Reason `CA92.1`.
 - [ ] Datei per Ruby-`xcodeproj` zum Runner-Target hinzufügen (Resources Build Phase). Script im Scratchpad, ausgeführt mit `LANG=en_US.UTF-8`, Gem aus der CocoaPods-Installation. Danach `plutil -lint`.
-- [ ] `Info.plist`: `NSPhotoLibraryUsageDescription` → „Bookmates benötigt Zugriff auf deine Fotos, um Profilbilder und Bilder für Beiträge auszuwählen.“ `NSCameraUsageDescription` entfernen, weil die App die Kamera nicht nutzt (`ImageSource.gallery` überall; vorher grep).
+- [ ] `Info.plist`: `NSPhotoLibraryUsageDescription` → „Booksquad benötigt Zugriff auf deine Fotos, um Profilbilder und Bilder für Beiträge auszuwählen.“ `NSCameraUsageDescription` entfernen, weil die App die Kamera nicht nutzt (`ImageSource.gallery` überall; vorher grep).
 - [ ] `flutter build ios --simulator --debug` und prüfen, dass `PrivacyInfo.xcprivacy` im `.app` liegt.
 - [ ] Commit, Push.
 
@@ -367,8 +367,8 @@ create index if not exists comments_author_created_idx on public.comments (autho
   - Nutzungsrechte an Inhalten (einfache Lizenz zur Anzeige), Haftung, Kündigung/Löschung, Kontakt
 - [ ] `docs/legal/IMPRINT.md`: Platzhalter nach § 5 DDG.
 - [ ] Neu `docs/legal/DELETE_ACCOUNT.md`: Konto löschen in der App plus Löschung per E-Mail-Anfrage. Was gelöscht wird, was nicht (anonyme Logs bis 30 Tage, falls zutreffend). Das ist die Play-Anforderung.
-- [ ] Statische Seiten `site/index.html`, `privacy.html`, `terms.html`, `imprint.html`, `delete-account.html`, `site/style.css`. Schlichtes, responsives HTML im Bookmates-Look (Creme, Bordeaux, Serif), Inhalte 1:1 aus den MD-Dateien. Banner „Entwurf – nicht veröffentlicht“ nur in der MD-Version, nicht im HTML.
-- [ ] `AppConfig`: URLs auf `https://marcellomerico.github.io/bookmates/privacy.html` usw. plus neu `deleteAccountUrl`, mit Kommentar „live after GitHub Pages is enabled (see docs/RELEASE.md)“. `docs/RELEASE.md` bekommt den Abschnitt „Rechtstexte veröffentlichen“ (Pages aus `gh-pages`-Branch mit Inhalt von `site/`, oder eigene Domain).
+- [ ] Statische Seiten `site/index.html`, `privacy.html`, `terms.html`, `imprint.html`, `delete-account.html`, `site/style.css`. Schlichtes, responsives HTML im Booksquad-Look (Creme, Bordeaux, Serif), Inhalte 1:1 aus den MD-Dateien. Banner „Entwurf – nicht veröffentlicht“ nur in der MD-Version, nicht im HTML.
+- [ ] `AppConfig`: URLs auf `https://getbooksquad.com/privacy.html` usw. plus neu `deleteAccountUrl`, mit Kommentar „live after GitHub Pages is enabled (see docs/RELEASE.md)“. `docs/RELEASE.md` bekommt den Abschnitt „Rechtstexte veröffentlichen“ (Pages aus `gh-pages`-Branch mit Inhalt von `site/`, oder eigene Domain).
 - [ ] Commit, Push.
 
 ### Task 9: Store-Fragebögen

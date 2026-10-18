@@ -29,7 +29,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      child: Env.isConfigured ? const BookmatesApp() : const _SetupApp(),
+      child: Env.isConfigured ? const BooksquadApp() : const _SetupApp(),
     ),
   );
 }

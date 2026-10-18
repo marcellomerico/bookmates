@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

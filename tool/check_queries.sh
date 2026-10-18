@@ -12,12 +12,12 @@ failed=0
 
 check() {
   local code
-  code=$(curl -s -o /tmp/bookmates_check.json -w '%{http_code}' "$url/rest/v1/$1" \
+  code=$(curl -s -o /tmp/booksquad_check.json -w '%{http_code}' "$url/rest/v1/$1" \
     -H "apikey: $key" -H "Authorization: Bearer $key")
   if [ "$code" = "200" ]; then
     echo "ok    $1"
   else
-    echo "FAIL  $1 ($code: $(head -c 200 /tmp/bookmates_check.json))"
+    echo "FAIL  $1 ($code: $(head -c 200 /tmp/booksquad_check.json))"
     failed=1
   fi
 }

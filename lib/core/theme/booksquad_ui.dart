@@ -25,8 +25,8 @@ class KeyboardSafeScroll extends StatelessWidget {
   }
 }
 
-class BookmatesWordmark extends StatelessWidget {
-  const BookmatesWordmark({super.key});
+class BooksquadWordmark extends StatelessWidget {
+  const BooksquadWordmark({super.key});
 
   @override
   Widget build(BuildContext context) {

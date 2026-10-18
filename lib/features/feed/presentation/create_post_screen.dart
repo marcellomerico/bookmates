@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/utils/image_sanitizer.dart';
 import '../../../models/post.dart';
 import '../../../models/user_book.dart';

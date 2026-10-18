@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bookmates/features/auth/presentation/social_sign_in_buttons.dart';
+import 'package:booksquad/features/auth/presentation/social_sign_in_buttons.dart';
 
 void main() {
   test('terms notice names exactly the shown providers', () {

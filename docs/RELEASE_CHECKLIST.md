@@ -18,7 +18,7 @@ Der App-Name ist **Booksquad**. In App, Rechtstexten und Store-Texten stehen sch
 2. [ ] **Domains kaufen:** `getbooksquad.com` und `booksquad.de`, am besten zusammen mit einem **E-Mail-Postfach** bei einem deutschen Anbieter (z. B. all-inkl, netcup, IONOS, Strato)
 3. [ ] Postfach `support@getbooksquad.com` anlegen
 4. [ ] → Claude: „Domains und Postfach sind da“, dazu den Anbieter nennen. Claude sagt dir, welche DNS-Einträge du für die Webseite (GitHub Pages) und die Weiterleitung von `booksquad.de` setzen musst
-5. [ ] **Supabase Dev-Projekt → Authentication → URL Configuration:** Die Redirect-URL heißt jetzt `booksquad://auth-callback` (statt `bookmates://…`). Ohne diese Änderung öffnen Bestätigungs- und Passwort-Links die App nicht
+5. [ ] **Supabase Dev-Projekt → Authentication → URL Configuration:** Die Redirect-URL heißt jetzt `booksquad://auth-callback` (vorher stand dort der alte App-Name). Ohne diese Änderung öffnen Bestätigungs- und Passwort-Links die App nicht
 
 ### Schritt 2: Rechtstexte prüfen lassen
 

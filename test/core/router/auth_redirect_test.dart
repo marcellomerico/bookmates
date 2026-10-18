@@ -1,5 +1,5 @@
-import 'package:bookmates/core/router/auth_redirect.dart';
-import 'package:bookmates/models/profile.dart';
+import 'package:booksquad/core/router/auth_redirect.dart';
+import 'package:booksquad/models/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

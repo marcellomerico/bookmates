@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/utils/validators.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
@@ -129,7 +129,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Center(child: BookmatesWordmark()),
+                const Center(child: BooksquadWordmark()),
                 const SizedBox(height: 24),
                 Text(
                   'Willkommen\nbei Booksquad.',

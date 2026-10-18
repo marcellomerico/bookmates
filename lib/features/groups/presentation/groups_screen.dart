@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../models/group.dart';
 import '../../auth/providers/auth_provider.dart';

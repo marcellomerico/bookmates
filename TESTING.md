@@ -197,7 +197,7 @@ where trigger_name = 'on_auth_user_created';
 ## C.1 Umgebung
 
 ```bash
-cd ~/Developer/bookmates
+cd ~/Developer/booksquad
 flutter pub get
 flutter run
 ```

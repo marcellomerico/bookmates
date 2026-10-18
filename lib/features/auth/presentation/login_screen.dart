@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../providers/auth_provider.dart';
 import 'social_sign_in_buttons.dart';
 import 'terms_links_text.dart';
@@ -58,7 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 10),
-              const Center(child: BookmatesWordmark()),
+              const Center(child: BooksquadWordmark()),
               const SizedBox(height: 28),
               Text(
                 'Willkommen\nzurück.',

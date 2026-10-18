@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/genres.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../books/presentation/bookshelf_widget.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
@@ -189,7 +189,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const BookmatesWordmark(),
+                    const BooksquadWordmark(),
                     const SizedBox(height: 18),
                     _buildStep(),
                   ],
