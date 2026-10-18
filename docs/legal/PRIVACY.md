@@ -1,6 +1,6 @@
 # Datenschutzerklärung — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: [MAILDIENST].
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen.
 
 **Stand:** Oktober 2026
 
@@ -53,7 +53,7 @@ Die App speichert deine Anmeldesitzung (ein Zugangstoken) auf deinem Gerät, dam
 ## 7. Empfänger und Auftragsverarbeiter
 
 - **Supabase Inc.** (Datenbank, Anmeldung, Dateispeicher, Server-Funktionen). Die Daten liegen auf Servern in der **EU (Frankfurt am Main)**. Grundlage ist ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO. Da Supabase ein US-Unternehmen ist, ist ein Zugriff aus den USA nicht völlig auszuschließen. Dafür gelten die Standardvertragsklauseln der EU-Kommission, die Teil des Auftragsverarbeitungsvertrags sind.
-- **[MAILDIENST]** (Versand von Bestätigungs- und Passwort-E-Mails). Dafür werden deine E-Mail-Adresse und der Inhalt der E-Mail übermittelt. Grundlage ist ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO.
+- **IONOS SE**, Elgendorfer Str. 57, 56410 Montabaur, Deutschland (E-Mail-Postfach support@booksquad.de und Versand der Bestätigungs- und Passwort-E-Mails). Dafür werden deine E-Mail-Adresse und der Inhalt der E-Mail verarbeitet, in Rechenzentren in der EU. Grundlage ist ein Auftragsverarbeitungsvertrag nach Art. 28 DSGVO.
 - **Open Library / Internet Archive (San Francisco, USA):** Bei der Buchsuche sendet die App deine Suchbegriffe an Open Library, und Buchcover sowie Buchbeschreibungen werden von dort geladen. Dabei erhält Open Library technisch bedingt deine IP-Adresse. Kontodaten werden nicht übermittelt. Es handelt sich um eine Übermittlung in ein Drittland ohne Angemessenheitsbeschluss für diesen Anbieter. Die Übermittlung ist auf das technisch Notwendige beschränkt. Datenschutz bei Open Library: https://archive.org/about/terms
 - **Apple bzw. Google:** nur, wenn du dich über den jeweiligen Dienst anmeldest. Dabei gelten zusätzlich die Datenschutzbestimmungen des jeweiligen Anbieters. Übermittlungen in die USA erfolgen auf Grundlage des EU-US Data Privacy Framework.
 - **Apple App Store und Google Play:** Beim Herunterladen der App verarbeiten Apple bzw. Google die dafür nötigen Daten in eigener Verantwortung. Darauf haben wir keinen Einfluss.
