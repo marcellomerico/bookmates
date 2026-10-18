@@ -19,6 +19,15 @@ fail() { echo "✗ $1"; exit 1; }
 grep -q "^SUPABASE_URL=https://${BOOKSQUAD_PROD_REF}.supabase.co$" .env \
   || fail ".env does not point at prod project ${BOOKSQUAD_PROD_REF}"
 grep -q "your-" .env && fail ".env still contains placeholder values"
+# The app bundles .env: it must never carry a server secret.
+grep -qiE "service_role|sb_secret_" .env && fail ".env contains a server secret (service role / secret key)"
+anon=$(grep '^SUPABASE_ANON_KEY=' .env | cut -d= -f2-)
+if [[ "$anon" == eyJ* ]]; then
+  payload=$(cut -d. -f2 <<<"$anon" | tr '_-' '/+')
+  while (( ${#payload} % 4 )); do payload+="="; done
+  base64 -d <<<"$payload" 2>/dev/null | grep -q '"role":"anon"' \
+    || fail "SUPABASE_ANON_KEY is not an anon key"
+fi
 
 if [[ "$platform" == "android" ]]; then
   [[ -f android/key.properties ]] || fail "android/key.properties missing (see docs/RELEASE.md)"

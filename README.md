@@ -141,7 +141,6 @@ Die Rohbilder in `docs/screenshots/` stammen aus dem Demo-Modus im iPhone-Simula
 
 | Datei | Inhalt |
 |---|---|
-| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Alle Schritte bis zum Store-Release |
 | [`docs/RELEASE.md`](docs/RELEASE.md) | Versionierung und Release-Builds |
 | [`docs/STORE_LISTING.md`](docs/STORE_LISTING.md) | Store-Texte und Screenshot-Plan |
 | [`docs/STORE_PRIVACY.md`](docs/STORE_PRIVACY.md) | Datenschutz-Angaben, Altersfreigabe, Review-Notizen |
@@ -150,6 +149,10 @@ Die Rohbilder in `docs/screenshots/` stammen aus dem Demo-Modus im iPhone-Simula
 | [`docs/legal/`](docs/legal/) | Datenschutz, Nutzungsbedingungen, Impressum |
 | [`TESTING.md`](TESTING.md) | Manuelle Testanleitung |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Arbeitsweise: Issue → Branch → Pull Request, Versionierung |
+
+## Lizenz
+
+Quellcode und Inhalte sind zur Ansicht veröffentlicht, **alle Rechte vorbehalten** (siehe [`LICENSE`](LICENSE)). Sicherheitslücken bitte vertraulich melden: [`SECURITY.md`](SECURITY.md).
 
 ## Status
 

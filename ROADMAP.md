@@ -15,7 +15,7 @@ Stand: Oktober 2026
 | Gruppen (öffentlich/privat) | ✅ |
 | Moderation (Melden/Blockieren) | ✅ |
 | Legal-Links + Support | ✅ (URLs hosten) |
-| Store-Release | 🟡 siehe `PUBLISH_PLAN.md` |
+| Store-Release | 🟡 in Vorbereitung (siehe `docs/RELEASE.md`) |
 
 ## Geplant
 
@@ -26,4 +26,4 @@ Alle geplanten Features stehen als einzelne [GitHub-Issues](https://github.com/m
 1. Supabase-Migrationen → [`supabase/APPLY_MIGRATIONS.md`](supabase/APPLY_MIGRATIONS.md)
 2. Testen → [`TESTING.md`](TESTING.md)
 3. Feedback geben
-4. Publish-Schritte → [`PUBLISH_PLAN.md`](PUBLISH_PLAN.md)
+4. Release-Builds → [`docs/RELEASE.md`](docs/RELEASE.md)
