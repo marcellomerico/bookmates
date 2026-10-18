@@ -49,6 +49,41 @@ Keine Werbung, kein Tracking, Daten in der EU.
 | **Profil** | Tabs Regal, Beiträge, Wunschliste; Benutzername und Anzeigename änderbar |
 | **Konto** | E-Mail, Apple- und Google-Login, Passwort zurücksetzen, Konto in der App löschen |
 
+## Alle Screens
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/01-feed.png" width="200" alt="Feed"><br><sub>Feed</sub></td>
+    <td align="center"><img src="docs/screenshots/02-beitrag.png" width="200" alt="Beitrag mit Kommentaren"><br><sub>Beitrag mit Kommentaren</sub></td>
+    <td align="center"><img src="docs/screenshots/03-buch.png" width="200" alt="Buchseite"><br><sub>Buchseite</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/09-regal.png" width="200" alt="Bücherregal"><br><sub>Bücherregal</sub></td>
+    <td align="center"><img src="docs/screenshots/17-status-auswahl.png" width="200" alt="Status-Auswahl"><br><sub>Status-Auswahl</sub></td>
+    <td align="center"><img src="docs/screenshots/16-wunschliste.png" width="200" alt="Wunschliste"><br><sub>Wunschliste</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/08-profil.png" width="200" alt="Profil"><br><sub>Profil</sub></td>
+    <td align="center"><img src="docs/screenshots/18-profil-bearbeiten.png" width="200" alt="Profil bearbeiten"><br><sub>Profil bearbeiten</sub></td>
+    <td align="center"><img src="docs/screenshots/11-leserprofil.png" width="200" alt="Profil eines Lesers"><br><sub>Profil eines Lesers</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/07-neuer-beitrag.png" width="200" alt="Neuer Beitrag"><br><sub>Neuer Beitrag</sub></td>
+    <td align="center"><img src="docs/screenshots/04-entdecken.png" width="200" alt="Entdecken"><br><sub>Entdecken</sub></td>
+    <td align="center"><img src="docs/screenshots/05-lesekreise.png" width="200" alt="Lesekreise"><br><sub>Lesekreise</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/06-lesekreis.png" width="200" alt="Lesekreis"><br><sub>Lesekreis</sub></td>
+    <td align="center"><img src="docs/screenshots/10-aktivitaet.png" width="200" alt="Aktivität"><br><sub>Aktivität</sub></td>
+    <td align="center"><img src="docs/screenshots/12-einstellungen.png" width="200" alt="Einstellungen"><br><sub>Einstellungen</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/13-moderation.png" width="200" alt="Moderation"><br><sub>Moderation</sub></td>
+    <td align="center"><img src="docs/screenshots/14-login.png" width="200" alt="Anmelden"><br><sub>Anmelden</sub></td>
+    <td align="center"><img src="docs/screenshots/15-registrieren.png" width="200" alt="Registrieren"><br><sub>Registrieren</sub></td>
+  </tr>
+</table>
+
 ## Technik
 
 - **App:** Flutter 3.44 (iOS und Android), Riverpod, go_router, Material 3 mit eigenem Theme (Source Serif 4, Bordeaux und Creme)
