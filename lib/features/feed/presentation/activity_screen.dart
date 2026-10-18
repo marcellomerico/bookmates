@@ -67,10 +67,16 @@ class ActivityScreen extends ConsumerWidget {
                     name: name,
                     radius: 20,
                   ),
-                  title: Text(item.message(name), style: const TextStyle(fontSize: 13)),
+                  title: Text(
+                    item.message(name),
+                    style: const TextStyle(fontSize: 13),
+                  ),
                   subtitle: Text(
                     formatRelativeTime(item.createdAt),
-                    style: const TextStyle(color: AppColors.muted, fontSize: 11),
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 11,
+                    ),
                   ),
                   onTap: () {
                     if (item.postId != null) {

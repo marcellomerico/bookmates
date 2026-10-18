@@ -221,6 +221,9 @@ class DemoStore {
     shelf(meId, 'b-parfum', BookStatus.read, 4);
     shelf(meId, 'b-hobbit', BookStatus.read, 5);
     shelf(meId, 'b-stolz', BookStatus.read, 4);
+    shelf(meId, 'b-1984', BookStatus.unread);
+    shelf(meId, 'b-unendlich', BookStatus.unread);
+    shelf(meId, 'b-verwandlung', BookStatus.unread);
     shelf(meId, 'b-diebin', BookStatus.wantToRead);
     shelf(meId, 'b-sapiens', BookStatus.wantToRead);
     shelf(meId, 'b-momo', BookStatus.wantToRead);

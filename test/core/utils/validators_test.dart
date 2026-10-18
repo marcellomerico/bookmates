@@ -6,7 +6,15 @@ void main() {
     for (final ok in ['max', 'lese_ratte', 'anna.k', 'a1b2c3', 'x' * 24]) {
       test('accepts $ok', () => expect(validateUsername(ok), isNull));
     }
-    for (final bad in ['', 'ab', 'Max', 'max mustermann', 'müller', 'max-m', 'x' * 25]) {
+    for (final bad in [
+      '',
+      'ab',
+      'Max',
+      'max mustermann',
+      'müller',
+      'max-m',
+      'x' * 25,
+    ]) {
       test('rejects "$bad"', () => expect(validateUsername(bad), isNotNull));
     }
   });

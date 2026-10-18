@@ -103,9 +103,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           return slidePushPage(
             key: state.pageKey,
             child: BookSearchScreen(
-              initialStatus: statusParam != null
-                  ? BookStatus.fromDb(statusParam)
-                  : BookStatus.wantToRead,
+              initialStatus: statusParam == null
+                  ? null
+                  : BookStatus.fromDb(statusParam),
               fromOnboarding: fromOnboarding,
             ),
           );

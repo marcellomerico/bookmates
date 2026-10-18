@@ -15,7 +15,9 @@ List<Widget> pagedPostListItems(
   required Widget empty,
   Widget loading = const Center(child: CircularProgressIndicator()),
 }) {
-  return ref.watch(pagedPostsProvider(source)).when(
+  return ref
+      .watch(pagedPostsProvider(source))
+      .when(
         loading: () => [loading],
         error: (_, _) => [
           ErrorState(
@@ -59,16 +61,18 @@ class _LoadMoreRowState extends ConsumerState<_LoadMoreRow> {
       await ref.read(pagedPostsProvider(widget.source).notifier).loadMore();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final loadingMore = ref.watch(
-      pagedPostsProvider(widget.source)
-          .select((s) => s.valueOrNull?.loadingMore ?? false),
+      pagedPostsProvider(
+        widget.source,
+      ).select((s) => s.valueOrNull?.loadingMore ?? false),
     );
     return SizedBox(
       height: 56,

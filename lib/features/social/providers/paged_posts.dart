@@ -74,8 +74,9 @@ class PagedPostsNotifier
     if (arg._kind == _Kind.feed) {
       final user = ref.read(currentUserProvider);
       if (user == null) return const PagedPosts(items: [], hasMore: false);
-      final following =
-          await ref.read(followRepositoryProvider).getFollowingIds(user.id);
+      final following = await ref
+          .read(followRepositoryProvider)
+          .getFollowingIds(user.id);
       authors = following.isEmpty ? null : {...following, user.id}.toList();
     }
     final page = await _fetch(null, authors);
@@ -134,18 +135,20 @@ class PagedPostsNotifier
     final link = ref.keepAlive(); // don't dispose mid-request
     try {
       final last = current.items.last;
-      final page = await _fetch(
-        (createdAt: last.createdAt, id: last.id),
-        current._feedAuthors,
-      );
+      final page = await _fetch((
+        createdAt: last.createdAt,
+        id: last.id,
+      ), current._feedAuthors);
       if (stale()) return; // refreshed meanwhile
       _reconcileLikes(page);
       final seen = {for (final p in current.items) p.id};
-      state = AsyncData(PagedPosts._(
-        items: [...current.items, ...page.where((p) => seen.add(p.id))],
-        hasMore: page.length == pageSize,
-        feedAuthors: current._feedAuthors,
-      ));
+      state = AsyncData(
+        PagedPosts._(
+          items: [...current.items, ...page.where((p) => seen.add(p.id))],
+          hasMore: page.length == pageSize,
+          feedAuthors: current._feedAuthors,
+        ),
+      );
     } catch (_) {
       if (!stale()) state = AsyncData(current);
       rethrow;

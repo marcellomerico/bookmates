@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/genres.dart';
 import '../../../core/theme/booksquad_ui.dart';
-import '../../books/presentation/bookshelf_widget.dart';
+import '../../books/presentation/visual_shelf.dart';
 import '../../books/providers/books_provider.dart';
 import '../providers/auth_provider.dart';
 import 'follow_suggestions_step.dart';
@@ -141,7 +141,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         if (mounted) setState(() => _step = 2);
       } catch (e) {
         if (mounted) {
-          setState(() => _error = 'Genres konnten nicht gespeichert werden. ${authErrorMessage(e)}');
+          setState(
+            () => _error =
+                'Genres konnten nicht gespeichert werden. ${authErrorMessage(e)}',
+          );
         }
       } finally {
         if (mounted) setState(() => _loading = false);
@@ -207,7 +210,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (_error != null) ...[
-                    Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                   ],
                   ElevatedButton(
@@ -323,7 +331,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               label: const Text('Buch suchen und hinzufügen'),
             ),
             const SizedBox(height: 16),
-            const BookshelfWidget(compact: true),
+            const ShelfView(compact: true),
           ],
         );
     }

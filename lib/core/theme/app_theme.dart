@@ -59,79 +59,81 @@ class AppTheme {
       ),
     );
 
-    final serif = base.textTheme.apply(fontFamily: _serifFamily).copyWith(
-      displayLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 40,
-        fontWeight: FontWeight.w700,
-        height: 1.05,
-      ),
-      displayMedium: _serif(
-        color: AppColors.ink,
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        height: 1.1,
-      ),
-      headlineLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
-        height: 1.12,
-      ),
-      headlineMedium: _serif(
-        color: AppColors.ink,
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        height: 1.15,
-      ),
-      headlineSmall: _serif(
-        color: AppColors.ink,
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      titleLarge: _serif(
-        color: AppColors.ink,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      titleMedium: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      bodyLarge: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        height: 1.45,
-      ),
-      bodyMedium: const TextStyle(
-        color: AppColors.ink,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.4,
-      ),
-      bodySmall: const TextStyle(
-        color: AppColors.muted,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        height: 1.35,
-      ),
-      labelLarge: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.1,
-      ),
-      labelMedium: const TextStyle(
-        color: AppColors.muted,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
-    );
+    final serif = base.textTheme
+        .apply(fontFamily: _serifFamily)
+        .copyWith(
+          displayLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 40,
+            fontWeight: FontWeight.w700,
+            height: 1.05,
+          ),
+          displayMedium: _serif(
+            color: AppColors.ink,
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            height: 1.1,
+          ),
+          headlineLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            height: 1.12,
+          ),
+          headlineMedium: _serif(
+            color: AppColors.ink,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
+          headlineSmall: _serif(
+            color: AppColors.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          titleLarge: _serif(
+            color: AppColors.ink,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          titleMedium: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+          bodyLarge: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            height: 1.45,
+          ),
+          bodyMedium: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.4,
+          ),
+          bodySmall: const TextStyle(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            height: 1.35,
+          ),
+          labelLarge: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
+          labelMedium: const TextStyle(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        );
 
     return base.copyWith(
       textTheme: serif,
@@ -198,13 +200,28 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.burgundy,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
       chipTheme: ChipThemeData(
         backgroundColor: Colors.white,
         selectedColor: AppColors.burgundy,
         disabledColor: Colors.white,
         side: const BorderSide(color: AppColors.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        labelStyle: const TextStyle(color: AppColors.ink, fontSize: 12),
+        // Selected chips sit on burgundy: white label, otherwise ink.
+        // Chips resolve only the colour by state, so the colour carries it.
+        labelStyle: TextStyle(
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : AppColors.ink,
+          ),
+          fontSize: 12,
+        ),
+        checkmarkColor: Colors.white,
         secondaryLabelStyle: const TextStyle(color: Colors.white, fontSize: 12),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       ),

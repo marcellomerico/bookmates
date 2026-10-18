@@ -11,7 +11,11 @@ void main() {
     source.exif.gpsIfd[0x1] = img.IfdValueAscii('N');
     final jpg = img.encodeJpg(source);
     final before = img.decodeJpgExif(jpg);
-    expect(before?.imageIfd['Make'], isNotNull, reason: 'fixture must carry EXIF');
+    expect(
+      before?.imageIfd['Make'],
+      isNotNull,
+      reason: 'fixture must carry EXIF',
+    );
     expect(before?.gpsIfd.isEmpty, isFalse, reason: 'fixture must carry GPS');
 
     final out = await sanitizeImage(Uint8List.fromList(jpg));

@@ -10,15 +10,17 @@ import '../../../models/user_book.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/books_provider.dart';
+import 'book_status_sheet.dart';
 
 class BookSearchScreen extends ConsumerStatefulWidget {
   const BookSearchScreen({
     super.key,
-    this.initialStatus = BookStatus.wantToRead,
+    this.initialStatus,
     this.fromOnboarding = false,
   });
 
-  final BookStatus initialStatus;
+  /// Where added books go; null asks the user each time.
+  final BookStatus? initialStatus;
   final bool fromOnboarding;
 
   @override
@@ -73,22 +75,31 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
+    var status = widget.initialStatus;
+    if (status == null) {
+      final choice = await showBookStatusSheet(context, title: book.title);
+      if (!mounted || choice is! SetStatus) return;
+      status = choice.status;
+    }
+
     setState(() => _addingId = book.openLibraryId);
 
     try {
       await ref
           .read(bookRepositoryProvider)
-          .addToShelf(
-            userId: user.id,
-            result: book,
-            status: widget.initialStatus,
-          );
+          .addToShelf(userId: user.id, result: book, status: status);
       ref.invalidate(bookshelfProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('„${book.title}" hinzugefügt')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              status.onShelf
+                  ? '„${book.title}" ist jetzt in deinem Regal'
+                  : '„${book.title}" ist auf deiner Wunschliste',
+            ),
+          ),
+        );
         if (widget.fromOnboarding) {
           context.pop(true);
         }
@@ -151,19 +162,20 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
           Expanded(
             child: _results.isEmpty
                 ? (_error != null
-                    ? ErrorState(message: _error!, onRetry: _search)
-                    : _searching
-                        ? const Center(child: CircularProgressIndicator())
-                        : _searched
-                            ? const EmptyState(
-                                icon: Icons.search_off,
-                                title: 'Keine Treffer',
-                                message: 'Versuche es mit einem anderen Titel oder Autor.',
-                              )
-                            : const EmptyState(
-                                icon: Icons.menu_book_outlined,
-                                title: 'Suche nach einem Buch',
-                              ))
+                      ? ErrorState(message: _error!, onRetry: _search)
+                      : _searching
+                      ? const Center(child: CircularProgressIndicator())
+                      : _searched
+                      ? const EmptyState(
+                          icon: Icons.search_off,
+                          title: 'Keine Treffer',
+                          message:
+                              'Versuche es mit einem anderen Titel oder Autor.',
+                        )
+                      : const EmptyState(
+                          icon: Icons.menu_book_outlined,
+                          title: 'Suche nach einem Buch',
+                        ))
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: _results.length,
@@ -181,69 +193,72 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                               '/books/${normalizeWorkId(book.openLibraryId)}',
                             ),
                             child: Row(
-                          children: [
-                            _BookCover(url: book.coverUrl),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    book.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  if (book.author != null)
-                                    Text(
-                                      book.author!,
-                                      style: const TextStyle(
-                                        color: AppColors.muted,
-                                        fontSize: 12,
+                              children: [
+                                _BookCover(url: book.coverUrl),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        book.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            isAdding
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Semantics(
-                                    button: true,
-                                    label: 'Zum Regal hinzufügen',
-                                    excludeSemantics: true,
-                                    child: InkWell(
-                                      onTap: () => _addBook(book),
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: SizedBox(
-                                        width: 48,
-                                        height: 48,
-                                        child: Center(
-                                          child: Container(
-                                            width: 30,
-                                            height: 30,
-                                            decoration: const BoxDecoration(
-                                              color: AppColors.burgundy,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 18,
+                                      const SizedBox(height: 2),
+                                      if (book.author != null)
+                                        Text(
+                                          book.author!,
+                                          style: const TextStyle(
+                                            color: AppColors.muted,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                isAdding
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Semantics(
+                                        button: true,
+                                        label: 'Zum Regal hinzufügen',
+                                        excludeSemantics: true,
+                                        child: InkWell(
+                                          onTap: () => _addBook(book),
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
+                                          child: SizedBox(
+                                            width: 48,
+                                            height: 48,
+                                            child: Center(
+                                              child: Container(
+                                                width: 30,
+                                                height: 30,
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.burgundy,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                  size: 18,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                          ],
-                        ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -282,7 +297,9 @@ class _BookCover extends StatelessWidget {
         width: 42,
         height: 60,
         fit: BoxFit.cover,
-        memCacheWidth: (42 * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 300),
+        memCacheWidth: (42 * MediaQuery.devicePixelRatioOf(context))
+            .round()
+            .clamp(1, 300),
         placeholder: (_, _) =>
             Container(width: 42, height: 60, color: AppColors.parchment),
         errorWidget: (_, _, _) => Container(

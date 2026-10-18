@@ -11,6 +11,7 @@ import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/paged_posts.dart';
 import '../providers/books_provider.dart';
+import 'book_status_sheet.dart';
 
 class BookDetailScreen extends ConsumerStatefulWidget {
   const BookDetailScreen({super.key, required this.workId});
@@ -24,12 +25,6 @@ class BookDetailScreen extends ConsumerStatefulWidget {
 class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
   bool _expanded = false;
   bool _busy = false;
-
-  static const _statusLabels = {
-    BookStatus.wantToRead: 'Will ich lesen',
-    BookStatus.reading: 'Lese ich',
-    BookStatus.read: 'Gelesen',
-  };
 
   // Takes the container so it still works after the screen was popped.
   void _invalidateShelf(ProviderContainer container, String? bookId) {
@@ -83,8 +78,16 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog.adaptive(
-        title: const Text('Aus Regal entfernen?'),
-        content: const Text('Das Buch wird aus deinem Bücherregal entfernt.'),
+        title: Text(
+          entry.status.onShelf
+              ? 'Aus dem Regal entfernen?'
+              : 'Von der Wunschliste entfernen?',
+        ),
+        content: Text(
+          entry.status.onShelf
+              ? 'Das Buch wird aus deinem Bücherregal entfernt.'
+              : 'Das Buch wird von deiner Wunschliste entfernt.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -197,35 +200,109 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     );
   }
 
+  Future<void> _pick(OpenLibraryWork work, Book? book, UserBook? entry) async {
+    final choice = await showBookStatusSheet(
+      context,
+      current: entry?.status,
+      title: book?.title ?? work.title,
+    );
+    if (!mounted || choice == null) return;
+    switch (choice) {
+      case SetStatus(:final status):
+        if (status != entry?.status) await _change(work, book, entry, status);
+      case RemoveBook():
+        if (entry != null) await _remove(entry);
+    }
+  }
+
+  Future<void> _rate(UserBook entry, int stars) async {
+    if (_busy) return;
+    final container = ProviderScope.containerOf(context, listen: false);
+    setState(() => _busy = true);
+    try {
+      // Tapping the current rating again clears it.
+      await ref
+          .read(bookRepositoryProvider)
+          .updateRating(entry.id, stars == entry.rating ? null : stars);
+      _invalidateShelf(container, entry.bookId);
+    } catch (e) {
+      _showError(e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Widget _shelfControl(OpenLibraryWork work, Book? book) {
     final entry = book == null
         ? null
         : ref.watch(myShelfEntryProvider(book.id)).valueOrNull;
+    if (entry == null) {
+      return Row(
+        children: [
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: _busy ? null : () => _pick(work, book, null),
+              icon: const Icon(Icons.add),
+              label: const Text('Ins Regal'),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _busy
+                  ? null
+                  : () => _change(work, book, null, BookStatus.wantToRead),
+              icon: const Icon(Icons.bookmark_border),
+              label: const Text('Wunschliste'),
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SegmentedButton<BookStatus>(
-          emptySelectionAllowed: true,
-          showSelectedIcon: false,
-          segments: [
-            for (final e in _statusLabels.entries)
-              ButtonSegment(
-                value: e.key,
-                label: Text(e.value, maxLines: 1, softWrap: false),
+        OutlinedButton(
+          onPressed: _busy ? null : () => _pick(work, book, entry),
+          child: Row(
+            children: [
+              Icon(entry.status.icon, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  entry.status.onShelf
+                      ? 'Im Regal · ${entry.status.label}'
+                      : 'Auf deiner Wunschliste',
+                ),
               ),
-          ],
-          selected: {?entry?.status},
-          onSelectionChanged: _busy
-              ? null
-              : (s) {
-                  if (s.isNotEmpty) _change(work, book, entry, s.first);
-                },
-        ),
-        if (entry != null)
-          TextButton(
-            onPressed: _busy ? null : () => _remove(entry),
-            child: const Text('Aus Regal entfernen'),
+              const Icon(Icons.expand_more, size: 20),
+            ],
           ),
+        ),
+        if (entry.status == BookStatus.read) ...[
+          const SizedBox(height: 8),
+          Semantics(
+            label: '${entry.rating ?? 0} von 5 Sternen',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var star = 1; star <= 5; star++)
+                  IconButton(
+                    tooltip:
+                        'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'}',
+                    onPressed: _busy ? null : () => _rate(entry, star),
+                    icon: Icon(
+                      star <= (entry.rating ?? 0)
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: AppColors.gold,
+                      size: 30,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

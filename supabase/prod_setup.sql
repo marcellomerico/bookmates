@@ -1159,4 +1159,9 @@ create index if not exists posts_group_created_idx on public.posts (group_id, cr
 create index if not exists posts_book_created_idx on public.posts (book_id, created_at desc);
 create index if not exists likes_user_post_idx on public.likes (user_id, post_id);
 
+-- ===== 20261018120000_book_status_unread.sql =====
+-- 10: Shelf status "unread" (owned, not read yet). Additive: existing rows keep their status.
+-- Shelf = reading | unread | read; want_to_read is the separate wishlist.
+alter type public.book_status add value if not exists 'unread' before 'read';
+
 commit;

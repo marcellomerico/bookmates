@@ -18,8 +18,8 @@ class ActivityItem {
   final String? postPreview;
 
   String message(String actorName) => switch (type) {
-        ActivityType.like => '$actorName gefällt dein Beitrag.',
-        ActivityType.comment => '$actorName hat deinen Beitrag kommentiert.',
-        ActivityType.follow => '$actorName folgt dir jetzt.',
-      };
+    ActivityType.like => '$actorName gefällt dein Beitrag.',
+    ActivityType.comment => '$actorName hat deinen Beitrag kommentiert.',
+    ActivityType.follow => '$actorName folgt dir jetzt.',
+  };
 }

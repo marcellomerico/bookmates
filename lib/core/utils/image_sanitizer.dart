@@ -16,10 +16,16 @@ Uint8List _sanitize((Uint8List, int) args) {
     var image = img.bakeOrientation(decoded);
     if (image.width > maxEdge || image.height > maxEdge) {
       image = image.width >= image.height
-          ? img.copyResize(image,
-              width: maxEdge, interpolation: img.Interpolation.average)
-          : img.copyResize(image,
-              height: maxEdge, interpolation: img.Interpolation.average);
+          ? img.copyResize(
+              image,
+              width: maxEdge,
+              interpolation: img.Interpolation.average,
+            )
+          : img.copyResize(
+              image,
+              height: maxEdge,
+              interpolation: img.Interpolation.average,
+            );
     }
     image.exif = img.ExifData();
     return img.encodeJpg(image, quality: 85);

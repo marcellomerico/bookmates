@@ -29,7 +29,7 @@ Keine Werbung, kein Tracking, Daten in der EU.
   </tr>
   <tr>
     <td><img src="docs/store/06-lesekreis.png" alt="Lesekreis"></td>
-    <td><img src="docs/store/07-neuer-beitrag.png" alt="Neuer Beitrag"></td>
+    <td><img src="docs/store/16-wunschliste.png" alt="Wunschliste"></td>
     <td><img src="docs/store/04-entdecken.png" alt="Entdecken"></td>
   </tr>
 </table>
@@ -38,13 +38,15 @@ Keine Werbung, kein Tracking, Daten in der EU.
 
 | Bereich | Was die App kann |
 |---|---|
-| **Bücherregal** | „Lese gerade“, „Gelesen“, „Möchte lesen“, Sternbewertung, Suche über Open Library mit Millionen Titeln |
+| **Bücherregal** | Bücher, die du besitzt, auf echten Regalbrettern: „Lese ich“, „Ungelesen“, „Gelesen“, mit Sternbewertung. Suche über Open Library mit Millionen Titeln |
+| **Wunschliste** | Bücher, die du haben oder lesen möchtest, getrennt vom Regal |
 | **Beiträge** | Rezension, Empfehlung, Diskussion oder Zitat, mit Buch und Foto (Metadaten wie GPS werden entfernt) |
 | **Feed** | Beiträge der Leute, denen du folgst, endlos scrollbar, Likes reagieren sofort |
 | **Buchseiten** | Cover, Beschreibung, Themen, Leserzahl und alle Beiträge zum Buch |
 | **Lesekreise** | öffentlich oder privat mit Einladungscode, eigener Feed pro Kreis |
 | **Entdecken** | Vorschläge für Leser und Lesekreise passend zu deinen Lieblingsgenres |
 | **Sicherheit** | Melden, Blockieren, automatisches Ausblenden nach mehreren Meldungen, Moderations-Queue für Admins, Spam-Begrenzung |
+| **Profil** | Tabs Regal, Beiträge, Wunschliste; Benutzername und Anzeigename änderbar |
 | **Konto** | E-Mail, Apple- und Google-Login, Passwort zurücksetzen, Konto in der App löschen |
 
 ## Technik
@@ -53,7 +55,7 @@ Keine Werbung, kein Tracking, Daten in der EU.
 - **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions), Region Frankfurt
 - **Sicherheit:** Row Level Security auf allen Tabellen, Hilfsfunktionen im nicht öffentlichen Schema `private`, Rate-Limits per Trigger, Konto-Löschung über eine Edge Function
 - **Buchdaten:** [Open Library](https://openlibrary.org) (Suche, Cover, Beschreibungen)
-- **Qualität:** 117 automatisierte Tests, `flutter analyze` ohne Befunde, CI bei jedem Push, RLS-Regressionstest und Prüfung aller Abfragen gegen das Backend
+- **Qualität:** 131 automatisierte Tests, `flutter analyze` ohne Befunde, CI bei jedem Push, RLS-Regressionstest und Prüfung aller Abfragen gegen das Backend
 
 ```
 lib/

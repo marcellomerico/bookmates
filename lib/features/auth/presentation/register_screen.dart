@@ -90,9 +90,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           context: context,
           builder: (context) => AlertDialog.adaptive(
             title: const Text('E-Mail bestätigen'),
+            // Supabase answers a repeated signup like a new one (no mail, no
+            // hint) to avoid revealing registered addresses, so say both cases.
             content: Text(
               'Wir haben dir eine Bestätigungs-E-Mail an $email geschickt. '
-              'Bitte bestätige deine Adresse, bevor du dich anmeldest.',
+              'Bitte bestätige deine Adresse, bevor du dich anmeldest.\n\n'
+              'Keine Mail bekommen? Dann gibt es für diese Adresse vielleicht '
+              'schon ein Konto. Melde dich an oder nutze „Passwort vergessen?“.',
             ),
             actions: [
               TextButton(

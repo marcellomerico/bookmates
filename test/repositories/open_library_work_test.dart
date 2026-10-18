@@ -28,7 +28,7 @@ void main() {
     }).getWork('/works/OL1W');
     expect(w.id, 'OL1W');
     expect(w.description, 'Hi');
-    expect(w.subjects.length, 8);
+    expect(w.subjects.length, 5);
     expect(w.coverUrl, 'https://covers.openlibrary.org/b/id/42-L.jpg');
   });
 
@@ -48,10 +48,7 @@ void main() {
   });
 
   test('404 throws', () {
-    expect(
-      repo(404, {}).getWork('OL1W'),
-      throwsA(isA<OpenLibraryException>()),
-    );
+    expect(repo(404, {}).getWork('OL1W'), throwsA(isA<OpenLibraryException>()));
   });
 
   test('follows a /type/redirect stub once', () async {
@@ -78,5 +75,20 @@ void main() {
       client: MockClient((_) => throw http.ClientException('offline')),
     );
     expect(r.getWork('OL1W'), throwsA(isA<OpenLibraryException>()));
+  });
+
+  test('cleanSubjects drops near-duplicates and catalogue noise', () {
+    expect(
+      cleanSubjects([
+        'Dune (Imaginary place)',
+        'Fiction',
+        'Fiction, science fiction, general',
+        'New York Times reviewed',
+        'Science fiction',
+        'Science-fiction',
+        'American literature',
+      ]),
+      ['Fiction', 'Science fiction', 'American literature'],
+    );
   });
 }

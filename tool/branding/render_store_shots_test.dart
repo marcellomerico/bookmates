@@ -15,10 +15,10 @@ const gold = Color(0xFFC7A64B);
 
 const shots = [
   ('01-feed', 'Sieh, was deine\nFreunde lesen'),
-  ('09-regal', 'Dein Regal,\nimmer dabei'),
+  ('09-regal', 'Dein Regal füllt\nsich mit jedem Buch'),
   ('03-buch', 'Alles zu einem Buch\nauf einen Blick'),
   ('06-lesekreis', 'Lesekreise für\njedes Genre'),
-  ('07-neuer-beitrag', 'Teile Rezensionen\nund Zitate'),
+  ('16-wunschliste', 'Wünsche getrennt\nvom Regal'),
   ('04-entdecken', 'Finde Menschen mit\ndeinem Geschmack'),
 ];
 

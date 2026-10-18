@@ -103,7 +103,12 @@ class PostRepository {
   ) => q.order('created_at', ascending: false).order('id', ascending: false);
 
   List<Post> _parse(List rows, String? currentUserId) => rows
-      .map((r) => Post.fromJson(r as Map<String, dynamic>, currentUserId: currentUserId))
+      .map(
+        (r) => Post.fromJson(
+          r as Map<String, dynamic>,
+          currentUserId: currentUserId,
+        ),
+      )
       .toList();
 
   Future<List<Post>> _withLikedByMe(List<Post> posts, String? userId) async {
@@ -146,10 +151,10 @@ class PostRepository {
     required String postId,
     required String userId,
   }) async {
-    await _client.from('likes').upsert(
-      {'post_id': postId, 'user_id': userId},
-      ignoreDuplicates: true,
-    );
+    await _client.from('likes').upsert({
+      'post_id': postId,
+      'user_id': userId,
+    }, ignoreDuplicates: true);
   }
 
   Future<void> unlikePost({
@@ -205,7 +210,9 @@ class PostRepository {
     final ext = contentType.contains('png') ? 'png' : 'jpg';
     final path = '$userId/${DateTime.now().millisecondsSinceEpoch}.$ext';
 
-    await _client.storage.from('post-images').uploadBinary(
+    await _client.storage
+        .from('post-images')
+        .uploadBinary(
           path,
           bytes,
           fileOptions: FileOptions(upsert: false, contentType: contentType),
@@ -220,7 +227,8 @@ String? postImagePathFromUrl(String url) {
   final segments = Uri.parse(url).pathSegments;
   final i = segments.indexOf('post-images');
   // Bucket segment must follow the storage access mode, e.g. .../object/public/post-images/...
-  if (i < 1 || !const {'public', 'sign', 'authenticated'}.contains(segments[i - 1])) {
+  if (i < 1 ||
+      !const {'public', 'sign', 'authenticated'}.contains(segments[i - 1])) {
     return null;
   }
   final path = segments.skip(i + 1).join('/');

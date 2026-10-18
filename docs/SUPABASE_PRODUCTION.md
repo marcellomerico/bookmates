@@ -16,7 +16,7 @@ Reihenfolge einhalten. Schritte mit **(Claude)** kann Claude per Supabase-MCP er
 - SQL Editor → New query → gesamten Inhalt von `supabase/prod_setup.sql` → Run, **oder**
 - Claude wendet die Migrationen einzeln per MCP an (`apply_migration`), damit sie in der Migrations-Historie stehen
 
-Getestet: Die Datei läuft auf einer frischen Postgres-16-Datenbank fehlerfrei durch und ergibt dieselben Objekte wie Dev (13 Tabellen, 40 Policies, 10 Funktionen in `private`, 2 Buckets, 15 Genres).
+Getestet: Die Datei läuft auf einer frischen Postgres-16-Datenbank fehlerfrei durch und ergibt dieselben Objekte wie Dev (13 Tabellen, 40 Policies, 10 Funktionen in `private`, 2 Buckets, 15 Genres; Stand Migration 9, Migration 10 ergänzt nur einen Status-Wert).
 
 Migration `20260731150000_fix_account_deletion.sql` ist bewusst nicht enthalten (von `20261016120000` überholt).
 

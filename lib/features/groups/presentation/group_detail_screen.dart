@@ -13,7 +13,11 @@ class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({super.key, required this.groupId});
   final String groupId;
 
-  Future<void> _toggleMembership(BuildContext context, WidgetRef ref, bool member) async {
+  Future<void> _toggleMembership(
+    BuildContext context,
+    WidgetRef ref,
+    bool member,
+  ) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     final repo = ref.read(groupRepositoryProvider);
@@ -27,8 +31,9 @@ class GroupDetailScreen extends ConsumerWidget {
       ref.invalidate(groupsProvider);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
     }
   }
 
@@ -80,13 +85,20 @@ class GroupDetailScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(item.name, style: Theme.of(context).textTheme.headlineMedium),
+                          child: Text(
+                            item.name,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
-                        if (item.isPrivate) const Icon(Icons.lock_outline, size: 18),
+                        if (item.isPrivate)
+                          const Icon(Icons.lock_outline, size: 18),
                       ],
                     ),
                     if (item.description?.isNotEmpty ?? false)
-                      Padding(padding: const EdgeInsets.only(top: 8), child: Text(item.description!)),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(item.description!),
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text('${item.memberCount} Mitglieder'),
@@ -101,7 +113,9 @@ class GroupDetailScreen extends ConsumerWidget {
                           tooltip: 'Code kopieren',
                           icon: const Icon(Icons.copy),
                           onPressed: () async {
-                            await Clipboard.setData(ClipboardData(text: item.inviteCode!));
+                            await Clipboard.setData(
+                              ClipboardData(text: item.inviteCode!),
+                            );
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Code kopiert')),
