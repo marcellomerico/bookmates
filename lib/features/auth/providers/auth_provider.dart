@@ -124,6 +124,23 @@ String authErrorMessage(Object error) {
   return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
 }
 
+/// User-facing text for a failed e-mail link (confirmation or password reset),
+/// or null when [error] didn't come from such a link. Supabase reports these
+/// on the auth state stream after the app was opened via the link.
+String? authLinkErrorMessage(Object error) {
+  if (error is! AuthException) return null;
+  // Error parameters in the redirect URL: code = `error`, statusCode = `error_code`.
+  if (error.statusCode == 'otp_expired' || error.code == 'access_denied') {
+    return 'Der Link ist abgelaufen oder wurde schon benutzt. '
+        'Fordere unter „Passwort vergessen?“ einen neuen an und öffne ihn '
+        'nur einmal.';
+  }
+  if (error.message.contains('Code verifier')) {
+    return 'Öffne den Link auf dem Gerät, auf dem du ihn angefordert hast.';
+  }
+  return null;
+}
+
 /// Result of email/password registration.
 class SignUpResult {
   const SignUpResult({required this.needsEmailConfirmation});
@@ -216,7 +233,9 @@ class AuthRepository {
 
   /// Social sign-in shows a terms notice; record the first acceptance like e-mail sign-up does.
   Future<void> _recordTermsAcceptance() async {
-    if (_client.auth.currentUser?.userMetadata?['terms_accepted_at'] != null) return;
+    if (_client.auth.currentUser?.userMetadata?['terms_accepted_at'] != null) {
+      return;
+    }
     try {
       await _client.auth.updateUser(
         UserAttributes(
