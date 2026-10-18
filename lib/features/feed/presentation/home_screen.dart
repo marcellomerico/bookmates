@@ -31,10 +31,15 @@ class HomeScreen extends ConsumerWidget {
                 child: CircularProgressIndicator(),
               ),
             ),
-            empty: const EmptyState(
+            empty: EmptyState(
               icon: Icons.dynamic_feed_outlined,
               title: 'Noch keine Beiträge',
               message: 'Folge Lesern oder starte eine Diskussion.',
+              action: FilledButton.icon(
+                onPressed: () => context.go('/discover'),
+                icon: const Icon(Icons.person_search_outlined),
+                label: const Text('Leser entdecken'),
+              ),
             ),
           ),
         ],
