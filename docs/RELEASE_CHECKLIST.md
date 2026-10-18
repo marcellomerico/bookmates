@@ -91,12 +91,11 @@ Die Tabellen mit Schritten und erwartetem Ergebnis stehen in `TESTING.md`. Du ge
 
 **Wenn etwas nicht stimmt:** Test-ID (z. B. „F4“), was du gemacht hast, was passiert ist, am besten mit Screenshot → Claude. Claude behebt es, du testest die Stelle danach noch einmal.
 
-### Schritt 7: Demo-Konto und Screenshots (30 Min.)
+### Schritt 7: Screenshots ansehen (5 Min.)
 
-1. [ ] Ein Demo-Konto registrieren (z. B. `+demo`), Profilname wie eine echte Leserin oder ein echter Leser, kein echter Name
-2. [ ] → Claude: „Demo-Konto ist da“. Claude füllt Regal, Beiträge und Lesekreise mit Beispieldaten im Dev-Projekt
-3. [ ] Im iPhone-Simulator mit dem Demo-Konto eingeloggt lassen → → Claude: „Screenshots machen“. Claude nimmt die Screens auf und baut die Store-Bilder mit Bildtexten
-4. [ ] Bilder ansehen und freigeben
+Die Store-Bilder sind fertig: `docs/store/` (App Store 6,9", 1320 × 2868), aufgenommen im Demo-Modus mit Beispieldaten. Rohbilder aller Screens liegen in `docs/screenshots/`.
+
+- [ ] Bilder ansehen und freigeben, oder → Claude sagen, was anders sein soll (Texte, Reihenfolge, andere Screens)
 
 **Ende von Teil 1:** Die App ist durchgetestet, die Rechtstexte sind geprüft und online, die Screenshots liegen bereit.
 
@@ -130,7 +129,7 @@ Die Tabellen mit Schritten und erwartetem Ergebnis stehen in `TESTING.md`. Du ge
 4. [ ] [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Apps → **+ Neue App**:
    - Name „Booksquad – Lesen mit Freunden“ (ist er vergeben → Claude, für eine Alternative), Sprache Deutsch
    - Bundle-ID `com.booksquad.app`, SKU `booksquad`
-5. [ ] Texte aus `docs/STORE_LISTING.md` einfügen, Screenshots aus Schritt 7 hochladen
+5. [ ] Texte aus `docs/STORE_LISTING.md` einfügen, Bilder aus `docs/store/` hochladen
 6. [ ] **App-Datenschutz**, **Altersfreigabe** und Prüfnotizen nach `docs/STORE_PRIVACY.md` ausfüllen. Demo-Konto-Zugangsdaten **nur hier** eintragen
 7. [ ] → Claude: „iOS-Build bauen“. Danach die `.ipa` mit der kostenlosen Mac-App **Transporter** (App Store) hochladen, Anmeldung mit deinem Apple-Konto
 8. [ ] App Store Connect → **TestFlight**: Dich selbst als internen Tester eintragen, auf dem iPhone die App **TestFlight** installieren und Booksquad darüber laden

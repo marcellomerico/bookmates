@@ -111,6 +111,8 @@ Gleicher Text wie die App-Store-Beschreibung oben. Play erlaubt keine Emojis im 
 
 ## Screenshots
 
+**Fertig:** `docs/store/*.png` (erzeugt von `tool/branding/render_store_shots_test.dart` aus den Demo-Modus-Bildern in `docs/screenshots/`). Für Google Play passen dieselben Bilder (Hochformat, über 1080 px).
+
 Größen:
 - **iOS:** 6,9" (1320 × 2868) ist Pflicht. Daraus skaliert Apple die kleineren Größen.
 - **Android:** Telefon mindestens 1080 × 1920. Dazu eine Feature-Grafik 1024 × 500.
