@@ -49,6 +49,10 @@ Keine Werbung, kein Tracking, Daten in der EU.
 | **Profil** | Tabs Regal, Beiträge, Wunschliste; Benutzername und Anzeigename änderbar |
 | **Konto** | E-Mail, Apple- und Google-Login, Passwort zurücksetzen, Konto in der App löschen |
 
+## Teaser
+
+[Teaser-Video ansehen (9:16, 21 s)](docs/marketing/booksquad-teaser-9x16.mp4) · neu erzeugen mit `tool/video/` (Anleitung in `tool/video/build_teaser.py`)
+
 ## Alle Screens
 
 <table>
