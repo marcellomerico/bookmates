@@ -521,11 +521,12 @@ class _DemoProfiles extends ProfileRepository {
     required String displayName,
     required String bio,
     required Set<String> genres,
+    String? username,
   }) async {
     final p = _store.profiles[userId]!;
     _store.profiles[userId] = Profile(
       id: p.id,
-      username: p.username,
+      username: username?.trim().toLowerCase() ?? p.username,
       displayName: displayName,
       bio: bio,
       avatarUrl: p.avatarUrl,

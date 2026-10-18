@@ -8,20 +8,27 @@ class ActivityRepository {
 
   final SupabaseClient _client;
 
-  Future<List<ActivityItem>> getActivity(String userId, {int limit = 30}) async {
+  Future<List<ActivityItem>> getActivity(
+    String userId, {
+    int limit = 30,
+  }) async {
     final items = <ActivityItem>[];
 
     final results = await Future.wait([
       _client
           .from('likes')
-          .select('created_at, post_id, profiles:user_id(*), posts!inner(author_id, content)')
+          .select(
+            'created_at, post_id, profiles:user_id(*), posts!inner(author_id, content)',
+          )
           .eq('posts.author_id', userId)
           .neq('user_id', userId)
           .order('created_at', ascending: false)
           .limit(limit),
       _client
           .from('comments')
-          .select('created_at, post_id, content, profiles!comments_author_id_fkey(*), posts!inner(author_id)')
+          .select(
+            'created_at, post_id, content, profiles!comments_author_id_fkey(*), posts!inner(author_id)',
+          )
           .eq('posts.author_id', userId)
           .neq('author_id', userId)
           .order('created_at', ascending: false)

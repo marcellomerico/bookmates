@@ -27,10 +27,15 @@ class ProfileRepository {
     required String displayName,
     required String bio,
     required Set<String> genres,
+    String? username,
   }) async {
     await _client
         .from('profiles')
-        .update({'display_name': displayName.trim(), 'bio': bio.trim()})
+        .update({
+          'display_name': displayName.trim(),
+          'bio': bio.trim(),
+          if (username != null) 'username': username.trim().toLowerCase(),
+        })
         .eq('id', userId);
 
     if (genres.isEmpty) {
@@ -104,9 +109,21 @@ class ProfileRepository {
 
   Future<ProfileStats> getStats(String userId) async {
     final counts = await Future.wait([
-      _client.from('posts').select('id').eq('author_id', userId).count(CountOption.exact),
-      _client.from('follows').select('follower_id').eq('following_id', userId).count(CountOption.exact),
-      _client.from('follows').select('following_id').eq('follower_id', userId).count(CountOption.exact),
+      _client
+          .from('posts')
+          .select('id')
+          .eq('author_id', userId)
+          .count(CountOption.exact),
+      _client
+          .from('follows')
+          .select('follower_id')
+          .eq('following_id', userId)
+          .count(CountOption.exact),
+      _client
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', userId)
+          .count(CountOption.exact),
     ]);
 
     return ProfileStats(

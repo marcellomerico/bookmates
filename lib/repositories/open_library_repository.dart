@@ -78,7 +78,9 @@ class OpenLibraryRepository {
   }
 
   Future<Map<String, dynamic>> _getWorkJson(String id) async {
-    final response = await _get(Uri.https('openlibrary.org', '/works/$id.json'));
+    final response = await _get(
+      Uri.https('openlibrary.org', '/works/$id.json'),
+    );
     if (response.statusCode != 200) {
       throw OpenLibraryException(
         'Buchdetails konnten nicht geladen werden.',

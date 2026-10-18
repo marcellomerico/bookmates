@@ -25,7 +25,10 @@ class GroupRepository {
     final results = await Future.wait([
       request.order('created_at', ascending: false).limit(50),
       if (currentUserId != null)
-        _client.from('group_members').select('group_id').eq('user_id', currentUserId),
+        _client
+            .from('group_members')
+            .select('group_id')
+            .eq('user_id', currentUserId),
     ]);
     final memberOf = currentUserId == null
         ? <String>{}
@@ -50,7 +53,10 @@ class GroupRepository {
         .eq('user_id', userId);
     final joined = [for (final r in memberRows) r['group_id'] as String];
     PostgrestFilterBuilder<PostgrestList> base() {
-      var q = _client.from('groups').select(_listSelect).eq('is_private', false);
+      var q = _client
+          .from('groups')
+          .select(_listSelect)
+          .eq('is_private', false);
       if (joined.isNotEmpty) q = q.not('id', 'in', joined);
       return q;
     }
@@ -120,10 +126,11 @@ class GroupRepository {
     required String userId,
   }) async {
     // ON CONFLICT DO NOTHING: RLS has no UPDATE policy on memberships.
-    await _client.from('group_members').upsert(
-      {'group_id': groupId, 'user_id': userId, 'role': 'member'},
-      ignoreDuplicates: true,
-    );
+    await _client.from('group_members').upsert({
+      'group_id': groupId,
+      'user_id': userId,
+      'role': 'member',
+    }, ignoreDuplicates: true);
   }
 
   /// Joins a (private) group by invite code; returns the group id.
