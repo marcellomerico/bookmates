@@ -107,7 +107,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? get _usernameHelper => switch (_usernameState) {
     _UsernameState.checking => 'Wird geprüft …',
     _UsernameState.available => 'Verfügbar',
-    _UsernameState.unchanged => 'Dein eindeutiger Name, z. B. für Erwähnungen.',
+    _UsernameState.unchanged => 'Eindeutig und für alle sichtbar.',
     _ => null,
   };
 
@@ -249,23 +249,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               Center(
                 child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
                     _avatarBytes != null
                         ? CircleAvatar(
-                            radius: 40,
+                            radius: 48,
                             backgroundImage: MemoryImage(_avatarBytes!),
                           )
                         : UserAvatar(
                             url: data.avatarUrl,
                             name: data.displayName ?? data.username,
-                            radius: 40,
+                            radius: 48,
                           ),
+                    // Small badge on the rim so the initial/photo stays visible.
                     Positioned(
-                      right: 0,
-                      bottom: 0,
+                      right: -6,
+                      bottom: -6,
                       child: IconButton.filled(
+                        tooltip: 'Profilbild ändern',
+                        style: IconButton.styleFrom(
+                          side: const BorderSide(color: Colors.white, width: 2),
+                        ),
                         onPressed: _loading ? null : _pickAvatar,
-                        icon: const Icon(Icons.camera_alt_outlined, size: 18),
+                        icon: const Icon(Icons.camera_alt_outlined, size: 16),
                       ),
                     ),
                   ],

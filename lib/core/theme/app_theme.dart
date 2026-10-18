@@ -206,7 +206,17 @@ class AppTheme {
         disabledColor: Colors.white,
         side: const BorderSide(color: AppColors.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        labelStyle: const TextStyle(color: AppColors.ink, fontSize: 12),
+        // Selected chips sit on burgundy: white label, otherwise ink.
+        // Chips resolve only the colour by state, so the colour carries it.
+        labelStyle: TextStyle(
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : AppColors.ink,
+          ),
+          fontSize: 12,
+        ),
+        checkmarkColor: Colors.white,
         secondaryLabelStyle: const TextStyle(color: Colors.white, fontSize: 12),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       ),
