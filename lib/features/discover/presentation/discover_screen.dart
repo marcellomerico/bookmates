@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../../models/group.dart';
@@ -206,7 +206,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 onRetry: () => ref.invalidate(groupsProvider(null)),
               ),
             ],
+            // Circles the user hasn't joined first; joined ones only fill up the rest.
             data: (items) => items
+                .where((g) => !g.isMember)
+                .followedBy(items.where((g) => g.isMember))
                 .take(3)
                 .map(
                   (group) => _DiscoverClub(

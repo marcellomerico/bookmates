@@ -62,7 +62,9 @@ class SettingsScreen extends ConsumerWidget {
       await repo.deleteAccount();
       container.invalidate(currentProfileProvider);
       container.invalidate(authStateProvider);
-      messenger.showSnackBar(const SnackBar(content: Text('Konto wurde gelöscht.')));
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Konto wurde gelöscht.')),
+      );
       router.go('/login');
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
@@ -121,7 +123,7 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.article_outlined),
             title: const Text('Lizenzen'),
             onTap: () =>
-                showLicensePage(context: context, applicationName: 'Bookmates'),
+                showLicensePage(context: context, applicationName: 'Booksquad'),
           ),
           const Divider(height: 32),
           ListTile(

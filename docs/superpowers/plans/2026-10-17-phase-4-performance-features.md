@@ -49,7 +49,7 @@
 - [ ] Tests: Notifier mit Fake-Repository (erste Seite, `loadMore` hängt an, `hasMore` false bei < 20, Dedupe), Like-Override (toggle, rollback).
 
 ### Task 3 — Buch-Detailseite
-- [ ] `OpenLibraryRepository.getWork(olid)`: `https://openlibrary.org/works/<olid>.json` → Titel, Beschreibung (String oder `{value}`), Themen (max. 8), Cover-ID. Timeout 10 s, User-Agent `Bookmates/1.0 (support@bookmates.app)`. Test mit `MockClient`.
+- [ ] `OpenLibraryRepository.getWork(olid)`: `https://openlibrary.org/works/<olid>.json` → Titel, Beschreibung (String oder `{value}`), Themen (max. 8), Cover-ID. Timeout 10 s, User-Agent `Booksquad/1.0 (support@getbooksquad.com)`. Test mit `MockClient`.
 - [ ] `BookRepository`: `getByOpenLibraryId(olid)` (Datenbank-Buch oder null), `readerCount(bookId)` (Count auf `user_books`), `myEntry(bookId)`.
 - [ ] Beiträge zum Buch über `PostRepository.getFeed(bookId:)` (seitenweise, Filter `book_id`).
 - [ ] Screen `lib/features/books/presentation/book_detail_screen.dart`, Route `/books/:olid`:

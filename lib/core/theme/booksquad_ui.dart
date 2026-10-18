@@ -25,17 +25,17 @@ class KeyboardSafeScroll extends StatelessWidget {
   }
 }
 
-class BookmatesWordmark extends StatelessWidget {
-  const BookmatesWordmark({super.key});
+class BooksquadWordmark extends StatelessWidget {
+  const BooksquadWordmark({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       header: true,
-      label: 'Bookmates',
+      label: 'Booksquad',
       excludeSemantics: true,
       child: Text(
-        'BOOKMATES',
+        'BOOKSQUAD',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: AppColors.goldText,
           letterSpacing: 2.6,

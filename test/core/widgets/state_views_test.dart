@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookmates/core/widgets/state_views.dart';
+import 'package:booksquad/core/widgets/state_views.dart';
 
 void main() {
   testWidgets('EmptyState renders title and message', (tester) async {

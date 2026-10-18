@@ -61,7 +61,7 @@ class OpenLibraryRepository {
   final http.Client _client;
 
   static const _headers = {
-    'User-Agent': 'Bookmates/1.0 (support@bookmates.app)',
+    'User-Agent': 'Booksquad/1.0 (support@getbooksquad.com)',
   };
   static const _timeout = Duration(seconds: 10);
 

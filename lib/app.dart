@@ -5,15 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
-class BookmatesApp extends ConsumerWidget {
-  const BookmatesApp({super.key});
+class BooksquadApp extends ConsumerWidget {
+  const BooksquadApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Bookmates',
+      title: 'Booksquad',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       locale: const Locale('de'),

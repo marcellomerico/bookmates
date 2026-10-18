@@ -1,8 +1,8 @@
-import 'package:bookmates/features/books/presentation/book_detail_screen.dart';
-import 'package:bookmates/features/books/providers/books_provider.dart';
-import 'package:bookmates/features/social/providers/paged_posts.dart';
-import 'package:bookmates/models/book.dart';
-import 'package:bookmates/repositories/open_library_repository.dart';
+import 'package:booksquad/features/books/presentation/book_detail_screen.dart';
+import 'package:booksquad/features/books/providers/books_provider.dart';
+import 'package:booksquad/features/social/providers/paged_posts.dart';
+import 'package:booksquad/models/book.dart';
+import 'package:booksquad/repositories/open_library_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

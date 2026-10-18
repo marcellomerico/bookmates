@@ -10,7 +10,7 @@ Ton: warm, einladend, du-Form, keine Superlative ohne Beleg. Keine Preise oder �
 
 ### App-Name (max 30)
 ```text
-Bookmates – Lesen mit Freunden
+Booksquad – Lesen mit Freunden
 ```
 
 ### Untertitel (max 30)
@@ -31,7 +31,7 @@ buch,bücher,leseliste,rezension,buchclub,lesezeichen,zitate,leseratte,roman,kri
 
 ### Beschreibung (max 4000)
 ```text
-Bookmates ist die Community für alle, die gerne lesen. Halte fest, was du liest, entdecke neue Bücher über Menschen mit ähnlichem Geschmack und sprich in Lesekreisen über das, was dich bewegt.
+Booksquad ist die Community für alle, die gerne lesen. Halte fest, was du liest, entdecke neue Bücher über Menschen mit ähnlichem Geschmack und sprich in Lesekreisen über das, was dich bewegt.
 
 DEIN BÜCHERREGAL
 • Sortiere Bücher nach „Will ich lesen“, „Lese ich gerade“ und „Gelesen“
@@ -59,12 +59,12 @@ SICHER UND RESPEKTVOLL
 • Konto und alle Daten jederzeit in der App löschen
 • Keine Werbung, kein Verkauf deiner Daten
 
-Bookmates wird in Deutschland entwickelt und ist noch jung. Über Feedback an support@bookmates.app freuen wir uns sehr.
+Booksquad wird in Deutschland entwickelt und ist noch jung. Über Feedback an support@getbooksquad.com freuen wir uns sehr.
 ```
 
 ### Neuerungen in dieser Version (max 4000)
 ```text
-Willkommen bei Bookmates! Das ist die erste Version. Wir freuen uns auf dein Feedback.
+Willkommen bei Booksquad! Das ist die erste Version. Wir freuen uns auf dein Feedback.
 ```
 
 ### Weitere Angaben
@@ -73,8 +73,8 @@ Willkommen bei Bookmates! Das ist die erste Version. Wir freuen uns auf dein Fee
 | Primäre Kategorie | Soziale Netze |
 | Sekundäre Kategorie | Bücher |
 | Altersfreigabe | 12+ (nutzergenerierte Inhalte, siehe `docs/STORE_PRIVACY.md`) |
-| Support-URL | `https://marcellomerico.github.io/bookmates/` (nach Veröffentlichung der Seiten) |
-| Datenschutz-URL | `https://marcellomerico.github.io/bookmates/privacy.html` |
+| Support-URL | `https://getbooksquad.com/` (nach Veröffentlichung der Seiten) |
+| Datenschutz-URL | `https://getbooksquad.com/privacy.html` |
 | Copyright | `2026 <Name aus dem Impressum>` |
 | Preis | Gratis |
 
@@ -84,7 +84,7 @@ Willkommen bei Bookmates! Das ist die erste Version. Wir freuen uns auf dein Fee
 
 ### App-Name (max 30)
 ```text
-Bookmates – Lesen mit Freunden
+Booksquad – Lesen mit Freunden
 ```
 
 ### Kurzbeschreibung (max 80)
@@ -100,9 +100,9 @@ Gleicher Text wie die App-Store-Beschreibung oben. Play erlaubt keine Emojis im 
 |------|------|
 | Kategorie | Soziale Netzwerke |
 | Tags | Bücher, Lesen, Community |
-| E-Mail | support@bookmates.app |
+| E-Mail | support@getbooksquad.com |
 | Datenschutz-URL | wie App Store |
-| Web-Löschseite | `https://marcellomerico.github.io/bookmates/delete-account.html` |
+| Web-Löschseite | `https://getbooksquad.com/delete-account.html` |
 | Inhaltsfreigabe | Fragebogen: nutzergenerierte Inhalte mit Moderation, Melden und Blockieren (Ergebnis meist USK 12 / PEGI 12) |
 | Zielgruppe | 16+ (unter 16 nicht Zielgruppe, passt zu den Nutzungsbedingungen) |
 | Werbung | Nein |
@@ -110,6 +110,8 @@ Gleicher Text wie die App-Store-Beschreibung oben. Play erlaubt keine Emojis im 
 ---
 
 ## Screenshots
+
+**Fertig:** `docs/store/*.png` (erzeugt von `tool/branding/render_store_shots_test.dart` aus den Demo-Modus-Bildern in `docs/screenshots/`). Für Google Play passen dieselben Bilder (Hochformat, über 1080 px).
 
 Größen:
 - **iOS:** 6,9" (1320 × 2868) ist Pflicht. Daraus skaliert Apple die kleineren Größen.
@@ -128,4 +130,4 @@ Mit einem Demo-Konto und gefüllten Demo-Daten aufnehmen (echte Buchcover, keine
 
 Bildtexte in Source Serif 4, Bordeaux `#7B3140` auf Creme `#F7F2E8`, passend zur App.
 
-Feature-Grafik (Play): App-Icon links, Schriftzug „Bookmates“ in dunklem Gold `#85661A`, Untertitel „Lesen mit Freunden“, Hintergrund Creme.
+Feature-Grafik (Play): App-Icon links, Schriftzug „Booksquad“ in dunklem Gold `#85661A`, Untertitel „Lesen mit Freunden“, Hintergrund Creme.

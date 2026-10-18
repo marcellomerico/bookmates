@@ -1,4 +1,4 @@
-import 'package:bookmates/repositories/post_repository.dart';
+import 'package:booksquad/repositories/post_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

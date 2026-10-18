@@ -12,8 +12,8 @@ Was vor dem Release zu tun ist und wer es macht: [`RELEASE_CHECKLIST.md`](RELEAS
 ## Release-Build per Skript
 
 ```bash
-BOOKMATES_PROD_REF=<prod-ref> tool/build_release.sh android      # .aab
-BOOKMATES_PROD_REF=<prod-ref> tool/build_release.sh ios 2        # .ipa mit Build-Nummer 2
+BOOKSQUAD_PROD_REF=<prod-ref> tool/build_release.sh android      # .aab
+BOOKSQUAD_PROD_REF=<prod-ref> tool/build_release.sh ios 2        # .ipa mit Build-Nummer 2
 ```
 
 Das Skript bricht ab, wenn `.env` nicht auf das Prod-Projekt zeigt oder Platzhalter enthält, wenn `android/key.properties` fehlt (Android) oder wenn der Google-URL-Scheme-Platzhalter noch in `Info.plist` steht (iOS). Danach laufen analyze, test und `tool/check_queries.sh` gegen Prod. Erst dann wird gebaut.
@@ -22,14 +22,14 @@ Das Skript bricht ab, wenn `.env` nicht auf das Prod-Projekt zeigt oder Platzhal
 
 1. Keystore erstellen:
    ```bash
-   keytool -genkey -v -keystore bookmates-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias bookmates
+   keytool -genkey -v -keystore booksquad-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias booksquad
    ```
 2. `android/key.properties` (nicht committen):
    ```
    storePassword=...
    keyPassword=...
-   keyAlias=bookmates
-   storeFile=../bookmates-release.jks
+   keyAlias=booksquad
+   storeFile=../booksquad-release.jks
    ```
 3. `android/app/build.gradle.kts` — Release-Signing konfigurieren
 4. Build: `tool/build_release.sh android`
@@ -41,7 +41,7 @@ Hinweise:
 
 ## iOS
 
-1. Apple Developer Account + App ID `com.bookmates.bookmates`
+1. Apple Developer Account + App ID `com.booksquad.app`
 2. Sign in with Apple Capability (bereits in Runner.entitlements)
 3. Distribution Certificate + Provisioning Profile
 4. Google URL Scheme in Info.plist mit echter iOS Client ID ersetzen
@@ -64,6 +64,6 @@ Die Texte liegen als Entwurf in `docs/legal/`, die fertigen Seiten in `site/`.
 1. Platzhalter in `docs/legal/*.md` ausfüllen (Name, Anschrift, E-Mail, Fristen) und rechtlich prüfen lassen.
 2. Seiten neu erzeugen: `python3 tool/build_site.py .`
 3. Veröffentlichen, eine von zwei Varianten:
-   - **GitHub Pages:** `git subtree push --prefix site origin gh-pages`, dann in GitHub → Settings → Pages: Branch `gh-pages`, Ordner `/ (root)`. Die URLs lauten dann `https://marcellomerico.github.io/bookmates/…` und passen bereits zu `AppConfig`.
+   - **GitHub Pages:** `git subtree push --prefix site origin gh-pages`, dann in GitHub → Settings → Pages: Branch `gh-pages`, Ordner `/ (root)`. Die URLs lauten dann `https://getbooksquad.com/…` und passen bereits zu `AppConfig`.
    - **Eigene Domain:** Inhalt von `site/` hochladen und die URLs in `lib/core/constants/app_config.dart` sowie `docs/STORE_PRIVACY.md` anpassen.
 4. In beiden Stores dieselben URLs eintragen (Datenschutz, EULA, Web-Löschseite für Play).

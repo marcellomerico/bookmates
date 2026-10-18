@@ -1,10 +1,10 @@
-import 'package:bookmates/features/auth/presentation/follow_suggestions_step.dart';
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
-import 'package:bookmates/features/social/providers/social_providers.dart';
-import 'package:bookmates/models/group.dart';
-import 'package:bookmates/models/profile.dart';
-import 'package:bookmates/repositories/follow_repository.dart';
-import 'package:bookmates/repositories/group_repository.dart';
+import 'package:booksquad/features/auth/presentation/follow_suggestions_step.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/features/social/providers/social_providers.dart';
+import 'package:booksquad/models/group.dart';
+import 'package:booksquad/models/profile.dart';
+import 'package:booksquad/repositories/follow_repository.dart';
+import 'package:booksquad/repositories/group_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

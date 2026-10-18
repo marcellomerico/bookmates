@@ -1,4 +1,4 @@
-# Bookmates — Testanleitung
+# Booksquad — Testanleitung
 
 Schritt-für-Schritt: Migrationen einspielen, verifizieren, App testen, Feedback geben.
 
@@ -79,7 +79,7 @@ Dashboard → **Edge Functions** oder `supabase functions deploy delete-account`
 
 ## A.7 Auth Redirect URL
 
-**Authentication → URL Configuration → Redirect URLs:** `bookmates://auth-callback` ergänzen (Passwort-Reset, E-Mail-Bestätigung).
+**Authentication → URL Configuration → Redirect URLs:** `booksquad://auth-callback` ergänzen (Passwort-Reset, E-Mail-Bestätigung).
 
 ---
 
@@ -197,12 +197,12 @@ where trigger_name = 'on_auth_user_created';
 ## C.1 Umgebung
 
 ```bash
-cd ~/Developer/bookmates
+cd ~/Developer/booksquad
 flutter pub get
 flutter run
 ```
 
-- [ ] Kein „Bookmates Setup“-Screen → `.env` OK
+- [ ] Kein „Booksquad Setup“-Screen → `.env` OK
 - [ ] Login-Screen sichtbar
 
 ## C.2 Hot Restart
@@ -246,8 +246,8 @@ Profil ohne Auth-User? In Authentication den zugehörigen User löschen oder Use
 
 | Account | E-Mail | Passwort | Username |
 |---------|--------|----------|----------|
-| **User A** | z. B. `bookmates+a@test.com` | min. 8 Zeichen | z. B. `leser_a` |
-| **User B** | z. B. `bookmates+b@test.com` | min. 8 Zeichen | z. B. `leser_b` |
+| **User A** | z. B. `booksquad+a@test.com` | min. 8 Zeichen | z. B. `leser_a` |
+| **User B** | z. B. `booksquad+b@test.com` | min. 8 Zeichen | z. B. `leser_b` |
 
 ### Schritt-für-Schritt User A
 
@@ -544,7 +544,7 @@ Simulator / Gerät, iOS: …
 | Thema | Grund |
 |-------|--------|
 | Google/Apple Login | Dashboard-Config → `docs/GOOGLE_APPLE_AUTH.md` |
-| Legal-URLs | Platzhalter `bookmates.app` |
+| Legal-URLs | `getbooksquad.com` (nach Domain-Kauf) |
 | „Policy already exists“ | Migration teilweise gelaufen — B.6 entscheidet |
 
 ---

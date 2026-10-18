@@ -1,26 +1,21 @@
-# Impressum — Bookmates
+# Impressum — Booksquad
 
-> Entwurf – Platzhalter in [eckigen Klammern] durch echte Angaben ersetzen.
+> Entwurf – vor Veröffentlichung rechtlich prüfen lassen. Offen: support@getbooksquad.com (folgt nach Domain-Kauf).
 
 ## Angaben gemäß § 5 DDG
 
-[Vorname Nachname / Firma]
-[Straße Hausnummer]
-[PLZ Ort]
+Marcello Antonio Merico
+Kiesgrabenweg 19
+69245 Bammental
 Deutschland
 
 ## Kontakt
 
-E-Mail: [support@bookmates.app]
-Telefon: [optional]
-
-## Umsatzsteuer
-
-Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: [falls vorhanden]
+E-Mail: support@getbooksquad.com
 
 ## Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
 
-[Vorname Nachname, Anschrift wie oben]
+Marcello Antonio Merico, Anschrift wie oben
 
 ## Verbraucherstreitbeilegung
 

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bookmates/features/profile/presentation/settings_screen.dart';
-import 'package:bookmates/features/social/providers/social_providers.dart';
+import 'package:booksquad/features/profile/presentation/settings_screen.dart';
+import 'package:booksquad/features/social/providers/social_providers.dart';
 
 Future<void> _pump(WidgetTester tester, bool admin) async {
   tester.view.devicePixelRatio = 1;

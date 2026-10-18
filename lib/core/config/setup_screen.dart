@@ -15,7 +15,7 @@ class SetupScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 32),
               Text(
-                'Bookmates Setup',
+                'Booksquad Setup',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: AppColors.burgundy,
                   fontWeight: FontWeight.bold,
@@ -31,7 +31,7 @@ class SetupScreen extends StatelessWidget {
                 number: 1,
                 title: 'Supabase-Projekt anlegen',
                 body:
-                    'Erstelle auf supabase.com ein Projekt „bookmates" (Region EU).',
+                    'Erstelle auf supabase.com ein Projekt „booksquad" (Region EU).',
               ),
               _Step(
                 number: 2,

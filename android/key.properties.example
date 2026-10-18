@@ -1,4 +1,4 @@
 storePassword=CHANGE_ME
 keyPassword=CHANGE_ME
-keyAlias=bookmates
-storeFile=../bookmates-release.jks
+keyAlias=booksquad
+storeFile=../booksquad-release.jks

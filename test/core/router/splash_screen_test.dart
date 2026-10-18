@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bookmates/core/router/splash_screen.dart';
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
-import 'package:bookmates/models/profile.dart';
+import 'package:booksquad/core/router/splash_screen.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/models/profile.dart';
 
 Widget _app(Future<Profile?> Function() future) => ProviderScope(
       overrides: [currentProfileProvider.overrideWith((ref) => future())],

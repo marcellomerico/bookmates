@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Bookmates baut wieder auf iOS und Android, CI ist grün, der Auth-State ist korrekt, und Datenbank und Storage sind so abgesichert, dass private Gruppen, Blockieren und Account-Löschung serverseitig wirklich funktionieren.
+**Goal:** Booksquad baut wieder auf iOS und Android, CI ist grün, der Auth-State ist korrekt, und Datenbank und Storage sind so abgesichert, dass private Gruppen, Blockieren und Account-Löschung serverseitig wirklich funktionieren.
 
 **Architecture:** Eine neue Supabase-Migration (`20261016120000_security_hardening.sql`) ersetzt die schwachen RLS-Policies. Sie nutzt `SECURITY DEFINER`-Hilfsfunktionen, damit Policies nicht rekursiv werden und Blocks sowie Mitgliedschaft unabhängig von der RLS der Hilfstabellen geprüft werden können. Account-Löschung läuft über eine Edge Function mit Service Role und Storage API. Im Client wird `currentUserProvider` reaktiv, der Router wird nur noch einmal gebaut, und die Redirect-Logik wandert in eine reine, testbare Funktion.
 
@@ -34,7 +34,7 @@
 | `ios/Podfile`, `ios/Runner.xcodeproj/project.pbxproj` | Modify | iOS 15.0 Deployment Target |
 | `.github/workflows/flutter.yml` | Modify | `.env` aus Example, Flutter-Version pinnen |
 | `android/app/build.gradle.kts`, `android/app/src/main/AndroidManifest.xml` | Modify | Kein Debug-Signing-Fallback, Label, Backup aus, Deep Link |
-| `ios/Runner/Info.plist` | Modify | URL-Scheme `bookmates`, Flutter-Deeplinking aus |
+| `ios/Runner/Info.plist` | Modify | URL-Scheme `booksquad`, Flutter-Deeplinking aus |
 | `lib/features/auth/providers/auth_provider.dart` | Modify | Reaktiver `currentUserProvider`, `passwordRecoveryProvider`, Signup ohne Upsert, Edge-Function-Löschung, `updatePassword`, saubere Fehlermeldungen |
 | `lib/core/router/auth_redirect.dart` | Create | Reine Redirect-Funktion |
 | `lib/core/router/splash_screen.dart` | Create | Lade-Route statt Login-Flash |
@@ -224,7 +224,7 @@ git commit -m "ci: provide .env placeholder and pin Flutter 3.44.5"
 
 ```xml
     <application
-        android:label="Bookmates"
+        android:label="Booksquad"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
@@ -288,7 +288,7 @@ SupabaseClient offlineClient() => SupabaseClient(
 ```dart
 import 'dart:async';
 
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -370,7 +370,7 @@ git commit -m "fix(auth): make currentUserProvider react to sign-in, sign-out an
 ```dart
 import 'dart:async';
 
-import 'package:bookmates/features/auth/providers/auth_provider.dart';
+import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -469,8 +469,8 @@ git commit -m "feat(auth): track password recovery state"
 - [ ] **Step 1: Failing Test**
 
 ```dart
-import 'package:bookmates/core/router/auth_redirect.dart';
-import 'package:bookmates/models/profile.dart';
+import 'package:booksquad/core/router/auth_redirect.dart';
+import 'package:booksquad/models/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -557,7 +557,7 @@ void main() {
 - [ ] **Step 2: Fehlschlag prüfen**
 
 Run: `flutter test test/core/router/auth_redirect_test.dart`
-Expected: FAIL: `Target of URI doesn't exist: 'package:bookmates/core/router/auth_redirect.dart'`
+Expected: FAIL: `Target of URI doesn't exist: 'package:booksquad/core/router/auth_redirect.dart'`
 
 - [ ] **Step 3: Implementieren** (`lib/core/router/auth_redirect.dart`):
 
@@ -729,7 +729,7 @@ class _RouterRefresh extends ChangeNotifier {
 ```dart
   /// Deep link Supabase redirects to after e-mail confirmation / password reset.
   /// Must also be listed under Auth → URL Configuration → Redirect URLs.
-  static const authRedirectUrl = 'bookmates://auth-callback';
+  static const authRedirectUrl = 'booksquad://auth-callback';
 ```
 
 - [ ] **Step 2: Repository.** In `AuthRepository` `resetPassword` ersetzen und `updatePassword` hinzufügen:
@@ -755,7 +755,7 @@ Im `signUp`-Aufruf `emailRedirectTo: AppConfig.authRedirectUrl,` ergänzen. Impo
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/bookmates_ui.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../providers/auth_provider.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
@@ -848,7 +848,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 }
 ```
 
-(Falls `KeyboardSafeScroll` in `bookmates_ui.dart` eine andere Signatur hat, an `forgot_password_screen.dart` orientieren. Dort wird es identisch verwendet.)
+(Falls `KeyboardSafeScroll` in `booksquad_ui.dart` eine andere Signatur hat, an `forgot_password_screen.dart` orientieren. Dort wird es identisch verwendet.)
 
 - [ ] **Step 4: iOS URL-Scheme.** In `Info.plist` im `CFBundleURLTypes`-Array einen zweiten `<dict>` ergänzen und vor `</dict></plist>` den Deeplinking-Key setzen:
 
@@ -858,7 +858,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>bookmates</string>
+				<string>booksquad</string>
 			</array>
 		</dict>
 ```
@@ -876,7 +876,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="bookmates" android:host="auth-callback"/>
+                <data android:scheme="booksquad" android:host="auth-callback"/>
             </intent-filter>
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
 ```
@@ -886,7 +886,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 Run: `flutter analyze && flutter test`
 Expected: `No issues found!` und `All tests passed!`
 
-- [ ] **Step 7: Supabase-Dashboard (Marcello, manuell).** Unter Auth → URL Configuration bei Redirect URLs `bookmates://auth-callback` hinzufügen.
+- [ ] **Step 7: Supabase-Dashboard (Marcello, manuell).** Unter Auth → URL Configuration bei Redirect URLs `booksquad://auth-callback` hinzufügen.
 
 - [ ] **Step 8: Manueller Test (Marcello, Simulator/Gerät)**
 
@@ -917,7 +917,7 @@ git commit -m "fix(auth): build router once, add splash and working password res
 - [ ] **Step 1: Failing Test** (`test/core/utils/validators_test.dart`):
 
 ```dart
-import 'package:bookmates/core/utils/validators.dart';
+import 'package:booksquad/core/utils/validators.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -1670,7 +1670,7 @@ git commit -m "feat(account): delete account via edge function using Storage and
 - [ ] **Step 1: Failing Test** (`test/models/group_test.dart`):
 
 ```dart
-import 'package:bookmates/models/group.dart';
+import 'package:booksquad/models/group.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -1891,7 +1891,7 @@ Expected: `image: ^4.x` in `pubspec.yaml`
 ```dart
 import 'dart:typed_data';
 
-import 'package:bookmates/core/utils/image_sanitizer.dart';
+import 'package:booksquad/core/utils/image_sanitizer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
@@ -2115,7 +2115,7 @@ Unter „Schnell-Check“ ergänzen:
 
 1. `supabase/tests/rls_smoke.sql` im SQL-Editor ausführen → letzte Zeile `ALL RLS CHECKS PASSED`.
 2. Edge Function `supabase/functions/delete-account` deployen (Dashboard → Edge Functions oder `supabase functions deploy delete-account`).
-3. Auth → URL Configuration → Redirect URLs: `bookmates://auth-callback`.
+3. Auth → URL Configuration → Redirect URLs: `booksquad://auth-callback`.
 ```
 
 - [ ] **Step 2: README.** Die Migrationsliste um Punkt 4 (`20260731150000_fix_account_deletion.sql`, fehlt aktuell) und Punkt 5 ergänzen.

@@ -18,13 +18,13 @@ Was Konten, Geld, Zugangsdaten oder rechtliche Verantwortung braucht, steht gesa
   - `splash.png` (Motiv für den Splash)
   Ein Austausch gegen ein Designer-Icon ist später ein Datei-Tausch plus Generator-Lauf.
 - [ ] `flutter_launcher_icons` + `flutter_native_splash` als dev_dependencies mit Konfiguration in `pubspec.yaml`. Icons generieren (iOS alle Größen, Android mipmaps plus adaptive Icon mit Hintergrund `#7B3140`). Splash: Creme `#F7F2E8` mit Motiv, Android-12-Splash-API inklusive.
-- [ ] Android-Label „Bookmates“ (bereits gesetzt), iOS `CFBundleDisplayName` „Bookmates“ (gesetzt) prüfen.
+- [ ] Android-Label „Booksquad“ (bereits gesetzt), iOS `CFBundleDisplayName` „Booksquad“ (gesetzt) prüfen.
 
 ### 2 — Versionierung & Build (Claude)
 - [ ] Schema: `version: <marketing>+<build>` in pubspec. Der Build steigt bei jedem Store-Upload, die Marketing-Version folgt SemVer. Erste Einreichung `1.0.0+1`.
 - [ ] `tool/build_release.sh <android|ios> [build-number]`:
   - prüft analyze und test sowie die Abfragen über `tool/check_queries.sh`
-  - prüft, dass `.env` auf das Prod-Projekt zeigt (Projekt-Ref per `BOOKMATES_PROD_REF` übergeben) und `android/key.properties` vorhanden ist (Android)
+  - prüft, dass `.env` auf das Prod-Projekt zeigt (Projekt-Ref per `BOOKSQUAD_PROD_REF` übergeben) und `android/key.properties` vorhanden ist (Android)
   - baut `flutter build appbundle` bzw. `flutter build ipa` mit `--build-number`
 - [ ] iOS `Info.plist`: `ITSAppUsesNonExemptEncryption = false` (nur Standard-HTTPS). Dann entfällt die Export-Frage bei jedem Upload.
 - [ ] Android: `minifyEnabled`/R8 ist Flutter-Default; `targetSdk` folgt dem Flutter-Default (entspricht der Play-Anforderung 2026). Prüfen.

@@ -78,7 +78,7 @@ class _FollowSuggestionsStepState extends ConsumerState<FollowSuggestionsStep> {
                 icon: Icons.people_outline,
                 title: 'Du bist eine der ersten Personen hier',
                 message:
-                    'Lade Freunde ein – Bookmates lebt von seiner Community.',
+                    'Lade Freunde ein – Booksquad lebt von seiner Community.',
               );
             }
             return Column(

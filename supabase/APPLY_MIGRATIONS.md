@@ -43,7 +43,7 @@ Erfolg = kein Fehler (letzte Zeile / Notice `ALL RLS CHECKS PASSED`); alles wird
 
 ## Auth: Redirect URLs
 
-Dashboard → **Authentication** → **URL Configuration** → **Redirect URLs** muss `bookmates://auth-callback` enthalten (Passwort-Reset + E-Mail-Bestätigung öffnen die App).
+Dashboard → **Authentication** → **URL Configuration** → **Redirect URLs** muss `booksquad://auth-callback` enthalten (Passwort-Reset + E-Mail-Bestätigung öffnen die App).
 
 ## Schnell-Check nach Migration 5
 

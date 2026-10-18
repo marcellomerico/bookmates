@@ -49,7 +49,10 @@ class ProfileScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Mirrors the settings button so the avatar stays centered.
+                  const SizedBox(width: 48),
                   const Spacer(),
                   UserAvatar(
                     url: data.avatarUrl,
@@ -57,6 +60,11 @@ class ProfileScreen extends ConsumerWidget {
                     radius: 34,
                   ),
                   const Spacer(),
+                  IconButton(
+                    tooltip: 'Einstellungen',
+                    icon: const Icon(Icons.settings_outlined),
+                    onPressed: () => context.push('/settings'),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -126,7 +134,9 @@ class ProfileScreen extends ConsumerWidget {
                 icon: const Icon(Icons.edit_outlined),
                 label: const Text('Profil bearbeiten'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 32),
+              // Shelf before posts: the post list pages endlessly, anything below it is unreachable.
+              const BookshelfWidget(),
               const SizedBox(height: 24),
               Text(
                 'Meine Beiträge',
@@ -143,32 +153,12 @@ class ProfileScreen extends ConsumerWidget {
                   message: 'Teile, was du gerade liest.',
                 ),
               ),
-              const SizedBox(height: 24),
-              const BookshelfWidget(),
             ],
           ),
         );
       },
     );
-    return Stack(
-      children: [
-        body,
-        Positioned(
-          top: 0,
-          right: 4,
-          child: Material(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-            shape: const CircleBorder(),
-            elevation: 1,
-            child: IconButton(
-              tooltip: 'Einstellungen',
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () => context.push('/settings'),
-            ),
-          ),
-        ),
-      ],
-    );
+    return body;
   }
 }
 

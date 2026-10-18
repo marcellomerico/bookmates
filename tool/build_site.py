@@ -71,7 +71,7 @@ def render(md: str) -> tuple[str, str]:
 
 def page(title: str, body: str) -> str:
     short = title.split(" — ")[0]
-    title = short if short == "Bookmates" else f"{short} – Bookmates"
+    title = short if short == "Booksquad" else f"{short} – Booksquad"
     nav = " · ".join(f'<a href="{href}">{label}</a>' for _, href, label in PAGES)
     return f"""<!doctype html>
 <html lang="de">
@@ -82,7 +82,7 @@ def page(title: str, body: str) -> str:
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><a class="brand" href="index.html">BOOKMATES</a></header>
+<header><a class="brand" href="index.html">BOOKSQUAD</a></header>
 <main>
 {body}
 </main>
@@ -100,11 +100,11 @@ def main():
         (site / dst).write_text(page(title, body), encoding="utf-8")
     links = "".join(f'<li><a href="{href}">{label}</a></li>' for _, href, label in PAGES)
     index_body = (
-        "<h1>Bookmates</h1>\n"
+        "<h1>Booksquad</h1>\n"
         "<p>Die Community für Bücher und Leser: Bücherregal, Beiträge, Lesekreise.</p>\n"
         f"<ul class=\"links\">{links}</ul>"
     )
-    (site / "index.html").write_text(page("Bookmates", index_body), encoding="utf-8")
+    (site / "index.html").write_text(page("Booksquad", index_body), encoding="utf-8")
 
 
 main()

@@ -67,7 +67,7 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   return Profile.fromJson(data);
 });
 
-/// Auth error raised by Bookmates itself; its message is user-facing German text.
+/// Auth error raised by Booksquad itself; its message is user-facing German text.
 class AppAuthException extends AuthException {
   const AppAuthException(super.message);
 }

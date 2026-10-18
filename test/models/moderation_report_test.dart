@@ -1,4 +1,4 @@
-import 'package:bookmates/models/moderation_report.dart';
+import 'package:booksquad/models/moderation_report.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
