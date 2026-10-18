@@ -110,7 +110,8 @@ Die Rohbilder in `docs/screenshots/` stammen aus dem Demo-Modus im iPhone-Simula
 | [`docs/GOOGLE_APPLE_AUTH.md`](docs/GOOGLE_APPLE_AUTH.md) | Apple- und Google-Login |
 | [`docs/legal/`](docs/legal/) | Datenschutz, Nutzungsbedingungen, Impressum |
 | [`TESTING.md`](TESTING.md) | Manuelle Testanleitung |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Arbeitsweise: Issue → Branch → Pull Request, Versionierung |
 
 ## Status
 
-In Vorbereitung für den Start im App Store und bei Google Play.
+In Vorbereitung für den Start im App Store und bei Google Play. Geplante Features stehen als [Issues](https://github.com/marcellomerico/booksquad/issues?q=is%3Aopen+label%3Afeature).

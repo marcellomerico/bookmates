@@ -4,6 +4,16 @@ Alles, was du selbst erledigen kannst, in der richtigen Reihenfolge. Dazu die Ko
 
 Stand: 18. Oktober 2026. Preise geprüft bei Apple, Google und Supabase. Domain-Preise schwanken je nach Anbieter.
 
+Jede Aufgabe für Claude läuft über ein **GitHub-Issue** mit eigenem Branch und Pull Request (siehe [`CONTRIBUTING.md`](../CONTRIBUTING.md)). Offene Features: [Issues mit Label `feature`](https://github.com/marcellomerico/booksquad/issues?q=is%3Aopen+label%3Afeature).
+
+## Deine nächsten Schritte
+
+1. **PR #9, #10 und #24 durchsehen und mergen** (oder → Claude: „merge“). Erst danach ist der neue Name, das Regal und die neue Oberfläche auf `main`
+2. **Supabase:** Redirect-URL auf `booksquad://auth-callback` setzen (A4 Schritt 2), sonst öffnen Mail-Links die App nicht
+3. **App ansehen** (Phase 0) und `@benutzername` in „Profil bearbeiten“ ändern
+4. **Marke prüfen und Domains kaufen** (A1, A2)
+5. **Tester sammeln** (A6), damit die Google-Beta ab Mitte November starten kann
+
 ---
 
 ## 1. Auf einen Blick
@@ -93,11 +103,17 @@ Bei Google ist der späteste sinnvolle Start des Tests ungefähr der **20. Novem
 | Google-Login | ✅ | | |
 | Apple-Login | ✅ für TestFlight | | |
 | 15–20 Tester | ✅ | | |
+| Bot-Schutz bei der Registrierung (CAPTCHA, #11 Stufe 1) | | ✅ | |
+| Deutsche E-Mail-Vorlagen (#21) | ✅ | | |
+| Feature-Grafik für Google Play (#22) | | ✅ | |
 | Eigenes Produktions-Backend (Pro) | | ✅ | |
-| Webseite / Landingpage | | | ✅ (die Rechtstexte-Seite reicht zum Start) |
+| Webseite / Landingpage (#20) | | ✅ empfohlen | (die Rechtstexte-Seite reicht notfalls) |
+| Verifizierungs-Haken (#11 Stufe 2) | | | ✅ |
+| Private Konten (#12), Direktnachrichten (#13) | | | ✅ |
+| Regal-Buchrücken-Ansicht (#14), Dark Mode (#15), Widget (#16) | | | ✅ |
 | Marke anmelden | | | ✅ |
-| Englische Version | | | ✅ |
-| Push-Benachrichtigungen | | | ✅ |
+| Englische Version (#18) | | | ✅ |
+| Push-Benachrichtigungen (#17) | | | ✅ |
 | Premium-Funktionen | | | ✅ |
 
 ---
@@ -110,11 +126,12 @@ Zwei Wege, beide im iPhone-Simulator auf deinem Mac:
 - [ ] → Claude: „Starte die App“
 - [ ] Mit deinem **bestehenden Dev-Konto** anmelden (deine Gmail-Adresse, das Passwort kennst du). Das Konto ist bereits **Admin**, du siehst also auch „Meldungen prüfen“
 - Feed, Entdecken und Lesekreise sind noch fast leer, weil du der einzige Nutzer bist. Lege ruhig Bücher, Beiträge und einen Lesekreis an
+- Ausprobieren: Buch suchen → „Ins Regal“ (Lese ich / Ungelesen / Gelesen) oder „Wunschliste“; im Regal langes Drücken auf ein Cover; Profil-Tabs Regal / Beiträge / Wunschliste
 
 **b) Der Demo-Modus, mit Beispieldaten**
 - [ ] → Claude: „Starte den Demo-Modus“. Die App ist dann voll mit Lesern, Beiträgen und Lesekreisen, so wie auf den Store-Bildern. Nichts davon landet in der Datenbank
 
-**Feedback:** Notiere, was dir auffällt, am besten mit Screenshot (im Simulator ⌘S) → Claude. Design schlicht lassen, Fokus auf Kernfunktionen: Regal, Beitrag schreiben, Feed, Lesekreis.
+**Feedback:** Notiere, was dir auffällt, am besten mit Screenshot (im Simulator ⌘S) → Claude. Claude legt für jeden Punkt ein Issue an. Du kannst Issues auch selbst auf GitHub anlegen.
 
 ---
 
@@ -261,13 +278,28 @@ Gilt jetzt für das **Dev-Projekt** (das ist auch das Beta-Backend). Für die Pr
 
 ---
 
-## 8. Phase D · Später
+## 8. Phase D · Später (Feature-Issues)
 
-| Thema | Was | Kosten |
-|---|---|---|
-| **Webseite** | Landingpage auf `getbooksquad.com` mit Store-Bildern, Download-Buttons und Rechtstexten. → Claude baut sie, Hosting über GitHub Pages | 0 € |
-| **Marke anmelden** | DPMA oder EUIPO, wenn die App anläuft | 290–850 € |
-| **Englische Version** | App-Texte, Store-Einträge und Rechtstexte auf Englisch, für den weltweiten Start | 0 € (ggf. Übersetzungsprüfung) |
-| **Push-Benachrichtigungen** | Likes, Kommentare, neue Beiträge im Lesekreis. Braucht Firebase (kostenlos) und den Apple-Push-Schlüssel | 0 € |
-| **Premium** | Erst Community aufbauen. Bei Einnahmen: Gewerbe, Steuern, Abo-Abwicklung über die Stores (15 % Provision im ersten Jahr für kleine Entwickler) | – |
-| **Deutsche Buchbeschreibungen** | Zweite Buchquelle neben Open Library | 0 € |
+| Issue | Feature | Priorität | Was du dafür brauchst |
+|---|---|---|---|
+| [#11](https://github.com/marcellomerico/booksquad/issues/11) | Verifizierung: Bot-Schutz und Haken | Stufe 1 vor Start | CAPTCHA-Schlüssel (Cloudflare Turnstile, kostenlos) im Supabase-Dashboard eintragen. Entscheiden, wer den Haken bekommt |
+| [#20](https://github.com/marcellomerico/booksquad/issues/20) | Landingpage | vor Start | Domain und DNS |
+| [#21](https://github.com/marcellomerico/booksquad/issues/21) | Deutsche E-Mail-Vorlagen | vor Start | Vorlagen ins Supabase-Dashboard kopieren |
+| [#22](https://github.com/marcellomerico/booksquad/issues/22) | Feature-Grafik Google Play | vor Start | – |
+| [#12](https://github.com/marcellomerico/booksquad/issues/12) | Private und öffentliche Konten | nach Start | – |
+| [#13](https://github.com/marcellomerico/booksquad/issues/13) | Direktnachrichten | nach Start | Rechtstexte ergänzen lassen |
+| [#14](https://github.com/marcellomerico/booksquad/issues/14) | Regal: Cover oder Buchrücken | nach Start | – |
+| [#15](https://github.com/marcellomerico/booksquad/issues/15) | Dark Mode und Light Mode | nach Start | – |
+| [#16](https://github.com/marcellomerico/booksquad/issues/16) | Homescreen-Widget | nach Start | echtes iPhone/Android zum Testen |
+| [#17](https://github.com/marcellomerico/booksquad/issues/17) | Push-Benachrichtigungen | nach Start | Apple-Konto (Push-Schlüssel), Firebase-Projekt (kostenlos) |
+| [#18](https://github.com/marcellomerico/booksquad/issues/18) | Englische Version | nach Start | ggf. Übersetzungsprüfung |
+| [#19](https://github.com/marcellomerico/booksquad/issues/19) | Deutsche Buchbeschreibungen | nach Start | – |
+
+Außerdem, ohne Issue, weil es bei dir liegt:
+
+| Thema | Kosten |
+|---|---|
+| Marke anmelden (DPMA oder EUIPO), wenn die App anläuft | 290–850 € |
+| Premium: erst Community aufbauen. Bei Einnahmen Gewerbe, Steuern, Abo-Abwicklung über die Stores (15 % Provision im ersten Jahr für kleine Entwickler) | – |
+
+**Reihenfolge:** Sag Claude einfach die Issue-Nummer („mach #15“). Claude arbeitet dann auf einem eigenen Branch und öffnet einen PR, den du mergst.

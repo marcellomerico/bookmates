@@ -17,14 +17,9 @@ Stand: Oktober 2026
 | Legal-Links + Support | ✅ (URLs hosten) |
 | Store-Release | 🟡 siehe `PUBLISH_PLAN.md` |
 
-## Geplant (nach dem Start)
+## Geplant
 
-| Idee | Notiz |
-|------|-------|
-| **Direktnachrichten** | Privatchat zwischen Leuten, die sich gegenseitig folgen. Braucht Echtzeit (Supabase Realtime), Melden/Blockieren im Chat, Moderationsweg, Datenschutz-Ergänzung |
-| **Regal-Widget** | Homescreen-Widget mit dem eigenen Regal (iOS WidgetKit, Android App Widget), Daten über eine geteilte App-Gruppe |
-| Push-Benachrichtigungen | Likes, Kommentare, Lesekreis-Beiträge |
-| Englische Version | App, Store, Rechtstexte |
+Alle geplanten Features stehen als einzelne [GitHub-Issues](https://github.com/marcellomerico/booksquad/issues?q=is%3Aopen+label%3Afeature) (#11–#22), mit Priorität „vor Start“ oder „nach Start“.
 
 ## Nächster Schritt
 
