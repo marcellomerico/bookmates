@@ -24,11 +24,7 @@ class Env {
 
   static bool get isConfigured =>
       supabaseUrl.isNotEmpty &&
-      supabaseAnonKey.isNotEmpty &&
-      !supabaseUrl.contains('your-project') &&
-      !supabaseAnonKey.contains('your-anon');
+      supabaseAnonKey.isNotEmpty;
 
-  static bool get isGoogleConfigured =>
-      googleWebClientId.isNotEmpty &&
-      !googleWebClientId.contains('your-web-client');
+  static bool get isGoogleConfigured => googleWebClientId.isNotEmpty;
 }

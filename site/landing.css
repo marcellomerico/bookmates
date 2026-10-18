@@ -319,12 +319,15 @@ h1 .accent {
 }
 .teaser p:not(.eyebrow) { color: var(--muted); font-size: 18px; }
 .video-wrap {
-  width: min(320px, 78vw);
+  width: min(320px, 78vw, calc(62vh * 0.5625));
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 40px 80px -30px rgba(43, 35, 33, 0.55);
   background: var(--ink);
 }
+
+.video-link { grid-column: 1 / -1; text-align: center; margin: -24px 0 0; font-size: 14px; }
+.video-link a { color: var(--muted); }
 
 /* Beta */
 .beta {

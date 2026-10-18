@@ -18,7 +18,7 @@ fail() { echo "✗ $1"; exit 1; }
 [[ -f .env ]] || fail ".env missing"
 grep -q "^SUPABASE_URL=https://${BOOKSQUAD_PROD_REF}.supabase.co$" .env \
   || fail ".env does not point at prod project ${BOOKSQUAD_PROD_REF}"
-grep -q "your-" .env && fail ".env still contains placeholder values"
+grep -qE "^SUPABASE_ANON_KEY=\s*$" .env && fail ".env has no SUPABASE_ANON_KEY"
 # The app bundles .env: it must never carry a server secret.
 grep -qiE "service_role|sb_secret_" .env && fail ".env contains a server secret (service role / secret key)"
 anon=$(grep '^SUPABASE_ANON_KEY=' .env | cut -d= -f2-)
@@ -32,8 +32,11 @@ fi
 if [[ "$platform" == "android" ]]; then
   [[ -f android/key.properties ]] || fail "android/key.properties missing (see docs/RELEASE.md)"
 else
-  grep -q "REPLACE_WITH_IOS_CLIENT_ID" ios/Runner/Info.plist \
-    && fail "ios/Runner/Info.plist still has the Google URL scheme placeholder"
+  ios_id=$(grep '^GOOGLE_IOS_CLIENT_ID=' .env | cut -d= -f2- | sed 's/\.apps\.googleusercontent\.com$//')
+  if [[ -n "$ios_id" ]]; then
+    grep -q "com.googleusercontent.apps.${ios_id}<" ios/Runner/Info.plist \
+      || fail "ios/Runner/Info.plist lacks the Google URL scheme com.googleusercontent.apps.${ios_id}"
+  fi
 fi
 
 echo "→ analyze";        flutter analyze

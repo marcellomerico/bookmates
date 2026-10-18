@@ -59,9 +59,9 @@ Hinweise:
 
 ## Rechtstexte veröffentlichen
 
-Die Texte liegen als Entwurf in `docs/legal/`, die fertigen Seiten in `site/`.
+Die Quelltexte liegen in `docs/legal/`, die fertigen Seiten in `site/`.
 
-1. Platzhalter in `docs/legal/*.md` ausfüllen (Name, Anschrift, E-Mail, Fristen) und rechtlich prüfen lassen.
+1. Änderungen in `docs/legal/*.md` vornehmen.
 2. Seiten neu erzeugen: `python3 tool/build_site.py .`
 3. Veröffentlichen: passiert automatisch. Jeder Push auf `main`, der `site/` ändert, startet den Workflow `.github/workflows/pages.yml` und deployt nach `https://booksquad.de` (GitHub Pages, eigene Domain, HTTPS).
 4. In beiden Stores dieselben URLs eintragen (Datenschutz, EULA, Web-Löschseite für Play).

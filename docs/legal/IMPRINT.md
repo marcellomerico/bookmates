@@ -1,6 +1,5 @@
 # Impressum — Booksquad
 
-> Entwurf – vor Veröffentlichung rechtlich prüfen lassen.
 
 ## Angaben gemäß § 5 DDG
 

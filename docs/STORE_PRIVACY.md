@@ -44,7 +44,7 @@ Die App enthält **nutzergenerierte Inhalte** und **Interaktion zwischen Nutzern
 ## 4. Notizen für das App Review (Apple)
 
 ```
-Demo account: [E-Mail] / [Passwort]  (contains sample posts, a public and a private group)
+Demo account: see the sign-in information of this submission (contains sample posts, a public and a private group)
 
 Booksquad is a community app for readers. User-generated content is moderated:
 - Report: tap "…" on any post, comment or profile → "Melden".
