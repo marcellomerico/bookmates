@@ -15,6 +15,9 @@ void main() {
       BookStatus.read,
     ]);
     expect(BookStatus.wantToRead.onShelf, isFalse);
+    // Abandoned books are owned but not part of the main shelf.
+    expect(BookStatus.abandoned.onShelf, isTrue);
+    expect(BookStatus.shelf, isNot(contains(BookStatus.abandoned)));
     expect(BookStatus.shelf.every((s) => s.onShelf), isTrue);
   });
 

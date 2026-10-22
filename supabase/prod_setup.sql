@@ -1286,4 +1286,8 @@ alter table public.user_books
   add constraint user_books_progress_within_book
   check (current_page is null or page_count is null or current_page <= page_count);
 
+-- ===== 20261022170000_book_status_abandoned.sql =====
+-- Shelf status "abandoned" (owned, stopped reading). Additive: existing rows keep their status.
+alter type public.book_status add value if not exists 'abandoned' after 'read';
+
 commit;

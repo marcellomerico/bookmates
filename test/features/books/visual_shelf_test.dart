@@ -29,6 +29,7 @@ final _entries = [
   _entry('3', 'Schon durch', BookStatus.read, current: 300, total: 300),
   _entry('4', 'Noch ein durch', BookStatus.read),
   _entry('5', 'Hätte ich gern', BookStatus.wantToRead),
+  _entry('6', 'Aufgegeben', BookStatus.abandoned),
 ];
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
@@ -89,5 +90,17 @@ void main() {
       findsOneWidget,
     );
     semantics.dispose();
+  });
+
+  testWidgets('abandoned books sit collapsed below the shelf', (tester) async {
+    await _pump(tester, const ShelfView());
+    // Not counted on the main shelf.
+    expect(find.text('Alle  4'), findsOneWidget);
+    expect(find.text('Abgebrochen  1'), findsOneWidget);
+    expect(find.text('Aufgegeben'), findsNothing);
+    await tester.ensureVisible(find.text('Abgebrochen  1'));
+    await tester.tap(find.text('Abgebrochen  1'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aufgegeben'), findsOneWidget);
   });
 }

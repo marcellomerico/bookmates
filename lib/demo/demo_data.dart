@@ -231,6 +231,7 @@ class DemoStore {
     shelf(meId, 'b-stolz', BookStatus.read, 4);
     shelf(meId, 'b-1984', BookStatus.unread);
     shelf(meId, 'b-unendlich', BookStatus.unread);
+    shelf(meId, 'b-alchimist', BookStatus.abandoned, null, (64, 192));
     shelf(meId, 'b-verwandlung', BookStatus.unread);
     shelf(meId, 'b-diebin', BookStatus.wantToRead);
     shelf(meId, 'b-sapiens', BookStatus.wantToRead);

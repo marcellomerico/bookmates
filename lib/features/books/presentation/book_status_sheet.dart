@@ -8,6 +8,7 @@ extension BookStatusIcon on BookStatus {
     BookStatus.reading => Icons.auto_stories_outlined,
     BookStatus.unread => Icons.book_outlined,
     BookStatus.read => Icons.task_alt,
+    BookStatus.abandoned => Icons.delete_outline,
     BookStatus.wantToRead => Icons.bookmark_border,
   };
 
@@ -16,6 +17,7 @@ extension BookStatusIcon on BookStatus {
     BookStatus.reading => 'Gerade auf dem Nachttisch',
     BookStatus.unread => 'Steht im Regal, noch nicht gelesen',
     BookStatus.read => 'Fertig gelesen',
+    BookStatus.abandoned => 'Nicht zu Ende gelesen, zählt nicht als gelesen',
     BookStatus.wantToRead => 'Möchte ich haben oder lesen',
   };
 }
@@ -80,13 +82,14 @@ Future<BookStatusChoice?> showBookStatusSheet(
                 ),
               const _SectionLabel('In dein Regal'),
               for (final status in BookStatus.shelf) option(status),
+              option(BookStatus.abandoned),
               const Divider(height: 24),
               option(BookStatus.wantToRead),
               if (current != null) ...[
                 const Divider(height: 24),
                 ListTile(
                   leading: Icon(
-                    Icons.delete_outline,
+                    Icons.remove_circle_outline,
                     color: Theme.of(context).colorScheme.error,
                   ),
                   title: Text(
