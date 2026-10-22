@@ -10,6 +10,7 @@ class OpenLibraryBook {
     this.author,
     this.coverId,
     this.isbn,
+    this.pageCount,
   });
 
   final String openLibraryId;
@@ -17,6 +18,9 @@ class OpenLibraryBook {
   final String? author;
   final int? coverId;
   final String? isbn;
+
+  /// Median page count across editions, a starting value the user can correct.
+  final int? pageCount;
 
   String? get coverUrl => coverId != null
       ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
@@ -151,7 +155,7 @@ class OpenLibraryRepository {
     final uri = Uri.https('openlibrary.org', '/search.json', {
       'q': query.trim(),
       'limit': '20',
-      'fields': 'key,title,author_name,cover_i,isbn',
+      'fields': 'key,title,author_name,cover_i,isbn,number_of_pages_median',
     });
 
     final response = await _get(uri);
@@ -179,6 +183,10 @@ class OpenLibraryRepository {
                 : null,
             coverId: map['cover_i'] as int?,
             isbn: isbns?.isNotEmpty == true ? isbns!.first as String : null,
+            pageCount: switch (map['number_of_pages_median']) {
+              final int n when n > 0 && n <= 20000 => n,
+              _ => null,
+            },
           );
         })
         .where((book) => book.openLibraryId.isNotEmpty)

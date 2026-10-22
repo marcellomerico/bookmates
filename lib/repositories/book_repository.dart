@@ -100,6 +100,7 @@ class BookRepository {
           'user_id': userId,
           'book_id': book.id,
           'status': status.dbValue,
+          if (result.pageCount != null) 'page_count': result.pageCount,
         })
         .select('*, books(*)')
         .single();
@@ -130,6 +131,23 @@ class BookRepository {
     await _client
         .from('user_books')
         .update({'rating': rating})
+        .eq('id', userBookId);
+  }
+
+  /// Saves page numbers; [status] lets the caller move "unread" to "reading" in the same write.
+  Future<void> updateProgress(
+    String userBookId, {
+    required int? currentPage,
+    required int? pageCount,
+    BookStatus? status,
+  }) async {
+    await _client
+        .from('user_books')
+        .update({
+          'current_page': currentPage,
+          'page_count': pageCount,
+          if (status != null) 'status': status.dbValue,
+        })
         .eq('id', userBookId);
   }
 

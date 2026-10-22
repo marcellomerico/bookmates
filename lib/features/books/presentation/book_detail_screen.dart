@@ -12,6 +12,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/paged_posts.dart';
 import '../providers/books_provider.dart';
 import 'book_status_sheet.dart';
+import 'reading_progress_sheet.dart';
 
 class BookDetailScreen extends ConsumerStatefulWidget {
   const BookDetailScreen({super.key, required this.workId});
@@ -232,6 +233,84 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     }
   }
 
+  Future<void> _editProgress(UserBook entry) async {
+    final result = await showReadingProgressSheet(context, entry);
+    if (result == null || !mounted || _busy) return;
+    final container = ProviderScope.containerOf(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final repo = ref.read(bookRepositoryProvider);
+    final started = (result.currentPage ?? 0) > 0;
+    setState(() => _busy = true);
+    try {
+      await repo.updateProgress(
+        entry.id,
+        currentPage: result.currentPage,
+        pageCount: result.pageCount,
+        status: started && entry.status == BookStatus.unread
+            ? BookStatus.reading
+            : null,
+      );
+      _invalidateShelf(container, entry.bookId);
+      final finished =
+          result.pageCount != null && result.currentPage == result.pageCount;
+      if (finished && entry.status != BookStatus.read) {
+        // Only a suggestion: the user decides when a book counts as read.
+        messenger.showSnackBar(
+          SnackBar(
+            content: const Text('Letzte Seite erreicht!'),
+            action: SnackBarAction(
+              label: 'Als gelesen markieren',
+              onPressed: () async {
+                await repo.updateStatus(entry.id, BookStatus.read);
+                _invalidateShelf(container, entry.bookId);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _showError(e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Widget _progress(UserBook entry) {
+    final value = entry.progress;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: _busy ? null : () => _editProgress(entry),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(readingProgressLabel(entry))),
+                const Icon(Icons.edit_outlined, size: 18),
+              ],
+            ),
+            if (value != null) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: value,
+                  minHeight: 8,
+                  color: AppColors.burgundy,
+                  backgroundColor: AppColors.parchment,
+                  semanticsLabel: 'Lesefortschritt',
+                  semanticsValue: '${(value * 100).round()}',
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _shelfControl(OpenLibraryWork work, Book? book) {
     final entry = book == null
         ? null
@@ -279,6 +358,10 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             ],
           ),
         ),
+        if (entry.status.onShelf) ...[
+          const SizedBox(height: 4),
+          _progress(entry),
+        ],
         if (entry.status == BookStatus.read) ...[
           const SizedBox(height: 8),
           Semantics(

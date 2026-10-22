@@ -22,6 +22,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 12 | `20261018190000_rls_performance.sql` | Performance: `auth.uid()` einmal pro Abfrage, getrennte Schreib-Policies für Regal/Genres, Index für Moderation (kein Verhaltensunterschied) |
 | 13 | `20261018191000_books_insert_policy.sql` | Performance: Bücher-Insert-Policy ohne `auth.role()` (gleiche Regel) |
 | 14 | `20261022120000_beta_signups.sql` | Beta-Anmeldungen von booksquad.de: Tabelle nur zum Einfügen für die Website, Lesen nur im Dashboard, Spam-Bremse |
+| 15 | `20261022150000_reading_progress.sql` | Lesefortschritt: Seitenzahl und aktuelle Seite pro Regal-Eintrag (rein additiv, bestehende Einträge bleiben unverändert) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 
