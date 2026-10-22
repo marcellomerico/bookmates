@@ -2,7 +2,7 @@
 // (called by a DB trigger with {id}).
 // Each row is mailed at most once: notified_at is claimed before sending, released on failure.
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
+import nodemailer from 'npm:nodemailer@6.9.16';
 
 const MAILBOX = 'support@booksquad.de';
 const PLATFORM = { ios: 'iPhone', android: 'Android' } as Record<string, string>;
@@ -12,7 +12,9 @@ Deno.serve(async (req) => {
   const { id } = await req.json().catch(() => ({}));
   if (typeof id !== 'string') return new Response('Bad request', { status: 400 });
 
-  const password = Deno.env.get('SMTP_PASSWORD');
+  // Trim: secrets pasted from a password manager often carry a trailing newline.
+  const rawPassword = Deno.env.get('SMTP_PASSWORD') ?? '';
+  const password = rawPassword.trim();
   if (!password) {
     console.error('beta-signup-notify: SMTP_PASSWORD secret missing');
     return new Response('Not configured', { status: 500 });
@@ -39,21 +41,19 @@ Deno.serve(async (req) => {
     .from('beta_signups')
     .select('id', { count: 'exact', head: true });
 
-  const client = new SMTPClient({
-    connection: {
-      hostname: 'smtp.ionos.de',
-      port: 465,
-      tls: true,
-      auth: { username: MAILBOX, password },
-    },
+  const mailer = nodemailer.createTransport({
+    host: 'smtp.ionos.de',
+    port: 465,
+    secure: true,
+    auth: { user: MAILBOX, pass: password },
   });
   try {
-    await client.send({
+    await mailer.sendMail({
       from: `Booksquad <${MAILBOX}>`,
       to: MAILBOX,
       replyTo: row.email,
       subject: `Neue Beta-Anmeldung: ${row.first_name ?? row.email} (${count ?? '?'} gesamt)`,
-      content: [
+      text: [
         'Neue Anmeldung über booksquad.de',
         '',
         `Name:   ${row.first_name ?? '–'}`,
@@ -67,11 +67,11 @@ Deno.serve(async (req) => {
     });
     // Confirmation to the reader. One per address (unique email), so it can't be used to spam.
     try {
-      await client.send({
+      await mailer.sendMail({
         from: `Booksquad <${MAILBOX}>`,
         to: row.email,
         subject: 'Du bist dabei: Booksquad-Beta 📚',
-        content: [
+        text: [
           `Hallo${row.first_name ? ` ${row.first_name}` : ''},`,
           '',
           'danke für deine Anmeldung zur Beta von Booksquad, der App zum Lesen mit Freunden.',
@@ -92,15 +92,15 @@ Deno.serve(async (req) => {
       console.error('beta-signup-notify: confirmation failed', e);
     }
   } catch (e) {
-    console.error('beta-signup-notify: send failed', e);
+    console.error('beta-signup-notify: send failed', e, {
+      // Diagnostics without revealing the secret.
+      passwordLength: password.length,
+      hadWhitespace: rawPassword !== password,
+    });
     await admin.from('beta_signups').update({ notified_at: null }).eq('id', id);
     return new Response('Send failed', { status: 502 });
   } finally {
-    try {
-      await client.close();
-    } catch {
-      // Already closed after a failed login.
-    }
+    mailer.close();
   }
   return new Response('Sent');
 });
