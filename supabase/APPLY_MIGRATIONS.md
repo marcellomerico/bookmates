@@ -27,6 +27,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 17 | `20261022190000_favorite_books.sql` | Bis zu 3 Lieblingsbücher pro Leser fürs Profil (rein additiv, bestehende Einträge bleiben unverändert) |
 | 18 | `20261022210000_beta_signup_notify.sql` | Mail an support@ bei jeder Beta-Anmeldung (Trigger → Edge Function `beta-signup-notify`). Danach: Vault-Secrets `beta_notify_url`/`beta_notify_key` anlegen und Edge-Function-Secret `SMTP_PASSWORD` setzen; ohne sie passiert nichts |
 | 19 | `20261023100000_verification.sql` | Verifizierungs-Haken: `profiles.verified_at/verified_kind` (nur Admins setzbar), Anträge mit Link, Admin-RPCs zum Prüfen und Entziehen |
+| 20 | `20261023120000_book_dismissals.sql` | „Kein Interesse“ bei Buchvorschlägen (eigene Tabelle, nur eigene Einträge) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 

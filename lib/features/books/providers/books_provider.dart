@@ -6,6 +6,8 @@ import '../../../repositories/book_repository.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../../repositories/profile_repository.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../social/providers/social_providers.dart';
+import '../suggestions.dart';
 
 final openLibraryRepositoryProvider = Provider<OpenLibraryRepository>((ref) {
   return OpenLibraryRepository();
@@ -65,3 +67,42 @@ final myShelfEntryProvider = FutureProvider.autoDispose
           .watch(bookRepositoryProvider)
           .myEntry(userId: user.id, bookId: bookId);
     });
+
+/// Today's book suggestion from friends' favourites and the reader's genres.
+/// Open Library failures only drop the genre picks.
+final dailySuggestionProvider = FutureProvider<BookSuggestion?>((ref) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return null;
+  final books = ref.watch(bookRepositoryProvider);
+  final openLibrary = ref.watch(openLibraryRepositoryProvider);
+
+  final shelf = await ref.watch(bookshelfProvider.future);
+  final genres = await ref.watch(userGenresProvider.future);
+  final following = await ref
+      .watch(followRepositoryProvider)
+      .getFollowingIds(user.id);
+  final dismissed = await books.dismissedWorkIds();
+  final friendPicks = await books.friendsFavorites(following);
+
+  final genreBooks = <String, List<OpenLibraryBook>>{};
+  for (final genre in genres.take(2)) {
+    final subject = genreSubjects[genre];
+    if (subject == null) continue;
+    try {
+      genreBooks[genre] = await openLibrary.searchBySubject(subject);
+    } catch (_) {
+      // Offline or Open Library down: friends' picks still work.
+    }
+  }
+
+  final ranked = rankSuggestions(
+    friendPicks: friendPicks,
+    genreBooks: genreBooks,
+    excludedWorkIds: {
+      ...dismissed,
+      for (final e in shelf)
+        if (e.book?.openLibraryId != null) e.book!.openLibraryId!,
+    },
+  );
+  return pickForDay(ranked, DateTime.now(), user.id);
+});

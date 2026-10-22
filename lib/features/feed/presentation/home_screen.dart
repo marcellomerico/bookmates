@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../social/providers/paged_posts.dart';
+import '../../books/presentation/daily_suggestion_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,6 +22,7 @@ class HomeScreen extends ConsumerWidget {
         children: [
           _HomeHeader(onActivity: () => context.push('/activity')),
           const SizedBox(height: 12),
+          const DailySuggestionCard(),
           ...pagedPostListItems(
             ref,
             PostSource.feed,

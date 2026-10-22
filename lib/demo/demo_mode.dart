@@ -24,6 +24,7 @@ import '../repositories/post_repository.dart';
 import '../repositories/profile_repository.dart';
 import 'demo_data.dart';
 import '../models/verification.dart';
+import '../features/books/suggestions.dart';
 
 /// Demo mode: `flutter run --dart-define=BOOKSQUAD_DEMO=true`. The app runs signed in
 /// as a sample reader on in-memory data, without Supabase. Used for screenshots and
@@ -521,6 +522,28 @@ class _DemoBooks extends BookRepository {
       );
     }
   }
+
+  final _dismissed = <String>{};
+
+  @override
+  Future<List<FriendPick>> friendsFavorites(List<String> userIds) async => [
+    for (final id in userIds)
+      for (final e in _store.shelves[id] ?? const <UserBook>[])
+        if (e.status == BookStatus.read &&
+            (e.rating ?? 0) >= 4 &&
+            e.book != null)
+          FriendPick(
+            book: e.book!,
+            rating: e.rating!,
+            friendName: _store.profiles[id]?.displayName ?? 'Jemand',
+          ),
+  ];
+
+  @override
+  Future<Set<String>> dismissedWorkIds() async => Set.of(_dismissed);
+
+  @override
+  Future<void> dismissSuggestion(String workId) async => _dismissed.add(workId);
 
   @override
   Future<void> removeFromShelf(String userBookId) async {

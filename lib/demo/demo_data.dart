@@ -247,6 +247,7 @@ class DemoStore {
     shelf('u-jonas', 'b-sapiens', BookStatus.reading);
     shelf('u-jonas', 'b-1984', BookStatus.read, 5);
     shelf('u-lena', 'b-stolz', BookStatus.read, 5);
+    shelf('u-lena', 'b-momo', BookStatus.read, 5);
     shelf('u-lena', 'b-vorleser', BookStatus.reading);
     shelf('u-lena', 'b-verwandlung', BookStatus.read, 4);
     shelf('u-amir', 'b-hobbit', BookStatus.read, 5);
