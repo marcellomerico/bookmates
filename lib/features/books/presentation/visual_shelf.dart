@@ -343,11 +343,16 @@ class _Shelves extends StatelessWidget {
                                 children: [
                                   for (var i = 0; i < rows[r].length; i++) ...[
                                     if (i > 0) const SizedBox(width: gap),
-                                    _BookCover(
-                                      entry: rows[r][i],
-                                      width: w,
-                                      editable: editable,
-                                      showStatusBadge: showStatusBadge,
+                                    _Arrive(
+                                      // Re-run when the shown books change (filter switch).
+                                      key: ValueKey(rows[r][i].id),
+                                      order: r * cols + i,
+                                      child: _BookCover(
+                                        entry: rows[r][i],
+                                        width: w,
+                                        editable: editable,
+                                        showStatusBadge: showStatusBadge,
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -363,6 +368,69 @@ class _Shelves extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Books slide up onto the board one after another; skipped with reduced motion.
+class _Arrive extends StatelessWidget {
+  const _Arrive({super.key, required this.order, required this.child});
+
+  final int order;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    const base = 380;
+    final delay = 45 * order.clamp(0, 12);
+    final total = base + delay;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: total),
+      curve: Interval(delay / total, 1, curve: Curves.easeOutBack),
+      child: child,
+      builder: (context, t, child) => Opacity(
+        opacity: t.clamp(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(0, (1 - t) * 28),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Covers dip slightly while pressed, like taking a book off the shelf.
+class _PressScale extends StatefulWidget {
+  const _PressScale({required this.child});
+  final Widget child;
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _down = false;
+
+  void _set(bool v) {
+    if (_down != v) setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerDown: (_) => _set(true),
+    onPointerUp: (_) => _set(false),
+    onPointerCancel: (_) => _set(false),
+    child: AnimatedScale(
+      scale: _down ? 0.94 : 1,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: AnimatedSlide(
+        offset: _down ? const Offset(0, -0.03) : Offset.zero,
+        duration: const Duration(milliseconds: 120),
+        child: widget.child,
+      ),
+    ),
+  );
 }
 
 class _Board extends StatelessWidget {
@@ -467,48 +535,50 @@ class _BookCover extends ConsumerWidget {
             ? null
             : () => context.push('/books/${normalizeWorkId(workId)}'),
         onLongPress: editable ? () => _edit(context, ref) : null,
-        child: Container(
-          width: width,
-          height: height,
-          decoration: const BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 4,
-                offset: Offset(1, 2),
-              ),
-            ],
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              cover,
-              if (showStatusBadge && entry.status == BookStatus.reading)
-                const Positioned(
-                  top: 0,
-                  right: 6,
-                  child: Icon(
-                    Icons.bookmark,
-                    color: AppColors.burgundy,
-                    size: 20,
-                  ),
+        child: _PressScale(
+          child: Container(
+            width: width,
+            height: height,
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 4,
+                  offset: Offset(1, 2),
                 ),
-              if (progress != null)
-                Positioned(
-                  left: 4,
-                  right: 4,
-                  bottom: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(2),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 4,
+              ],
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                cover,
+                if (showStatusBadge && entry.status == BookStatus.reading)
+                  const Positioned(
+                    top: 0,
+                    right: 6,
+                    child: Icon(
+                      Icons.bookmark,
                       color: AppColors.burgundy,
-                      backgroundColor: const Color(0xCCFFFFFF),
+                      size: 20,
                     ),
                   ),
-                ),
-            ],
+                if (progress != null)
+                  Positioned(
+                    left: 4,
+                    right: 4,
+                    bottom: 4,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 4,
+                        color: AppColors.burgundy,
+                        backgroundColor: const Color(0xCCFFFFFF),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
