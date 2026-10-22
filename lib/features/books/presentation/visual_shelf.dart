@@ -10,6 +10,8 @@ import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/books_provider.dart';
 import 'book_status_sheet.dart';
+import '../../../models/shelf_decor.dart';
+import '../../social/providers/social_providers.dart';
 
 /// Shelf wood: a warm light board with a darker front edge.
 const _boardTop = Color(0xFFE6D3B1);
@@ -41,6 +43,77 @@ class ShelfView extends ConsumerStatefulWidget {
 
 class _ShelfViewState extends ConsumerState<ShelfView> {
   BookStatus? _filter; // null = all shelf statuses
+  bool _decorating = false;
+  DecorItem _item = DecorItem.plant;
+  List<DecorPiece>? _pending; // optimistic copy while saving
+
+  List<DecorPiece> _decor() {
+    if (_pending != null) return _pending!;
+    final profile = widget.userId == null
+        ? ref.watch(currentProfileProvider).valueOrNull
+        : ref.watch(profileByIdProvider(widget.userId!)).valueOrNull;
+    return profile?.shelfDecor ?? const [];
+  }
+
+  Future<void> _save(List<DecorPiece> next) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _pending = next);
+    try {
+      await ref.read(profileRepositoryProvider).updateShelfDecor(user.id, next);
+      ref.invalidate(currentProfileProvider);
+      await ref.read(currentProfileProvider.future);
+    } catch (e) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Deko konnte nicht gespeichert werden.')),
+      );
+    } finally {
+      if (mounted) setState(() => _pending = null);
+    }
+  }
+
+  void _place(List<DecorPiece> current, int row, int slot) {
+    if (current.length >= DecorPiece.maxPieces) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maximal 16 Deko-Teile pro Regal.')),
+      );
+      return;
+    }
+    if (row > DecorPiece.maxRow || slot > DecorPiece.maxSlot) return;
+    _save([...current, DecorPiece(_item, row, slot)]);
+  }
+
+  Widget _palette() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final item in DecorItem.values)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  visualDensity: VisualDensity.compact,
+                  showCheckmark: false,
+                  selected: item == _item,
+                  label: Text('${item.emoji} ${item.label}'),
+                  onSelected: (_) => setState(() => _item = item),
+                ),
+              ),
+          ],
+        ),
+      ),
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          'Deko wählen und auf einen freien Platz tippen. Antippen entfernt sie wieder.',
+          style: TextStyle(color: AppColors.muted, fontSize: 13),
+        ),
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +146,8 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
         final shown = _filter == null
             ? shelf
             : shelf.where((e) => e.status == _filter).toList();
+        final decor = _decor();
+        final decorating = own && _decorating;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -97,11 +172,17 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               ),
             ),
             const SizedBox(height: 12),
+            if (decorating) _palette(),
             _Shelves(
               entries: shown,
               editable: own,
               minRows: 2,
               showStatusBadge: _filter == null,
+              // Positions only make sense on the full shelf.
+              decor: _filter == null ? decor : const [],
+              decorating: decorating,
+              onEmptyTap: (row, slot) => _place(decor, row, slot),
+              onDecorTap: (piece) => _save([...decor]..remove(piece)),
               emptyText: shelf.isEmpty
                   ? (own
                         ? 'Dein Regal ist noch leer. Füge Bücher hinzu, die du besitzt.'
@@ -112,13 +193,32 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               _AbandonedCorner(entries: abandoned, editable: own),
             if (own) ...[
               const SizedBox(height: 12),
-              Center(
-                child: TextButton.icon(
-                  onPressed: () => context.push('/books/search'),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Buch hinzufügen'),
-                ),
-              ),
+              decorating
+                  ? Center(
+                      child: FilledButton(
+                        onPressed: () => setState(() => _decorating = false),
+                        child: const Text('Fertig'),
+                      ),
+                    )
+                  : Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => context.push('/books/search'),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Buch hinzufügen'),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => setState(() {
+                            _decorating = true;
+                            _filter = null;
+                          }),
+                          icon: const Icon(Icons.local_florist_outlined),
+                          label: const Text('Dekorieren'),
+                        ),
+                      ],
+                    ),
             ],
           ],
         );
@@ -291,6 +391,10 @@ class _Shelves extends StatelessWidget {
     this.minRows = 1,
     this.showStatusBadge = false,
     this.emptyText,
+    this.decor = const [],
+    this.decorating = false,
+    this.onEmptyTap,
+    this.onDecorTap,
   });
 
   final List<UserBook> entries;
@@ -298,6 +402,12 @@ class _Shelves extends StatelessWidget {
   final int minRows;
   final bool showStatusBadge;
   final String? emptyText;
+  final List<DecorPiece> decor;
+
+  /// Edit mode: empty slots become targets, pieces can be removed.
+  final bool decorating;
+  final void Function(int row, int slot)? onEmptyTap;
+  final void Function(DecorPiece piece)? onDecorTap;
 
   @override
   Widget build(BuildContext context) {
@@ -312,13 +422,18 @@ class _Shelves extends StatelessWidget {
           const gap = 10.0;
           final cols = c.maxWidth >= 560 ? 6 : 4;
           final w = (c.maxWidth - gap * (cols - 1)) / cols;
-          final rows = <List<UserBook>>[
-            for (var i = 0; i < entries.length; i += cols)
-              entries.sublist(i, (i + cols).clamp(0, entries.length)),
-          ];
-          while (rows.length < minRows) {
-            rows.add(const []);
-          }
+          final rows = layoutShelf(
+            entries,
+            decor,
+            cols: cols,
+            minRows: minRows,
+            extraRows: decorating ? 1 : 0,
+          );
+          final showEmptyText =
+              entries.isEmpty &&
+              decor.isEmpty &&
+              !decorating &&
+              emptyText != null;
           return Column(
             children: [
               for (var r = 0; r < rows.length; r++)
@@ -328,7 +443,7 @@ class _Shelves extends StatelessWidget {
                     children: [
                       SizedBox(
                         height: w * 1.5,
-                        child: entries.isEmpty && r == 0 && emptyText != null
+                        child: showEmptyText && r == 0
                             ? Center(
                                 child: Text(
                                   emptyText!,
@@ -341,19 +456,38 @@ class _Shelves extends StatelessWidget {
                             : Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  for (var i = 0; i < rows[r].length; i++) ...[
-                                    if (i > 0) const SizedBox(width: gap),
-                                    _Arrive(
-                                      // Re-run when the shown books change (filter switch).
-                                      key: ValueKey(rows[r][i].id),
-                                      order: r * cols + i,
-                                      child: _BookCover(
-                                        entry: rows[r][i],
-                                        width: w,
-                                        editable: editable,
-                                        showStatusBadge: showStatusBadge,
+                                  for (final slot in rows[r]) ...[
+                                    if (slot.slot > 0)
+                                      const SizedBox(width: gap),
+                                    switch (slot) {
+                                      BookSlot(:final book) => _Arrive(
+                                        // Re-run when the shown books change (filter switch).
+                                        key: ValueKey(book.id),
+                                        order: slot.row * cols + slot.slot,
+                                        child: _BookCover(
+                                          entry: book,
+                                          width: w,
+                                          editable: editable && !decorating,
+                                          showStatusBadge: showStatusBadge,
+                                        ),
                                       ),
-                                    ),
+                                      DecorSlot(:final piece) => _Decor(
+                                        piece: piece,
+                                        width: w,
+                                        removable: decorating,
+                                        onTap: onDecorTap,
+                                      ),
+                                      EmptySlot() =>
+                                        decorating
+                                            ? _DropTarget(
+                                                width: w,
+                                                onTap: () => onEmptyTap?.call(
+                                                  slot.row,
+                                                  slot.slot,
+                                                ),
+                                              )
+                                            : SizedBox(width: w),
+                                    },
                                   ],
                                 ],
                               ),
@@ -368,6 +502,87 @@ class _Shelves extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A decoration standing on the board.
+class _Decor extends StatelessWidget {
+  const _Decor({
+    required this.piece,
+    required this.width,
+    required this.removable,
+    this.onTap,
+  });
+
+  final DecorPiece piece;
+  final double width;
+  final bool removable;
+  final void Function(DecorPiece piece)? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final emoji = Text(
+      piece.item.emoji,
+      style: TextStyle(fontSize: width * 0.62, height: 1),
+    );
+    return Semantics(
+      label: piece.item.label,
+      button: removable,
+      hint: removable ? 'Antippen zum Entfernen' : null,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: removable ? () => onTap?.call(piece) : null,
+        child: SizedBox(
+          width: width,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            children: [
+              Padding(padding: const EdgeInsets.only(bottom: 2), child: emoji),
+              if (removable)
+                const Positioned(
+                  top: -4,
+                  right: 0,
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundColor: AppColors.burgundy,
+                    child: Icon(Icons.close, size: 13, color: Colors.white),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Free place while decorating.
+class _DropTarget extends StatelessWidget {
+  const _DropTarget({required this.width, required this.onTap});
+
+  final double width;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: 'Freier Platz',
+    hint: 'Antippen, um die gewählte Deko hierhin zu stellen',
+    excludeSemantics: true,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: width * 1.2,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: AppColors.muted.withValues(alpha: 0.5)),
+        ),
+        child: const Icon(Icons.add, color: AppColors.muted),
+      ),
+    ),
+  );
 }
 
 /// Books slide up onto the board one after another; skipped with reduced motion.

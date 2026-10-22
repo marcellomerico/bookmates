@@ -25,6 +25,7 @@ import '../repositories/profile_repository.dart';
 import 'demo_data.dart';
 import '../models/verification.dart';
 import '../features/books/suggestions.dart';
+import '../models/shelf_decor.dart';
 
 /// Demo mode: `flutter run --dart-define=BOOKSQUAD_DEMO=true`. The app runs signed in
 /// as a sample reader on in-memory data, without Supabase. Used for screenshots and
@@ -555,6 +556,23 @@ class _DemoBooks extends BookRepository {
 
 class _DemoProfiles extends ProfileRepository {
   _DemoProfiles(super.client);
+
+  @override
+  Future<void> updateShelfDecor(String userId, List<DecorPiece> decor) async {
+    final p = _store.profiles[userId];
+    if (p == null) return;
+    _store.profiles[userId] = Profile(
+      id: p.id,
+      username: p.username,
+      displayName: p.displayName,
+      bio: p.bio,
+      avatarUrl: p.avatarUrl,
+      onboardingCompleted: p.onboardingCompleted,
+      verifiedAt: p.verifiedAt,
+      verifiedKind: p.verifiedKind,
+      shelfDecor: decor,
+    );
+  }
 
   @override
   Future<List<String>> getUserGenreNames(String userId) async =>
