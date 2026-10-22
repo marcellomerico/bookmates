@@ -114,6 +114,7 @@ class BookRepository {
         .from('user_books')
         .select('*, books(*)')
         .eq('user_id', userId)
+        .order('shelf_position', ascending: true, nullsFirst: false)
         .order('id');
 
     return (rows as List)
@@ -208,6 +209,10 @@ class BookRepository {
       'open_library_id': workId,
     }, ignoreDuplicates: true);
   }
+
+  /// Saves the reader's order: [userBookIds] from first to last.
+  Future<void> reorderShelf(List<String> userBookIds) =>
+      _client.rpc('reorder_shelf', params: {'p_ids': userBookIds});
 
   Future<void> removeFromShelf(String userBookId) async {
     await _client.from('user_books').delete().eq('id', userBookId);

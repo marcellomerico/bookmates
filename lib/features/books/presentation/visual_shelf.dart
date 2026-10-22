@@ -41,6 +41,29 @@ class ShelfView extends ConsumerStatefulWidget {
 
 class _ShelfViewState extends ConsumerState<ShelfView> {
   BookStatus? _filter; // null = all shelf statuses
+  bool _sorting = false;
+  List<UserBook>? _ordered; // optimistic order while saving
+
+  Future<void> _move(List<UserBook> shelf, String fromId, String toId) async {
+    final next = moveEntry(_ordered ?? shelf, fromId, toId);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _ordered = next);
+    try {
+      await ref.read(bookRepositoryProvider).reorderShelf([
+        for (final e in next) e.id,
+      ]);
+      ref.invalidate(bookshelfProvider);
+      await ref.read(bookshelfProvider.future);
+    } catch (e) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Reihenfolge konnte nicht gespeichert werden.'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _ordered = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,37 +93,51 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
         final shelf = all
             .where((e) => BookStatus.shelf.contains(e.status))
             .toList();
-        final shown = _filter == null
+        final sorting = own && _sorting;
+        final shown = sorting
+            ? (_ordered ?? shelf)
+            : _filter == null
             ? shelf
             : shelf.where((e) => e.status == _filter).toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _FilterChip(
-                    label: 'Alle',
-                    count: shelf.length,
-                    selected: _filter == null,
-                    onTap: () => setState(() => _filter = null),
-                  ),
-                  for (final status in BookStatus.shelf)
+            // Sorting works on the full shelf, so the filters step aside.
+            if (!sorting)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
                     _FilterChip(
-                      label: status.label,
-                      count: shelf.where((e) => e.status == status).length,
-                      selected: _filter == status,
-                      onTap: () => setState(() => _filter = status),
+                      label: 'Alle',
+                      count: shelf.length,
+                      selected: _filter == null,
+                      onTap: () => setState(() => _filter = null),
                     ),
-                ],
+                    for (final status in BookStatus.shelf)
+                      _FilterChip(
+                        label: status.label,
+                        count: shelf.where((e) => e.status == status).length,
+                        selected: _filter == status,
+                        onTap: () => setState(() => _filter = status),
+                      ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 12),
+            if (sorting)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Buch gedrückt halten und auf den Platz eines anderen ziehen.',
+                  style: TextStyle(color: AppColors.muted, fontSize: 13),
+                ),
+              ),
             _Shelves(
               entries: shown,
               editable: own,
               minRows: 2,
+              onMove: sorting ? (from, to) => _move(shelf, from, to) : null,
               showStatusBadge: _filter == null,
               emptyText: shelf.isEmpty
                   ? (own
@@ -112,13 +149,33 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               _AbandonedCorner(entries: abandoned, editable: own),
             if (own) ...[
               const SizedBox(height: 12),
-              Center(
-                child: TextButton.icon(
-                  onPressed: () => context.push('/books/search'),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Buch hinzufügen'),
-                ),
-              ),
+              sorting
+                  ? Center(
+                      child: FilledButton(
+                        onPressed: () => setState(() => _sorting = false),
+                        child: const Text('Fertig'),
+                      ),
+                    )
+                  : Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => context.push('/books/search'),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Buch hinzufügen'),
+                        ),
+                        if (shelf.length > 1)
+                          TextButton.icon(
+                            onPressed: () => setState(() {
+                              _sorting = true;
+                              _filter = null;
+                            }),
+                            icon: const Icon(Icons.swap_horiz),
+                            label: const Text('Sortieren'),
+                          ),
+                      ],
+                    ),
             ],
           ],
         );
@@ -291,6 +348,7 @@ class _Shelves extends StatelessWidget {
     this.minRows = 1,
     this.showStatusBadge = false,
     this.emptyText,
+    this.onMove,
   });
 
   final List<UserBook> entries;
@@ -298,6 +356,9 @@ class _Shelves extends StatelessWidget {
   final int minRows;
   final bool showStatusBadge;
   final String? emptyText;
+
+  /// Sort mode: drag a cover onto another to move it there.
+  final void Function(String fromId, String toId)? onMove;
 
   @override
   Widget build(BuildContext context) {
@@ -347,12 +408,23 @@ class _Shelves extends StatelessWidget {
                                       // Re-run when the shown books change (filter switch).
                                       key: ValueKey(rows[r][i].id),
                                       order: r * cols + i,
-                                      child: _BookCover(
-                                        entry: rows[r][i],
-                                        width: w,
-                                        editable: editable,
-                                        showStatusBadge: showStatusBadge,
-                                      ),
+                                      child: onMove == null
+                                          ? _BookCover(
+                                              entry: rows[r][i],
+                                              width: w,
+                                              editable: editable,
+                                              showStatusBadge: showStatusBadge,
+                                            )
+                                          : _Sortable(
+                                              entry: rows[r][i],
+                                              width: w,
+                                              onMove: onMove!,
+                                              child: _BookCover(
+                                                entry: rows[r][i],
+                                                width: w,
+                                                editable: false,
+                                              ),
+                                            ),
                                     ),
                                   ],
                                 ],
@@ -368,6 +440,51 @@ class _Shelves extends StatelessWidget {
       ),
     );
   }
+}
+
+/// In sort mode: hold a cover, drag it onto another, it takes that place.
+class _Sortable extends StatelessWidget {
+  const _Sortable({
+    required this.entry,
+    required this.width,
+    required this.onMove,
+    required this.child,
+  });
+
+  final UserBook entry;
+  final double width;
+  final void Function(String fromId, String toId) onMove;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DragTarget<String>(
+    onWillAcceptWithDetails: (d) => d.data != entry.id,
+    onAcceptWithDetails: (d) => onMove(d.data, entry.id),
+    builder: (context, candidates, _) => LongPressDraggable<String>(
+      data: entry.id,
+      delay: const Duration(milliseconds: 200),
+      feedback: Material(
+        color: Colors.transparent,
+        child: Transform.scale(
+          scale: 1.08,
+          child: SizedBox(width: width, height: width * 1.5, child: child),
+        ),
+      ),
+      childWhenDragging: Opacity(opacity: 0.25, child: child),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        // Foreground: the highlight must not widen the cover.
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            width: 2,
+            color: candidates.isEmpty ? Colors.transparent : AppColors.burgundy,
+          ),
+        ),
+        child: child,
+      ),
+    ),
+  );
 }
 
 /// Books slide up onto the board one after another; skipped with reduced motion.
@@ -412,7 +529,8 @@ class _PressScaleState extends State<_PressScale> {
   bool _down = false;
 
   void _set(bool v) {
-    if (_down != v) setState(() => _down = v);
+    // The cover can be swapped out mid-press (drag in sort mode).
+    if (mounted && _down != v) setState(() => _down = v);
   }
 
   @override
