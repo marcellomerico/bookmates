@@ -1,22 +1,25 @@
 import 'book.dart';
 
-/// Shelf = books the user owns (reading, unread, read); wantToRead is the
-/// separate wishlist.
+/// Shelf = books the user owns (reading, unread, read); abandoned books are
+/// owned but kept in their own corner; wantToRead is the separate wishlist.
 enum BookStatus {
   reading,
   unread,
   read,
+  abandoned,
   wantToRead;
 
-  /// Statuses that put a book on the shelf, in display order.
+  /// Statuses shown on the main shelf, in display order.
   static const shelf = [BookStatus.reading, BookStatus.unread, BookStatus.read];
 
+  /// Owned (main shelf or abandoned), as opposed to the wishlist.
   bool get onShelf => this != BookStatus.wantToRead;
 
   String get dbValue => switch (this) {
     BookStatus.reading => 'reading',
     BookStatus.unread => 'unread',
     BookStatus.read => 'read',
+    BookStatus.abandoned => 'abandoned',
     BookStatus.wantToRead => 'want_to_read',
   };
 
@@ -24,6 +27,7 @@ enum BookStatus {
     BookStatus.reading => 'Lese ich',
     BookStatus.unread => 'Ungelesen',
     BookStatus.read => 'Gelesen',
+    BookStatus.abandoned => 'Abgebrochen',
     BookStatus.wantToRead => 'Wunschliste',
   };
 
@@ -31,6 +35,7 @@ enum BookStatus {
     'reading' => BookStatus.reading,
     'unread' => BookStatus.unread,
     'read' => BookStatus.read,
+    'abandoned' => BookStatus.abandoned,
     _ => BookStatus.wantToRead,
   };
 }

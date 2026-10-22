@@ -55,10 +55,21 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
         onRetry: () => _retry(ref, widget.userId),
       ),
       data: (all) {
+        final abandoned = all
+            .where((e) => e.status == BookStatus.abandoned)
+            .toList();
         if (widget.compact) {
-          return _Shelves(entries: all, editable: false, minRows: 1);
+          return _Shelves(
+            entries: all
+                .where((e) => e.status != BookStatus.abandoned)
+                .toList(),
+            editable: false,
+            minRows: 1,
+          );
         }
-        final shelf = all.where((e) => e.status.onShelf).toList();
+        final shelf = all
+            .where((e) => BookStatus.shelf.contains(e.status))
+            .toList();
         final shown = _filter == null
             ? shelf
             : shelf.where((e) => e.status == _filter).toList();
@@ -97,6 +108,8 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
                         : 'Noch keine Bücher im Regal.')
                   : 'Keine Bücher in „${_filter?.label}“.',
             ),
+            if (abandoned.isNotEmpty)
+              _AbandonedCorner(entries: abandoned, editable: own),
             if (own) ...[
               const SizedBox(height: 12),
               Center(
@@ -110,6 +123,52 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
           ],
         );
       },
+    );
+  }
+}
+
+/// Abandoned books: collapsed below the shelf so they don't clutter it.
+class _AbandonedCorner extends StatefulWidget {
+  const _AbandonedCorner({required this.entries, required this.editable});
+
+  final List<UserBook> entries;
+  final bool editable;
+
+  @override
+  State<_AbandonedCorner> createState() => _AbandonedCornerState();
+}
+
+class _AbandonedCornerState extends State<_AbandonedCorner> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(Icons.delete_outline, color: muted),
+          title: Text('Abgebrochen  ${widget.entries.length}'),
+          trailing: AnimatedRotation(
+            turns: _open ? 0.5 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Icon(Icons.expand_more),
+          ),
+          onTap: () => setState(() => _open = !_open),
+        ),
+        if (_open)
+          Opacity(
+            opacity: 0.7,
+            child: _Shelves(
+              entries: widget.entries,
+              editable: widget.editable,
+              minRows: 1,
+            ),
+          ),
+      ],
     );
   }
 }
