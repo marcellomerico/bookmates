@@ -65,7 +65,7 @@ Die Webseite booksquad.de mit diesen Rechtstexten wird über Netlify (Netlify In
 
 ## 9. Beta-Anmeldung auf der Webseite {#beta}
 
-Über das Formular auf booksquad.de kannst du dich als Beta-Tester anmelden. Wir speichern deinen Vornamen (freiwillig), deine E-Mail-Adresse, ob du ein iPhone oder Android nutzt, den Zeitpunkt der Anmeldung und deine Einwilligung. Zweck ist allein, dich per E-Mail zum Test über TestFlight (Apple) bzw. Google Play einzuladen. Dafür geben wir deine E-Mail-Adresse an Apple bzw. Google weiter, die die Testeinladung verschicken.
+Über das Formular auf booksquad.de kannst du dich als Beta-Tester anmelden. Wir speichern deinen Vornamen (freiwillig), deine E-Mail-Adresse, ob du ein iPhone oder Android nutzt, den Zeitpunkt der Anmeldung und deine Einwilligung. Zweck ist allein, dir die Anmeldung per E-Mail zu bestätigen und dich zum Test über TestFlight (Apple) bzw. Google Play einzuladen. Dafür geben wir deine E-Mail-Adresse an Apple bzw. Google weiter, die die Testeinladung verschicken.
 
 Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit per E-Mail an support@booksquad.de widerrufen, dann löschen wir deine Angaben. Gespeichert wird bei Supabase in Frankfurt am Main (siehe Abschnitt 7). Nach dem Ende der Beta-Phase löschen wir die Anmeldedaten.
 

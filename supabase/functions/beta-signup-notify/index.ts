@@ -1,4 +1,5 @@
-// Mails support@booksquad.de about a new beta sign-up (called by a DB trigger with {id}).
+// Mails support@booksquad.de about a new beta sign-up and confirms it to the reader
+// (called by a DB trigger with {id}).
 // Each row is mailed at most once: notified_at is claimed before sending, released on failure.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
@@ -64,12 +65,42 @@ Deno.serve(async (req) => {
         'Liste: Supabase → Table Editor → beta_signups → Export CSV',
       ].join('\n'),
     });
+    // Confirmation to the reader. One per address (unique email), so it can't be used to spam.
+    try {
+      await client.send({
+        from: `Booksquad <${MAILBOX}>`,
+        to: row.email,
+        subject: 'Du bist dabei: Booksquad-Beta 📚',
+        content: [
+          `Hallo${row.first_name ? ` ${row.first_name}` : ''},`,
+          '',
+          'danke für deine Anmeldung zur Beta von Booksquad, der App zum Lesen mit Freunden.',
+          '',
+          `Sobald die Beta startet, bekommst du eine Einladung über ${row.platform === 'ios' ? 'TestFlight (Apple)' : 'Google Play'} an diese Adresse. Das wird voraussichtlich im November sein.`,
+          '',
+          'Du hast dich nicht angemeldet oder möchtest doch nicht mitmachen? Antworte einfach auf diese Mail, dann löschen wir deine Angaben.',
+          '',
+          'Viele Grüße',
+          'Marcello von Booksquad',
+          '',
+          '—',
+          'Booksquad · booksquad.de · Impressum: https://booksquad.de/imprint.html · Datenschutz: https://booksquad.de/privacy.html#beta',
+        ].join('\n'),
+      });
+    } catch (e) {
+      // The owner already got the notice; a bounced confirmation is not worth a retry.
+      console.error('beta-signup-notify: confirmation failed', e);
+    }
   } catch (e) {
     console.error('beta-signup-notify: send failed', e);
     await admin.from('beta_signups').update({ notified_at: null }).eq('id', id);
     return new Response('Send failed', { status: 502 });
   } finally {
-    await client.close().catch(() => {});
+    try {
+      await client.close();
+    } catch {
+      // Already closed after a failed login.
+    }
   }
   return new Response('Sent');
 });
