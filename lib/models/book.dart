@@ -25,14 +25,4 @@ class Book {
       isbn: json['isbn'] as String?,
     );
   }
-
-  Map<String, dynamic> toInsertJson() {
-    return {
-      if (openLibraryId != null) 'open_library_id': openLibraryId,
-      'title': title,
-      if (author != null) 'author': author,
-      if (coverUrl != null) 'cover_url': coverUrl,
-      if (isbn != null) 'isbn': isbn,
-    };
-  }
 }

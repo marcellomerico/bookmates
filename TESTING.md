@@ -1,22 +1,8 @@
 # Booksquad — Testanleitung
 
-Schritt-für-Schritt: Migrationen einspielen, verifizieren, App testen, Feedback geben.
+Schritt-für-Schritt: Backend vorbereiten, App testen, Feedback geben.
 
 **Dauer:** ca. 45–90 Minuten (mit 2 Test-Accounts)
-
----
-
-## Wichtig: Account löschen & zwei Test-Accounts
-
-Wenn du einen Account **löschst** und danach die **gleiche E-Mail** wieder registrieren willst, muss der Eintrag in `auth.users` wirklich weg sein. Sonst passiert genau das, was du beschrieben hast:
-
-| Symptom | Ursache |
-|---------|---------|
-| Registrierung schlägt fehl („E-Mail bereits registriert“) | Alte Zeile in `auth.users` existiert noch |
-| Anmeldung landet im **alten** Account (kein Onboarding) | Login nutzt denselben Auth-User → `onboarding_completed = true` |
-| Neuer Username scheint „angelegt“, Login geht nicht | Registrierung wurde nicht abgeschlossen; Auth-User ist noch der alte |
-
-**Lösung:** Migration **5** ausführen (A.4) und Edge Function `delete-account` deployen (A.5), ggf. manuell aufräumen (Teil C.0), dann **zwei verschiedene E-Mail-Adressen** für User A und User B verwenden.
 
 ---
 
@@ -30,165 +16,12 @@ Wenn du einen Account **löschst** und danach die **gleiche E-Mail** wieder regi
 
 ---
 
-# TEIL A — Migrationen einspielen
+# TEIL A — Backend vorbereiten
 
-Supabase → **SQL** → **New query** → Dateiinhalt kopieren → **Run**
-
-## A.1 Migration 1 — Basis-Schema
-
-**Datei:** `supabase/migrations/20260707180000_initial_schema.sql`
-
-Tabellen, Genres, RLS, Auth-Trigger `on_auth_user_created`.
-
-## A.2 Migration 2 — Storage
-
-**Datei:** `supabase/migrations/20260731120000_storage_and_policies.sql`
-
-Buckets `avatars`, `post-images`, Upload-/Delete-Policies.
-
-## A.3 Migration 3 — Moderation & Privacy
-
-**Datei:** `supabase/migrations/20260731140000_moderation_and_privacy.sql`
-
-`blocks`, `reports`, private Gruppen, erste Version von `delete_own_account()`.
-
-## Migration 4 — optional / überholt
-
-**Datei:** `supabase/migrations/20260731150000_fix_account_deletion.sql`
-
-Repariert die alte RPC `delete_own_account`. Kann übersprungen werden — Migration 5 entfernt die RPC wieder.
-
-## A.4 Migration 5 — Security-Härtung (Pflicht)
-
-**Datei:** `supabase/migrations/20261016120000_security_hardening.sql`
-
-- RLS: private Gruppen nur per Invite-Code (`join_group_with_code`), serverseitiges Blockieren, keine Anon-Reads
-- Username-Format (a–z, 0–9, `_`, `.`; 3–30) + `username_available`
-- Längenlimits, Storage-Limits (5 MB, jpeg/png/webp, Listing nur eigener Ordner)
-- Entfernt `delete_own_account`
-
-## A.5 Edge Function `delete-account` deployen (Pflicht)
-
-Dashboard → **Edge Functions** oder `supabase functions deploy delete-account` (JWT-Verifikation an).
-
-> Ohne die Function schlägt „Account löschen“ in der App fehl.
-
-## A.6 RLS-Regressionstest (optional, nur DEV)
-
-`supabase/tests/rls_smoke.sql` im SQL Editor ausführen — **nie auf Prod**. Erfolg = kein Fehler (Notice „ALL RLS CHECKS PASSED“), alles wird zurückgerollt.
-
-## A.7 Auth Redirect URL
-
-**Authentication → URL Configuration → Redirect URLs:** `booksquad://auth-callback` ergänzen (Passwort-Reset, E-Mail-Bestätigung).
-
----
-
-# TEIL B — Migrationen verifizieren
-
-Jede Abfrage einzeln im SQL Editor ausführen.
-
-## B.1 Tabellen (13 Stück)
-
-```sql
-select table_name
-from information_schema.tables
-where table_schema = 'public'
-  and table_name in (
-    'profiles', 'genres', 'user_genres', 'books', 'user_books',
-    'groups', 'group_members', 'posts', 'follows', 'likes', 'comments',
-    'blocks', 'reports'
-  )
-order by table_name;
-```
-
-**Erwartung:** 13 Zeilen
-
-## B.2 Genres
-
-```sql
-select count(*) as genre_count from public.genres;
-```
-
-**Erwartung:** 15
-
-## B.3 Storage-Buckets
-
-```sql
-select id, name, public from storage.buckets
-where id in ('avatars', 'post-images')
-order by id;
-```
-
-**Erwartung:** 2 Zeilen, beide `public = true`
-
-## B.4 Alte Lösch-RPC entfernt (Migration 5)
-
-```sql
-select pg_get_functiondef(p.oid) as definition
-from pg_proc p
-join pg_namespace n on n.oid = p.pronamespace
-where n.nspname = 'public' and p.proname = 'delete_own_account';
-```
-
-**Erwartung:** 0 Zeilen
-
-| Ergebnis | Bedeutung |
-|----------|-----------|
-| Keine Zeile | ✅ Migration 5 OK |
-| Eine Zeile | ❌ Migration 5 nachholen |
-
-## B.5 likes.created_at
-
-```sql
-select column_name, data_type
-from information_schema.columns
-where table_schema = 'public'
-  and table_name = 'likes'
-  and column_name = 'created_at';
-```
-
-**Erwartung:** 1 Zeile, `timestamptz`
-
-## B.6 RLS-Policies (Stichprobe)
-
-```sql
-select tablename, policyname
-from pg_policies
-where schemaname = 'public'
-  and tablename in ('posts', 'groups', 'blocks', 'reports')
-order by tablename, policyname;
-```
-
-**Erwartung (mindestens):**
-
-- `posts` → `Posts visible by visibility rules`, `Users delete own posts`
-- `groups` → `Groups visible to members or public`
-- `blocks` → `Users manage own blocks`
-- `reports` → `Users create reports`
-
-## B.7 Auth-Trigger
-
-```sql
-select trigger_name
-from information_schema.triggers
-where trigger_name = 'on_auth_user_created';
-```
-
-**Erwartung:** 1 Zeile
-
-### Migrations-Checkliste
-
-| ID | Prüfung | Erwartung | ✅ / ❌ |
-|----|---------|-----------|--------|
-| M1 | B.1 Tabellen | 13 | |
-| M2 | B.2 Genres | 15 | |
-| M3 | B.3 Storage | 2 Buckets | |
-| M4 | B.4 delete_own_account | 0 Zeilen (entfernt) | |
-| M5 | B.5 likes.created_at | timestamptz | |
-| M6 | B.6 RLS | s.o. | |
-| M7 | B.7 Auth-Trigger | vorhanden | |
-
-**Erst wenn M1–M7 ✅ → App-Tests starten.**
+1. **Datenbank:** neues Projekt → `supabase/prod_setup.sql` einmal im SQL Editor ausführen. Bestehendes Projekt → fehlende Migrationen laut [`supabase/APPLY_MIGRATIONS.md`](supabase/APPLY_MIGRATIONS.md) einspielen.
+2. **Edge Function** `delete-account` deployen (JWT-Verifikation an). Ohne sie schlägt „Account löschen“ fehl.
+3. **Authentication → URL Configuration:** Redirect URL `booksquad://auth-callback` (Passwort-Reset, E-Mail-Bestätigung).
+4. **Prüfen (nur DEV):** `supabase/tests/rls_smoke.sql` im SQL Editor → „ALL RLS CHECKS PASSED“, alles wird zurückgerollt. `tool/check_queries.sh` prüft die App-Abfragen gegen das Projekt.
 
 ---
 
@@ -416,7 +249,7 @@ select id, username from public.profiles where username = 'extra_test_user';
 
 # TEIL J — UI & Stabilität
 
-**UI-Checks seit Phase 3** (am besten auf einem echten iPhone und einem Android-Gerät):
+**UI-Checks** (am besten auf einem echten iPhone und einem Android-Gerät):
 
 | ID | Schritte | Erwartung | ✅ / ❌ |
 |----|----------|-----------|--------|
@@ -439,7 +272,7 @@ select id, username from public.profiles where username = 'extra_test_user';
 
 ---
 
-# TEIL F2 — Feed & Bücher (seit Phase 4)
+# TEIL F2 — Feed & Bücher
 
 | ID | Schritte | Erwartung | ✅ / ❌ |
 |----|----------|-----------|--------|
@@ -466,7 +299,7 @@ flutter test       # Erwartung: All tests passed
 
 ## „Registrierung fehlgeschlagen, E-Mail bereits registriert“
 
-1. Migration 5 ausgeführt + Edge Function deployed? (B.4, A.5)
+1. Alle Migrationen eingespielt und Edge Function deployed? (Teil A)
 2. SQL aus C.0 — existiert die E-Mail noch in `auth.users`?
 3. Ja → User in **Authentication → Users** manuell löschen
 4. App: **`R`** Hot Restart, erneut registrieren
@@ -510,14 +343,8 @@ Wenn unter **Authentication → Providers → Email** „Confirm email“ aktiv 
 # Feedback-Vorlage
 
 ```
-=== MIGRATIONEN ===
-M1 Tabellen (13): ✅ / ❌
-M2 Genres (15): ✅ / ❌
-M3 Storage: ✅ / ❌
-M4 delete_own_account entfernt (Migration 5): ✅ / ❌
-M5 likes.created_at: ✅ / ❌
-M6 RLS: ✅ / ❌
-M7 Auth-Trigger: ✅ / ❌
+=== BACKEND ===
+rls_smoke.sql: ✅ / ❌
 
 === APP ===
 C.3 Zwei Accounts: ✅ / ❌
@@ -531,7 +358,7 @@ J UI: ✅ / ❌
 K flutter test: ✅ / ❌
 
 === BUGS ===
-1. [ID] Schritte: … | Erwartet: … | Passiert: …
+1. Test-ID, Schritte, erwartet, passiert
 
 === GERÄT ===
 Simulator / Gerät, iOS: …
@@ -545,7 +372,7 @@ Simulator / Gerät, iOS: …
 |-------|--------|
 | Google/Apple Login | Dashboard-Config → `docs/GOOGLE_APPLE_AUTH.md` |
 | Legal-URLs | `booksquad.de` |
-| „Policy already exists“ | Migration teilweise gelaufen — B.6 entscheidet |
+| „Policy already exists“ | Migration teilweise gelaufen, `rls_smoke.sql` zeigt, ob alles stimmt |
 
 ---
 
@@ -553,23 +380,15 @@ Simulator / Gerät, iOS: …
 
 | Datei | Zweck |
 |-------|--------|
-| `supabase/migrations/20260707180000_initial_schema.sql` | Migration 1 |
-| `supabase/migrations/20260731120000_storage_and_policies.sql` | Migration 2 |
-| `supabase/migrations/20260731140000_moderation_and_privacy.sql` | Migration 3 |
-| `supabase/migrations/20260731150000_fix_account_deletion.sql` | Migration 4 (optional) |
-| `supabase/migrations/20261016120000_security_hardening.sql` | Migration 5 |
+| `supabase/migrations/` | Alle Migrationen, Liste in `supabase/APPLY_MIGRATIONS.md` |
+| `supabase/prod_setup.sql` | Alle Pflicht-Migrationen in einem Durchlauf (neues Projekt) |
 | `supabase/functions/delete-account` | Edge Function |
 | `supabase/tests/rls_smoke.sql` | RLS-Test (nur DEV) |
-| `supabase/APPLY_MIGRATIONS.md` | Kurz-Anleitung |
 
 ---
 
-# Empfohlene Test-Reihenfolge (dein Stand)
+# Empfohlene Test-Reihenfolge
 
-Du hast A–C.2 bereits geschafft. **Als Nächstes:**
-
-1. **Migration 5** ausführen (A.4), Edge Function deployen (A.5) + B.4 prüfen
-2. **C.0** — deine E-Mail in `auth.users` prüfen, ggf. alten User im Dashboard löschen
-3. App **`R`** Hot Restart
-4. **C.3** — User A und User B mit **zwei verschiedenen E-Mails**
-5. Weiter mit **D** ff.
+1. Teil A (Backend), dann App starten (C.1)
+2. **C.3**: User A und User B mit **zwei verschiedenen E-Mails**
+3. D → E → F → G → H → M → F2 → J, Konto löschen (I) zuletzt mit einem Wegwerf-Konto

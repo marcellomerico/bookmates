@@ -14,12 +14,12 @@ Stand: Oktober 2026
 | Folgen, Entdecken, Aktivität | ✅ |
 | Gruppen (öffentlich/privat) | ✅ |
 | Moderation (Melden/Blockieren) | ✅ |
-| Legal-Links + Support | ✅ (URLs hosten) |
+| Website, Rechtstexte, Beta-Anmeldung (booksquad.de) | ✅ |
 | Store-Release | 🟡 in Vorbereitung (siehe `docs/RELEASE.md`) |
 
 ## Geplant
 
-Alle geplanten Features stehen als einzelne [GitHub-Issues](https://github.com/marcellomerico/booksquad/issues?q=is%3Aopen+label%3Afeature) (#11–#22), mit Priorität „vor Start“ oder „nach Start“.
+Alle geplanten Features stehen als einzelne [GitHub-Issues](https://github.com/marcellomerico/booksquad/issues?q=is%3Aopen+label%3Afeature) mit Priorität „vor Start“ oder „nach Start“.
 
 ## Nächster Schritt
 
