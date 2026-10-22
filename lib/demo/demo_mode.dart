@@ -498,6 +498,17 @@ class _DemoBooks extends BookRepository {
   );
 
   @override
+  Future<void> setFavorites(String userId, List<String> userBookIds) async {
+    final shelf = _store.shelves[userId] ?? [];
+    for (var i = 0; i < shelf.length; i++) {
+      final rank = userBookIds.indexOf(shelf[i].id);
+      shelf[i] = shelf[i].copyWith(
+        favoriteRank: () => rank < 0 ? null : rank + 1,
+      );
+    }
+  }
+
+  @override
   Future<void> removeFromShelf(String userBookId) async {
     for (final shelf in _store.shelves.values) {
       shelf.removeWhere((e) => e.id == userBookId);

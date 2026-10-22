@@ -206,6 +206,7 @@ class DemoStore {
       BookStatus status, [
       int? rating,
       (int, int)? progress,
+      int? favorite,
     ]) {
       shelves
           .putIfAbsent(user, () => [])
@@ -219,15 +220,16 @@ class DemoStore {
               book: books[bookId],
               currentPage: progress?.$1,
               pageCount: progress?.$2,
+              favoriteRank: favorite,
             ),
           );
     }
 
     shelf(meId, 'b-mitternacht', BookStatus.reading, null, (187, 320));
     shelf(meId, 'b-dune', BookStatus.reading, null, (112, 704));
-    shelf(meId, 'b-schwarm', BookStatus.read, 5);
-    shelf(meId, 'b-parfum', BookStatus.read, 4);
-    shelf(meId, 'b-hobbit', BookStatus.read, 5);
+    shelf(meId, 'b-schwarm', BookStatus.read, 5, null, 2);
+    shelf(meId, 'b-parfum', BookStatus.read, 4, null, 3);
+    shelf(meId, 'b-hobbit', BookStatus.read, 5, null, 1);
     shelf(meId, 'b-stolz', BookStatus.read, 4);
     shelf(meId, 'b-1984', BookStatus.unread);
     shelf(meId, 'b-unendlich', BookStatus.unread);
@@ -236,7 +238,7 @@ class DemoStore {
     shelf(meId, 'b-diebin', BookStatus.wantToRead);
     shelf(meId, 'b-sapiens', BookStatus.wantToRead);
     shelf(meId, 'b-momo', BookStatus.wantToRead);
-    shelf('u-jonas', 'b-dune', BookStatus.read, 5);
+    shelf('u-jonas', 'b-dune', BookStatus.read, 5, null, 1);
     shelf('u-jonas', 'b-sapiens', BookStatus.reading);
     shelf('u-jonas', 'b-1984', BookStatus.read, 5);
     shelf('u-lena', 'b-stolz', BookStatus.read, 5);

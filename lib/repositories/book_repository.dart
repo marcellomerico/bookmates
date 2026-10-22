@@ -151,6 +151,24 @@ class BookRepository {
         .eq('id', userBookId);
   }
 
+  /// Makes [userBookIds] (max 3, in order) the user's favourites; others lose the mark.
+  Future<void> setFavorites(String userId, List<String> userBookIds) async {
+    assert(userBookIds.length <= 3);
+    // Clear first: ranks are unique per user.
+    await _client
+        .from('user_books')
+        .update({'favorite_rank': null})
+        .eq('user_id', userId)
+        .not('favorite_rank', 'is', null);
+    for (var i = 0; i < userBookIds.length; i++) {
+      await _client
+          .from('user_books')
+          .update({'favorite_rank': i + 1})
+          .eq('id', userBookIds[i])
+          .eq('user_id', userId);
+    }
+  }
+
   Future<void> removeFromShelf(String userBookId) async {
     await _client.from('user_books').delete().eq('id', userBookId);
   }

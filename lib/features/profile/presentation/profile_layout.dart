@@ -10,6 +10,7 @@ import '../../../models/profile.dart';
 import '../../books/presentation/visual_shelf.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
+import 'favorite_books.dart';
 
 /// Shared profile page: header (avatar, stats, name, bio, genres, actions)
 /// and tabs for shelf, posts and wishlist. Used for the own and other profiles.
@@ -37,7 +38,7 @@ class ProfileLayout extends ConsumerWidget {
       child: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverToBoxAdapter(
-            child: _Header(profile: profile, actions: actions),
+            child: _Header(profile: profile, own: own, actions: actions),
           ),
           SliverOverlapAbsorber(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
@@ -83,9 +84,14 @@ class ProfileLayout extends ConsumerWidget {
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({required this.profile, required this.actions});
+  const _Header({
+    required this.profile,
+    required this.own,
+    required this.actions,
+  });
 
   final Profile profile;
+  final bool own;
   final Widget actions;
 
   @override
@@ -154,6 +160,7 @@ class _Header extends ConsumerWidget {
               ),
             ),
           ],
+          FavoriteBooks(userId: own ? null : profile.id),
           const SizedBox(height: 14),
           actions,
         ],
