@@ -366,6 +366,7 @@ class _BookCover extends ConsumerWidget {
     final height = width * 1.5;
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final title = book?.title ?? 'Buch';
+    final progress = entry.status == BookStatus.reading ? entry.progress : null;
 
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(3),
@@ -387,7 +388,8 @@ class _BookCover extends ConsumerWidget {
     return Semantics(
       button: true,
       label:
-          '$title${book?.author == null ? '' : ' von ${book!.author}'}, ${entry.status.label}',
+          '$title${book?.author == null ? '' : ' von ${book!.author}'}, ${entry.status.label}'
+          '${progress == null ? '' : ', ${(progress * 100).round()} Prozent gelesen'}',
       hint: editable ? 'Lange drücken zum Ändern' : null,
       excludeSemantics: true,
       child: GestureDetector(
@@ -419,6 +421,21 @@ class _BookCover extends ConsumerWidget {
                     Icons.bookmark,
                     color: AppColors.burgundy,
                     size: 20,
+                  ),
+                ),
+              if (progress != null)
+                Positioned(
+                  left: 4,
+                  right: 4,
+                  bottom: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 4,
+                      color: AppColors.burgundy,
+                      backgroundColor: const Color(0xCCFFFFFF),
+                    ),
                   ),
                 ),
             ],
