@@ -373,7 +373,7 @@ h1 .accent {
 }
 .platform input:checked + span { background: #fff; color: var(--burgundy); border-color: #fff; }
 .platform input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
-.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .consent { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; opacity: 0.92; cursor: pointer; }
 .consent input { width: 20px; height: 20px; margin-top: 1px; flex: none; accent-color: var(--gold); }
 .consent a { color: #fff; }
