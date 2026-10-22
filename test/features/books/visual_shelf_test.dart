@@ -103,4 +103,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Aufgegeben'), findsOneWidget);
   });
+
+  testWidgets('books arrive animated, but not with reduced motion', (
+    tester,
+  ) async {
+    await _pump(tester, const ShelfView());
+    expect(find.byType(TweenAnimationBuilder<double>), findsWidgets);
+
+    await _pump(
+      tester,
+      const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: ShelfView(),
+      ),
+    );
+    expect(find.byType(TweenAnimationBuilder<double>), findsNothing);
+    expect(find.text('Gerade dran'), findsOneWidget);
+  });
 }
