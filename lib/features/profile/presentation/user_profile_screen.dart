@@ -126,6 +126,9 @@ class UserProfileScreen extends ConsumerWidget {
                           width: double.infinity,
                           child: value
                               ? OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(0, 40),
+                                  ),
                                   onPressed: () => _toggleFollow(
                                     context,
                                     ref,
@@ -135,6 +138,9 @@ class UserProfileScreen extends ConsumerWidget {
                                   child: const Text('Folgst du'),
                                 )
                               : FilledButton(
+                                  style: FilledButton.styleFrom(
+                                    minimumSize: const Size(0, 40),
+                                  ),
                                   onPressed: () => _toggleFollow(
                                     context,
                                     ref,

@@ -176,28 +176,48 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.burgundy, width: 1.2),
         ),
       ),
+      // One button language: 48 pt tall, 12 pt corners, semibold label.
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.burgundy,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(64, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.l),
+          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: AppColors.burgundy,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(46),
+          minimumSize: const Size(64, 48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.l),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ink,
           backgroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(44),
+          minimumSize: const Size(64, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           side: const BorderSide(color: AppColors.line),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.l),
           ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.burgundy,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -210,7 +230,7 @@ class AppTheme {
         selectedColor: AppColors.burgundy,
         disabledColor: Colors.white,
         side: const BorderSide(color: AppColors.line),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         // Selected chips sit on burgundy: white label, otherwise ink.
         // Chips resolve only the colour by state, so the colour carries it.
         labelStyle: TextStyle(
@@ -219,11 +239,13 @@ class AppTheme {
                 ? Colors.white
                 : AppColors.ink,
           ),
-          fontSize: 12,
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
         ),
         checkmarkColor: Colors.white,
         secondaryLabelStyle: const TextStyle(color: Colors.white, fontSize: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
       ),
       cardTheme: CardThemeData(
         elevation: 0,

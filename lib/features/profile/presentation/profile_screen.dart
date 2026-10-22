@@ -45,15 +45,26 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
+                  style: _compact,
                   onPressed: () => context.push('/profile/edit'),
                   child: const Text('Profil bearbeiten'),
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton.outlined(
-                tooltip: 'Einstellungen',
-                onPressed: () => context.push('/settings'),
-                icon: const Icon(Icons.settings_outlined),
+              SizedBox.square(
+                dimension: 40,
+                child: OutlinedButton(
+                  style: _compact.copyWith(
+                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                    minimumSize: const WidgetStatePropertyAll(Size.square(40)),
+                  ),
+                  onPressed: () => context.push('/settings'),
+                  child: const Icon(
+                    Icons.settings_outlined,
+                    size: 20,
+                    semanticLabel: 'Einstellungen',
+                  ),
+                ),
               ),
             ],
           ),
@@ -62,3 +73,9 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 }
+
+// Profile actions are secondary: slimmer than the app-wide 48 pt buttons.
+final _compact = OutlinedButton.styleFrom(
+  minimumSize: const Size(0, 40),
+  textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+);

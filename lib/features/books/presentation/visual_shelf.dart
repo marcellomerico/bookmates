@@ -263,7 +263,18 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(right: 8),
     child: ChoiceChip(
-      label: Text('$label  $count'),
+      visualDensity: VisualDensity.compact,
+      label: Text.rich(
+        TextSpan(
+          text: label,
+          children: [
+            TextSpan(
+              text: '  $count',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
       selected: selected,
       showCheckmark: false,
       onSelected: (_) => onTap(),
