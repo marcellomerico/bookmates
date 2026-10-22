@@ -6,7 +6,6 @@ import '../models/post.dart';
 import '../models/profile.dart';
 import '../models/user_book.dart';
 import '../models/verification.dart';
-import '../models/shelf_decor.dart';
 
 /// In-memory sample data for demo mode (screenshots, trailer). Fictional readers,
 /// real Open Library works so covers and book pages load.
@@ -203,19 +202,6 @@ class DemoStore {
       'Franz Kafka',
       'OL24823017W',
       11619985,
-    );
-
-    profiles[meId] = Profile(
-      id: me.id,
-      username: me.username,
-      displayName: me.displayName,
-      bio: me.bio,
-      onboardingCompleted: true,
-      shelfDecor: const [
-        DecorPiece(DecorItem.plant, 0, 3),
-        DecorPiece(DecorItem.mug, 1, 0),
-        DecorPiece(DecorItem.cat, 2, 3),
-      ],
     );
 
     var n = 0;

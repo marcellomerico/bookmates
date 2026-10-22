@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/utils/validators.dart';
 import '../models/profile.dart';
 import '../models/profile_stats.dart';
-import '../models/shelf_decor.dart';
 
 class ProfileRepository {
   ProfileRepository(this._client);
@@ -59,13 +58,6 @@ class ProfileRepository {
               .map((genre) => {'user_id': userId, 'genre_id': genreMap[genre]})
               .toList(),
         );
-  }
-
-  Future<void> updateShelfDecor(String userId, List<DecorPiece> decor) async {
-    await _client
-        .from('profiles')
-        .update({'shelf_decor': [for (final p in decor) p.toJson()]})
-        .eq('id', userId);
   }
 
   Future<bool> isUsernameAvailable(String username) async {
