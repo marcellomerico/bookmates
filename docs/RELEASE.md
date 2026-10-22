@@ -63,5 +63,5 @@ Die Quelltexte liegen in `docs/legal/`, die fertigen Seiten in `site/`.
 
 1. Änderungen in `docs/legal/*.md` vornehmen.
 2. Seiten neu erzeugen: `python3 tool/build_site.py .`
-3. Veröffentlichen: passiert automatisch. Jeder Push auf `main`, der `site/` ändert, startet den Workflow `.github/workflows/pages.yml` und deployt nach `https://booksquad.de` (GitHub Pages, eigene Domain, HTTPS).
+3. Veröffentlichen: passiert automatisch. Netlify deployt jeden Push auf `main` aus `site/` nach `https://booksquad.de` (Konfiguration in `netlify.toml`, inkl. Sicherheits-Header).
 4. In beiden Stores dieselben URLs eintragen (Datenschutz, EULA, Web-Löschseite für Play).
