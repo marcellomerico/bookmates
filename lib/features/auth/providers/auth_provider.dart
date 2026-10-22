@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloudflare_turnstile/cloudflare_turnstile.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,6 +87,9 @@ String authErrorMessage(Object error) {
     if (message.contains('user already registered')) {
       return 'Diese E-Mail ist bereits registriert.';
     }
+    if (message.contains('captcha')) {
+      return 'Die Sicherheitsprüfung hat nicht geklappt. Bitte versuch es noch einmal.';
+    }
     if (message.contains('email not confirmed')) {
       return 'Bitte bestätige zuerst deine E-Mail-Adresse.';
     }
@@ -149,10 +153,36 @@ class SignUpResult {
   final bool needsEmailConfirmation;
 }
 
+/// Returns a CAPTCHA token for Supabase Auth, or null when CAPTCHA is off.
+typedef CaptchaTokenSource = Future<String?> Function();
+
+/// Invisible Cloudflare Turnstile check. Without TURNSTILE_SITE_KEY (dev, tests)
+/// no token is sent; Supabase only demands one once CAPTCHA is enabled there.
+Future<String?> turnstileToken() async {
+  final siteKey = Env.turnstileSiteKey;
+  if (siteKey.isEmpty) return null;
+  final turnstile = CloudflareTurnstile.invisible(
+    siteKey: siteKey,
+    // Must match a hostname listed for the widget in Cloudflare.
+    baseUrl: 'https://booksquad.de',
+  );
+  try {
+    return await turnstile.getToken();
+  } on TurnstileException {
+    throw const AppAuthException(
+      'Die Sicherheitsprüfung hat nicht geklappt. Bitte prüfe deine Verbindung und versuch es noch einmal.',
+    );
+  } finally {
+    turnstile.dispose();
+  }
+}
+
 class AuthRepository {
-  AuthRepository(this._client);
+  AuthRepository(this._client, {CaptchaTokenSource? captcha})
+    : _captcha = captcha ?? turnstileToken;
 
   final SupabaseClient _client;
+  final CaptchaTokenSource _captcha;
 
   GoogleSignIn? get _googleSignIn {
     if (!Env.isGoogleConfigured) return null;
@@ -167,8 +197,12 @@ class AuthRepository {
     );
   }
 
-  Future<void> signIn(String email, String password) {
-    return _client.auth.signInWithPassword(email: email, password: password);
+  Future<void> signIn(String email, String password) async {
+    await _client.auth.signInWithPassword(
+      email: email,
+      password: password,
+      captchaToken: await _captcha(),
+    );
   }
 
   Future<SignUpResult> signUp(
@@ -186,6 +220,7 @@ class AuthRepository {
     final response = await _client.auth.signUp(
       email: trimmedEmail,
       password: password,
+      captchaToken: await _captcha(),
       emailRedirectTo: AppConfig.authRedirectUrl,
       data: {
         'username': trimmedUsername,
@@ -306,6 +341,7 @@ class AuthRepository {
     await _client.auth.resetPasswordForEmail(
       email.trim(),
       redirectTo: AppConfig.authRedirectUrl,
+      captchaToken: await _captcha(),
     );
   }
 

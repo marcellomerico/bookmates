@@ -68,4 +68,17 @@ void main() {
     expect(isRateLimit(PostgrestException(message: 'rate_limit')), isTrue);
     expect(isRateLimit(PostgrestException(message: 'other')), isFalse);
   });
+  test('failed CAPTCHA maps to German text', () {
+    expect(
+      authErrorMessage(
+        const AuthException(
+          'captcha protection: request disallowed (timeout-or-duplicate)',
+        ),
+      ),
+      'Die Sicherheitsprüfung hat nicht geklappt. Bitte versuch es noch einmal.',
+    );
+  });
+  test('no Turnstile site key means no CAPTCHA token', () async {
+    expect(await turnstileToken(), isNull);
+  });
 }

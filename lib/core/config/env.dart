@@ -21,6 +21,7 @@ class Env {
   static String get supabaseAnonKey => _read('SUPABASE_ANON_KEY');
   static String get googleWebClientId => _read('GOOGLE_WEB_CLIENT_ID');
   static String get googleIosClientId => _read('GOOGLE_IOS_CLIENT_ID');
+  static String get turnstileSiteKey => _read('TURNSTILE_SITE_KEY');
 
   static bool get isConfigured =>
       supabaseUrl.isNotEmpty &&
