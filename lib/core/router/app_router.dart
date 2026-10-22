@@ -24,6 +24,8 @@ import '../../models/user_book.dart';
 import 'auth_redirect.dart';
 import 'booksquad_page_transitions.dart';
 import 'splash_screen.dart';
+import '../../features/moderation/presentation/verification_queue_screen.dart';
+import '../../features/profile/presentation/verification_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = _RouterRefresh(ref);
@@ -82,6 +84,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => slidePushPage(
           key: state.pageKey,
           child: const ModerationQueueScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/moderation/verifications',
+        pageBuilder: (context, state) => slidePushPage(
+          key: state.pageKey,
+          child: const VerificationQueueScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/settings/verify',
+        pageBuilder: (context, state) => slidePushPage(
+          key: state.pageKey,
+          child: const VerificationScreen(),
         ),
       ),
       GoRoute(

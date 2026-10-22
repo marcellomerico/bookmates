@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../social/providers/social_providers.dart';
+import '../../../core/widgets/verified_badge.dart';
 
 enum FollowListMode { followers, following }
 
@@ -64,7 +65,17 @@ class FollowListScreen extends ConsumerWidget {
                         url: profile.avatarUrl,
                         name: profile.displayName ?? profile.username,
                       ),
-                      title: Text(profile.displayName ?? profile.username),
+                      title: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              profile.displayName ?? profile.username,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          VerifiedBadge(profile: profile),
+                        ],
+                      ),
                       subtitle: Text('@${profile.username}'),
                     );
                   },

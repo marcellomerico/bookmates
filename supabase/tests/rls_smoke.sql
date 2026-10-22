@@ -542,5 +542,34 @@ begin
 end $$;
 
 do $$ begin raise notice 'ALL RLS CHECKS PASSED'; end $$;
+-- Verification badge (#11): only admins grant it; users only request.
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+do $$ declare rid uuid; begin
+  update public.profiles set verified_at = now(), verified_kind = 'author' where id = '00000000-0000-4000-8000-00000000000c';
+  if (select verified_at from public.profiles where id = '00000000-0000-4000-8000-00000000000c') is not null then
+    raise exception 'FAIL: user verified themselves'; end if;
+  insert into public.verification_requests (kind, link) values ('blog', 'https://example.com/blog');
+  begin
+    insert into public.verification_requests (user_id, kind, link) values ('00000000-0000-4000-8000-00000000000a', 'blog', 'https://x.de');
+    raise exception 'FAIL: request for another user';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.admin_open_verifications();
+    raise exception 'FAIL: non-admin sees verification queue';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);
+do $$ declare rid uuid; begin
+  select request_id into rid from public.admin_open_verifications() where user_id = '00000000-0000-4000-8000-00000000000c';
+  perform public.admin_resolve_verification(rid, true);
+  if (select verified_kind from public.profiles where id = '00000000-0000-4000-8000-00000000000c') is distinct from 'blog' then
+    raise exception 'FAIL: approval did not verify'; end if;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

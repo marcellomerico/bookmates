@@ -11,6 +11,7 @@ import '../../../core/widgets/moderation_actions.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
+import '../../../core/widgets/verified_badge.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   const PostDetailScreen({super.key, required this.postId});
@@ -149,10 +150,18 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                       comment.author?.username,
                                 ),
                               ),
-                              title: Text(
-                                comment.author?.displayName ??
-                                    comment.author?.username ??
-                                    'Leser',
+                              title: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      comment.author?.displayName ??
+                                          comment.author?.username ??
+                                          'Leser',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  VerifiedBadge(profile: comment.author),
+                                ],
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -86,12 +86,23 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Profil bearbeiten'),
             onTap: () => context.push('/profile/edit'),
           ),
-          if (isAdmin)
+          ListTile(
+            leading: const Icon(Icons.verified_outlined),
+            title: const Text('Verifizieren lassen'),
+            onTap: () => context.push('/settings/verify'),
+          ),
+          if (isAdmin) ...[
             ListTile(
               leading: const Icon(Icons.shield_outlined),
               title: const Text('Meldungen prüfen'),
               onTap: () => context.push('/moderation'),
             ),
+            ListTile(
+              leading: const Icon(Icons.fact_check_outlined),
+              title: const Text('Verifizierungen prüfen'),
+              onTap: () => context.push('/moderation/verifications'),
+            ),
+          ],
           const _Header('Hilfe & Rechtliches'),
           ListTile(
             leading: const Icon(Icons.mail_outline),

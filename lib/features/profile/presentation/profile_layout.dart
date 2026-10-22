@@ -11,6 +11,7 @@ import '../../books/presentation/visual_shelf.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
 import 'favorite_books.dart';
+import '../../../core/widgets/verified_badge.dart';
 
 /// Shared profile page: header (avatar, stats, name, bio, genres, actions)
 /// and tabs for shelf, posts and wishlist. Used for the own and other profiles.
@@ -136,11 +137,19 @@ class _Header extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            name,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            children: [
+              Flexible(
+                child: Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              VerifiedBadge(profile: profile, size: 18),
+            ],
           ),
           Text(
             '@${profile.username}',

@@ -12,6 +12,7 @@ import '../theme/booksquad_ui.dart';
 import '../utils/time_ago.dart';
 import 'moderation_actions.dart';
 import 'user_avatar.dart';
+import 'verified_badge.dart';
 
 int _memWidth(BuildContext context, double logical, int cap) =>
     (logical * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, cap);
@@ -75,12 +76,21 @@ class PostCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          displayName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                displayName,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            VerifiedBadge(profile: author, size: 15),
+                          ],
                         ),
                         // Long handles get cut, the time always stays readable.
                         Row(
