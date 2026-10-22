@@ -1519,4 +1519,24 @@ alter table public.profiles drop constraint if exists profiles_shelf_decor_valid
 alter table public.profiles
   add constraint profiles_shelf_decor_valid check (private.valid_shelf_decor(shelf_decor));
 
+-- ===== 20261023160000_shelf_order.sql =====
+-- Reader-defined order of books on the shelf (additive; existing rows stay null = by age).
+alter table public.user_books add column if not exists shelf_position int check (shelf_position > 0);
+
+-- Saves the whole order at once: position = place in p_ids. Runs as the caller,
+-- so RLS limits it to the caller's own rows.
+create or replace function public.reorder_shelf(p_ids uuid[])
+returns void
+language sql
+security invoker
+set search_path = ''
+as $$
+  update public.user_books
+     set shelf_position = array_position(p_ids, id)
+   where user_id = (select auth.uid())
+     and id = any(p_ids);
+$$;
+revoke all on function public.reorder_shelf(uuid[]) from public, anon;
+grant execute on function public.reorder_shelf(uuid[]) to authenticated;
+
 commit;

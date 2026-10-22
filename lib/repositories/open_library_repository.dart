@@ -167,8 +167,11 @@ class OpenLibraryRepository {
   }
 
   /// Well-rated books for an Open Library subject key (e.g. 'fantasy_fiction').
-  Future<List<OpenLibraryBook>> searchBySubject(String subject) =>
-      _searchDocs({'q': 'subject_key:$subject', 'sort': 'rating', 'limit': '15'});
+  Future<List<OpenLibraryBook>> searchBySubject(String subject) => _searchDocs({
+    'q': 'subject_key:$subject',
+    'sort': 'rating',
+    'limit': '15',
+  });
 
   Future<List<OpenLibraryBook>> search(String query) async {
     if (query.trim().isEmpty) return [];

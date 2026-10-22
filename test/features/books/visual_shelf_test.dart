@@ -2,6 +2,8 @@ import 'package:booksquad/features/books/presentation/visual_shelf.dart';
 import 'package:booksquad/features/books/providers/books_provider.dart';
 import 'package:booksquad/models/book.dart';
 import 'package:booksquad/models/user_book.dart';
+import 'package:booksquad/repositories/book_repository.dart';
+import '../../helpers/auth_fixtures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,13 +34,32 @@ final _entries = [
   _entry('6', 'Aufgegeben', BookStatus.abandoned),
 ];
 
-Future<void> _pump(WidgetTester tester, Widget child) async {
+class _FakeBooks extends BookRepository {
+  _FakeBooks() : super(offlineClient());
+  List<String>? saved;
+
+  @override
+  Future<void> reorderShelf(List<String> userBookIds) async =>
+      saved = userBookIds;
+
+  @override
+  Future<List<UserBook>> getBookshelf(String userId) async => _entries;
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  BookRepository? books,
+}) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(400, 1400);
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [bookshelfProvider.overrideWith((ref) async => _entries)],
+      overrides: [
+        bookshelfProvider.overrideWith((ref) async => _entries),
+        if (books != null) bookRepositoryProvider.overrideWithValue(books),
+      ],
       child: MaterialApp(
         home: Scaffold(body: SingleChildScrollView(child: child)),
       ),
@@ -119,5 +140,33 @@ void main() {
     );
     expect(find.byType(TweenAnimationBuilder<double>), findsNothing);
     expect(find.text('Gerade dran'), findsOneWidget);
+  });
+
+  test('moveEntry puts a book where another one stands', () {
+    final ids = [for (final e in moveEntry(_entries, '3', '1')) e.id];
+    expect(ids, ['3', '1', '2', '4', '5', '6']);
+    expect(identical(moveEntry(_entries, '1', '1'), _entries), isTrue);
+  });
+
+  testWidgets('sorting: drag a cover onto another saves the new order', (
+    tester,
+  ) async {
+    final books = _FakeBooks();
+    await _pump(tester, const ShelfView(), books: books);
+    await tester.ensureVisible(find.text('Sortieren'));
+    await tester.tap(find.text('Sortieren'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fertig'), findsOneWidget);
+    expect(find.text('Alle  4'), findsNothing);
+
+    final from = tester.getCenter(find.text('Schon durch'));
+    final to = tester.getCenter(find.text('Gerade dran'));
+    final gesture = await tester.startGesture(from);
+    await tester.pump(const Duration(milliseconds: 400));
+    await gesture.moveTo(to);
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(books.saved, ['3', '1', '2', '4']);
   });
 }

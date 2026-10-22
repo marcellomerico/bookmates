@@ -29,6 +29,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 19 | `20261023100000_verification.sql` | Verifizierungs-Haken: `profiles.verified_at/verified_kind` (nur Admins setzbar), Anträge mit Link, Admin-RPCs zum Prüfen und Entziehen |
 | 20 | `20261023120000_book_dismissals.sql` | „Kein Interesse“ bei Buchvorschlägen (eigene Tabelle, nur eigene Einträge) |
 | 21 | `20261023140000_shelf_decor.sql` | Spalte für Regal-Deko (`shelf_decor`, max. 16 Teile, serverseitig geprüft; additiv). Die App nutzt sie derzeit nicht (#79) |
+| 22 | `20261023160000_shelf_order.sql` | Eigene Reihenfolge im Regal (`user_books.shelf_position`, RPC `reorder_shelf`; additiv) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 

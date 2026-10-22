@@ -51,6 +51,7 @@ class UserBook {
     this.pageCount,
     this.currentPage,
     this.favoriteRank,
+    this.shelfPosition,
   });
 
   final String id;
@@ -64,6 +65,9 @@ class UserBook {
 
   /// 1..3 when the book is one of the reader's favourites on the profile.
   final int? favoriteRank;
+
+  /// Place in the reader's own shelf order; null = not sorted yet (goes last).
+  final int? shelfPosition;
 
   /// 0..1 once both page numbers are known, else null.
   double? get progress => pageCount == null || currentPage == null
@@ -86,6 +90,7 @@ class UserBook {
     pageCount: pageCount == null ? this.pageCount : pageCount(),
     currentPage: currentPage == null ? this.currentPage : currentPage(),
     favoriteRank: favoriteRank == null ? this.favoriteRank : favoriteRank(),
+    shelfPosition: shelfPosition,
   );
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -100,6 +105,7 @@ class UserBook {
       pageCount: json['page_count'] as int?,
       currentPage: json['current_page'] as int?,
       favoriteRank: json['favorite_rank'] as int?,
+      shelfPosition: json['shelf_position'] as int?,
     );
   }
 }
@@ -108,3 +114,13 @@ class UserBook {
 List<UserBook> favoriteBooks(Iterable<UserBook> shelf) =>
     shelf.where((e) => e.favoriteRank != null).toList()
       ..sort((a, b) => a.favoriteRank!.compareTo(b.favoriteRank!));
+
+/// [entries] with the entry [fromId] moved to where [toId] stands.
+List<UserBook> moveEntry(List<UserBook> entries, String fromId, String toId) {
+  final from = entries.indexWhere((e) => e.id == fromId);
+  final to = entries.indexWhere((e) => e.id == toId);
+  if (from < 0 || to < 0 || from == to) return entries;
+  final next = [...entries];
+  next.insert(to, next.removeAt(from));
+  return next;
+}

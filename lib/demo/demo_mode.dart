@@ -546,6 +546,24 @@ class _DemoBooks extends BookRepository {
   Future<void> dismissSuggestion(String workId) async => _dismissed.add(workId);
 
   @override
+  Future<void> reorderShelf(List<String> userBookIds) async {
+    for (final shelf in _store.shelves.values) {
+      if (!shelf.any((e) => userBookIds.contains(e.id))) continue;
+      final rank = {
+        for (var i = 0; i < userBookIds.length; i++) userBookIds[i]: i,
+      };
+      // Stable sort keeps unsorted entries (not in the list) at the end in order.
+      final ordered = [...shelf]
+        ..sort(
+          (a, b) => (rank[a.id] ?? 1 << 20).compareTo(rank[b.id] ?? 1 << 20),
+        );
+      shelf
+        ..clear()
+        ..addAll(ordered);
+    }
+  }
+
+  @override
   Future<void> removeFromShelf(String userBookId) async {
     for (final shelf in _store.shelves.values) {
       shelf.removeWhere((e) => e.id == userBookId);
