@@ -13,6 +13,7 @@ import '../../../repositories/moderation_repository.dart';
 import '../../../repositories/post_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
+import '../../../models/verification.dart';
 
 final postRepositoryProvider = Provider<PostRepository>((ref) {
   return PostRepository(ref.watch(supabaseClientProvider));
@@ -157,6 +158,17 @@ final openReportsProvider = FutureProvider.autoDispose<List<ModerationReport>>((
 ) {
   return ref.watch(moderationRepositoryProvider).openReports();
 });
+
+final myVerificationProvider = FutureProvider.autoDispose<VerificationRequest?>(
+  (ref) {
+    return ref.watch(moderationRepositoryProvider).myVerificationRequest();
+  },
+);
+
+final openVerificationsProvider =
+    FutureProvider.autoDispose<List<VerificationRequest>>((ref) {
+      return ref.watch(moderationRepositoryProvider).openVerifications();
+    });
 
 class OnboardingSuggestions {
   const OnboardingSuggestions({this.people = const [], this.groups = const []});

@@ -70,11 +70,15 @@ Die Webseite booksquad.de mit diesen Rechtstexten wird über Netlify (Netlify In
 
 Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit per E-Mail an support@booksquad.de widerrufen, dann löschen wir deine Angaben. Gespeichert wird bei Supabase in Frankfurt am Main (siehe Abschnitt 7). Nach dem Ende der Beta-Phase löschen wir die Anmeldedaten.
 
-## 10. Moderation und Meldungen
+## 10. Verifizierung (Haken)
+
+Bekannte Leserinnen und Leser, Autorinnen und Autoren, Buchblogs und Buchhandlungen können in der App einen Verifizierungs-Haken beantragen. Dafür speichern wir die gewählte Kategorie, einen Link als Nachweis (z. B. Social-Media-Profil, Blog, Verlags- oder Ladenseite), eine optionale Anmerkung sowie Zeitpunkt und Ergebnis der Prüfung. Ausweisdokumente erheben wir nicht. Ein Admin prüft den Antrag. Wird er angenommen, ist der Haken mit der Kategorie für angemeldete Nutzer sichtbar. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (von dir gewünschte Funktion). Die Antragsdaten werden mit deinem Konto gelöscht. Der Haken kann bei Missbrauch entzogen werden.
+
+## 11. Moderation und Meldungen
 
 Du kannst Beiträge, Kommentare und Nutzer melden sowie Nutzer blockieren. Werden Inhalte von mehreren Personen gemeldet, blendet das System sie bis zur Prüfung automatisch aus. Diese vorläufige Ausblendung ist keine endgültige Entscheidung. Über das Entfernen von Inhalten oder das Sperren von Konten entscheidet immer ein Mensch. Moderatoren sehen gemeldete Inhalte und die meldende Person. Die meldende Person wird der gemeldeten Person nicht mitgeteilt. Eine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO findet nicht statt.
 
-## 11. Speicherdauer und Löschung
+## 12. Speicherdauer und Löschung
 
 - Deine Daten speichern wir, solange dein Konto besteht.
 - **Konto löschen:** In der App unter *Profil → Einstellungen (Zahnrad) → Konto löschen*. Dabei werden dein Konto, Profil, Beiträge, Kommentare, Likes, Folgen, Mitgliedschaften, Blockierungen, deine Meldungen und alle hochgeladenen Bilder sofort gelöscht. Alternativ per E-Mail an support@booksquad.de von der registrierten Adresse. Dann löschen wir innerhalb von 7 Tagen.
@@ -82,7 +86,7 @@ Du kannst Beiträge, Kommentare und Nutzer melden sowie Nutzer blockieren. Werde
 - Support-E-Mails löschen wir, sobald die Anfrage erledigt ist und keine Aufbewahrungspflicht besteht.
 - Sicherungskopien und Server-Logs des Hosting-Anbieters werden spätestens nach **30 Tagen** überschrieben.
 
-## 12. Deine Rechte
+## 13. Deine Rechte
 
 Du hast das Recht auf
 - Auskunft (Art. 15 DSGVO)
@@ -96,14 +100,14 @@ Wende dich dafür an support@booksquad.de.
 
 Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere in dem EU-Staat deines Wohnorts. Für uns zuständig ist: Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg, Lautenschlagerstraße 20, 70173 Stuttgart, https://www.baden-wuerttemberg.datenschutz.de
 
-## 13. Mindestalter
+## 14. Mindestalter
 
 Booksquad richtet sich an Personen ab **16 Jahren**.
 
-## 14. Sicherheit
+## 15. Sicherheit
 
 Die Verbindung zwischen App und Servern ist verschlüsselt (TLS). Der Zugriff auf Daten ist serverseitig durch Zugriffsregeln (Row Level Security) beschränkt, sodass Nutzer nur die für sie freigegebenen Inhalte sehen. Passwörter werden nur als sicherer Hash gespeichert.
 
-## 15. Änderungen
+## 16. Änderungen
 
 Wir passen diese Datenschutzerklärung an, wenn sich die App oder die Rechtslage ändert. Die jeweils aktuelle Fassung findest du in der App und unter der veröffentlichten Adresse.

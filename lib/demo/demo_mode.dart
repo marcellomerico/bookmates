@@ -23,6 +23,7 @@ import '../repositories/open_library_repository.dart';
 import '../repositories/post_repository.dart';
 import '../repositories/profile_repository.dart';
 import 'demo_data.dart';
+import '../models/verification.dart';
 
 /// Demo mode: `flutter run --dart-define=BOOKSQUAD_DEMO=true`. The app runs signed in
 /// as a sample reader on in-memory data, without Supabase. Used for screenshots and
@@ -353,6 +354,19 @@ class _DemoGroups extends GroupRepository {
 
 class _DemoModeration extends ModerationRepository {
   _DemoModeration(super.client);
+
+  @override
+  Future<VerificationRequest?> myVerificationRequest() async => null;
+
+  @override
+  Future<void> requestVerification({
+    required VerificationKind kind,
+    required String link,
+    String? note,
+  }) async {}
+
+  @override
+  Future<List<VerificationRequest>> openVerifications() async => const [];
 
   @override
   Future<void> blockUser({

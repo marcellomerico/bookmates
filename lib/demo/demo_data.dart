@@ -5,6 +5,7 @@ import '../models/moderation_report.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
 import '../models/user_book.dart';
+import '../models/verification.dart';
 
 /// In-memory sample data for demo mode (screenshots, trailer). Fictional readers,
 /// real Open Library works so covers and book pages load.
@@ -41,14 +42,17 @@ class DemoStore {
       String username,
       String name,
       String bio,
-      List<String> g,
-    ) {
+      List<String> g, [
+      VerificationKind? verified,
+    ]) {
       profiles[id] = Profile(
         id: id,
         username: username,
         displayName: name,
         bio: bio,
         onboardingCompleted: true,
+        verifiedAt: verified == null ? null : DateTime(2026, 10, 1),
+        verifiedKind: verified,
       );
       genres[id] = g;
     }
@@ -87,6 +91,7 @@ class DemoStore {
       'Sophie',
       'Buchhändlerin. Zitate sammeln ist mein Hobby.',
       ['Roman', 'Klassiker', 'Jugendbuch'],
+      VerificationKind.bookstore,
     );
     person(
       'u-felix',

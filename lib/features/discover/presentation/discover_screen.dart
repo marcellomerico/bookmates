@@ -12,6 +12,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../social/providers/social_providers.dart';
+import '../../../core/widgets/verified_badge.dart';
 
 class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key, this.initialQuery});
@@ -293,12 +294,20 @@ class _PersonRow extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      profile.displayName ?? profile.username,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            profile.displayName ?? profile.username,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        VerifiedBadge(profile: profile, size: 14),
+                      ],
                     ),
                     Text(
                       '@${profile.username}',
