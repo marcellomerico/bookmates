@@ -49,9 +49,10 @@ class FavoriteBooks extends ConsumerWidget {
             children: [
               Text(
                 own ? 'Meine Empfehlungen' : 'Empfiehlt',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               if (own)
                 IconButton(
