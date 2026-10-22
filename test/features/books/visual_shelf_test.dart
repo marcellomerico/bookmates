@@ -6,19 +6,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-UserBook _entry(String id, String title, BookStatus status) => UserBook(
+UserBook _entry(
+  String id,
+  String title,
+  BookStatus status, {
+  int? current,
+  int? total,
+}) => UserBook(
   id: id,
   userId: 'me',
   bookId: 'b-$id',
   status: status,
+  currentPage: current,
+  pageCount: total,
   // No cover URL: the title fallback renders without network.
   book: Book(id: 'b-$id', title: title, openLibraryId: 'OL${id}W'),
 );
 
 final _entries = [
-  _entry('1', 'Gerade dran', BookStatus.reading),
+  _entry('1', 'Gerade dran', BookStatus.reading, current: 50, total: 200),
   _entry('2', 'Wartet noch', BookStatus.unread),
-  _entry('3', 'Schon durch', BookStatus.read),
+  _entry('3', 'Schon durch', BookStatus.read, current: 300, total: 300),
   _entry('4', 'Noch ein durch', BookStatus.read),
   _entry('5', 'Hätte ich gern', BookStatus.wantToRead),
 ];
@@ -67,5 +75,19 @@ void main() {
     // Title appears on the fallback cover and as caption.
     expect(find.text('Hätte ich gern'), findsWidgets);
     expect(find.text('Gerade dran'), findsNothing);
+  });
+
+  testWidgets('books being read show their progress on the cover', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(tester, const ShelfView());
+    // Only the "reading" book gets a bar; finished books don't.
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(RegExp('Gerade dran.*25 Prozent gelesen')),
+      findsOneWidget,
+    );
+    semantics.dispose();
   });
 }
