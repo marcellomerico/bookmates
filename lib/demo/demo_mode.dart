@@ -456,6 +456,7 @@ class _DemoBooks extends BookRepository {
       bookId: book.id,
       status: status,
       book: book,
+      pageCount: result.pageCount,
     );
     _store.shelves.putIfAbsent(userId, () => []).add(entry);
     return entry;
@@ -475,28 +476,24 @@ class _DemoBooks extends BookRepository {
 
   @override
   Future<void> updateStatus(String userBookId, BookStatus status) async =>
-      _replace(
-        userBookId,
-        (e) => UserBook(
-          id: e.id,
-          userId: e.userId,
-          bookId: e.bookId,
-          status: status,
-          rating: e.rating,
-          book: e.book,
-        ),
-      );
+      _replace(userBookId, (e) => e.copyWith(status: status));
 
   @override
-  Future<void> updateRating(String userBookId, int? rating) async => _replace(
+  Future<void> updateRating(String userBookId, int? rating) async =>
+      _replace(userBookId, (e) => e.copyWith(rating: () => rating));
+
+  @override
+  Future<void> updateProgress(
+    String userBookId, {
+    required int? currentPage,
+    required int? pageCount,
+    BookStatus? status,
+  }) async => _replace(
     userBookId,
-    (e) => UserBook(
-      id: e.id,
-      userId: e.userId,
-      bookId: e.bookId,
-      status: e.status,
-      rating: rating,
-      book: e.book,
+    (e) => e.copyWith(
+      status: status,
+      currentPage: () => currentPage,
+      pageCount: () => pageCount,
     ),
   );
 

@@ -200,7 +200,13 @@ class DemoStore {
     );
 
     var n = 0;
-    void shelf(String user, String bookId, BookStatus status, [int? rating]) {
+    void shelf(
+      String user,
+      String bookId,
+      BookStatus status, [
+      int? rating,
+      (int, int)? progress,
+    ]) {
       shelves
           .putIfAbsent(user, () => [])
           .add(
@@ -211,12 +217,14 @@ class DemoStore {
               status: status,
               rating: rating,
               book: books[bookId],
+              currentPage: progress?.$1,
+              pageCount: progress?.$2,
             ),
           );
     }
 
-    shelf(meId, 'b-mitternacht', BookStatus.reading);
-    shelf(meId, 'b-dune', BookStatus.reading);
+    shelf(meId, 'b-mitternacht', BookStatus.reading, null, (187, 320));
+    shelf(meId, 'b-dune', BookStatus.reading, null, (112, 704));
     shelf(meId, 'b-schwarm', BookStatus.read, 5);
     shelf(meId, 'b-parfum', BookStatus.read, 4);
     shelf(meId, 'b-hobbit', BookStatus.read, 5);
