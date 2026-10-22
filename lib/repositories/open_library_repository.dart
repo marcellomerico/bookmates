@@ -11,6 +11,7 @@ class OpenLibraryBook {
     this.coverId,
     this.isbn,
     this.pageCount,
+    this.coverUrlOverride,
   });
 
   final String openLibraryId;
@@ -22,9 +23,25 @@ class OpenLibraryBook {
   /// Median page count across editions, a starting value the user can correct.
   final int? pageCount;
 
-  String? get coverUrl => coverId != null
-      ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
-      : null;
+  /// Ready cover URL for books from our DB, which store URLs rather than ids.
+  final String? coverUrlOverride;
+
+  String? get coverUrl =>
+      coverUrlOverride ??
+      (coverId != null
+          ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
+          : null);
+
+  /// Same book with a known cover URL (books from our DB store URLs, not ids).
+  OpenLibraryBook withCoverUrl(String? url) => OpenLibraryBook(
+    openLibraryId: openLibraryId,
+    title: title,
+    author: author,
+    coverId: coverId,
+    isbn: isbn,
+    pageCount: pageCount,
+    coverUrlOverride: url,
+  );
 }
 
 /// 'OL123W' from '/works/OL123W' or 'OL123W'.
@@ -149,12 +166,19 @@ class OpenLibraryRepository {
     );
   }
 
+  /// Well-rated books for an Open Library subject key (e.g. 'fantasy_fiction').
+  Future<List<OpenLibraryBook>> searchBySubject(String subject) =>
+      _searchDocs({'q': 'subject_key:$subject', 'sort': 'rating', 'limit': '15'});
+
   Future<List<OpenLibraryBook>> search(String query) async {
     if (query.trim().isEmpty) return [];
 
+    return _searchDocs({'q': query.trim(), 'limit': '20'});
+  }
+
+  Future<List<OpenLibraryBook>> _searchDocs(Map<String, String> params) async {
     final uri = Uri.https('openlibrary.org', '/search.json', {
-      'q': query.trim(),
-      'limit': '20',
+      ...params,
       'fields': 'key,title,author_name,cover_i,isbn,number_of_pages_median',
     });
 

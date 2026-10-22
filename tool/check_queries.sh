@@ -41,5 +41,6 @@ check "genres?select=id,name"
 check "posts?select=id&or=(created_at.lt.%222026-01-01T00:00:00.000Z%22,and(created_at.eq.%222026-01-01T00:00:00.000Z%22,id.lt.$z))&order=created_at.desc,id.desc&limit=20"
 check "groups?select=*,profiles!creator_id(*),group_members(count)&or=(name.ilike.*krimi*,description.ilike.*krimi*)&limit=50"
 check "groups?select=*,profiles!creator_id(*),group_members(count)&is_private=eq.false&genre_id=in.($z)&id=not.in.($z)&order=created_at.desc&limit=5"
+check "user_books?select=rating,books(*),profiles(username,display_name)&user_id=in.($z)&status=eq.read&rating=gte.4&limit=60"
 
 exit $failed

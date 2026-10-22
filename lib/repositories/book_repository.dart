@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
+import '../features/books/suggestions.dart';
 
 final _workId = RegExp(r'^OL\d+W$');
 
@@ -167,6 +168,45 @@ class BookRepository {
           .eq('id', userBookIds[i])
           .eq('user_id', userId);
     }
+  }
+
+  /// Books the given readers finished and rated 4+ stars, for suggestions.
+  Future<List<FriendPick>> friendsFavorites(List<String> userIds) async {
+    if (userIds.isEmpty) return const [];
+    final rows = await _client
+        .from('user_books')
+        .select('rating, books(*), profiles(username, display_name)')
+        .inFilter('user_id', userIds)
+        .eq('status', BookStatus.read.dbValue)
+        .gte('rating', 4)
+        .limit(60);
+    return [
+      for (final row in rows as List)
+        if (row['books'] is Map<String, dynamic>)
+          FriendPick(
+            book: Book.fromJson(row['books'] as Map<String, dynamic>),
+            rating: row['rating'] as int,
+            friendName: switch (row['profiles']) {
+              {'display_name': final String name} when name.isNotEmpty => name,
+              {'username': final String name} => name,
+              _ => 'Jemand',
+            },
+          ),
+    ];
+  }
+
+  Future<Set<String>> dismissedWorkIds() async {
+    final rows = await _client
+        .from('book_dismissals')
+        .select('open_library_id');
+    return {for (final r in rows as List) r['open_library_id'] as String};
+  }
+
+  /// "Kein Interesse": this book is never suggested again.
+  Future<void> dismissSuggestion(String workId) async {
+    await _client.from('book_dismissals').upsert({
+      'open_library_id': workId,
+    }, ignoreDuplicates: true);
   }
 
   Future<void> removeFromShelf(String userBookId) async {
