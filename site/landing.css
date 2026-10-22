@@ -352,6 +352,38 @@ h1 .accent {
 .beta .fine { font-size: 14px; margin: 24px auto 0; opacity: 0.8; }
 .beta .fine a { color: #fff; }
 
+/* Beta form */
+.beta-form { max-width: 620px; margin: 0 auto; text-align: left; display: grid; gap: 18px; }
+.field-row { display: grid; grid-template-columns: 1fr 1.6fr; gap: 14px; }
+.field span, .platform legend { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; opacity: 0.95; }
+.field small { font-weight: 400; opacity: 0.75; }
+.field input {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+  background: rgba(255, 255, 255, 0.95); border: 2px solid transparent; border-radius: 14px;
+  padding: 13px 16px; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(201, 164, 106, 0.35); }
+.platform { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.platform legend { width: 100%; }
+.platform label { cursor: pointer; }
+.platform input { position: absolute; opacity: 0; pointer-events: none; }
+.platform label span {
+  display: inline-block; padding: 11px 22px; border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.55); font-weight: 600; transition: all 0.2s var(--ease);
+}
+.platform input:checked + span { background: #fff; color: var(--burgundy); border-color: #fff; }
+.platform input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.consent { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; opacity: 0.92; cursor: pointer; }
+.consent input { width: 20px; height: 20px; margin-top: 1px; flex: none; accent-color: var(--gold); }
+.consent a { color: #fff; }
+.beta-form .btn { justify-self: center; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+.beta-form .btn[disabled] { opacity: 0.7; cursor: wait; }
+.form-status { text-align: center; margin: 0; font-weight: 600; min-height: 1.5em; }
+.form-status.error { color: #ffd9d9; }
+.beta-form.done { text-align: center; }
+.beta-done { font-family: var(--serif); font-size: clamp(22px, 3vw, 28px); margin: 0; }
+
 /* FAQ */
 .faq {
   display: grid;
@@ -444,6 +476,7 @@ h1 .accent {
   .feature { margin-bottom: 80px; }
   .faq summary { gap: 14px; padding: 20px 0; }
   .faq .answer p { padding: 0 0 20px 36px; }
+  .field-row { grid-template-columns: 1fr; }
 }
 
 /* Respect reduced motion */

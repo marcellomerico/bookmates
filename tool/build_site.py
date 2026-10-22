@@ -48,7 +48,10 @@ def render(md: str) -> tuple[str, str]:
             out.append(f"<h1>{inline(title)}</h1>")
         elif line.startswith("## "):
             flush_para(); flush_list()
-            out.append(f"<h2>{inline(line[3:].strip())}</h2>")
+            text = line[3:].strip()
+            m = re.search(r"\s*\{#([a-z0-9-]+)\}$", text)  # optional anchor: "## Title {#id}"
+            anchor = f' id="{m.group(1)}"' if m else ""
+            out.append(f"<h2{anchor}>{inline(text[: m.start()] if m else text)}</h2>")
         elif line.startswith("> "):
             flush_para(); flush_list()
             out.append(f'<p class="draft">{inline(line[2:].strip())}</p>')
