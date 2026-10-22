@@ -63,4 +63,50 @@
       }
     });
   });
+
+  // Beta sign-up: insert-only table in the EU Supabase project (publishable key is public by design).
+  const form = document.querySelector('.beta-form');
+  if (form) {
+    const status = form.querySelector('.form-status');
+    const button = form.querySelector('button');
+    const setStatus = (text, isError) => { status.textContent = text; status.classList.toggle('error', !!isError); };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      if (f.get('website')) return;
+      const email = String(f.get('email') || '').trim();
+      const platform = f.get('platform');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return setStatus('Bitte gib eine gültige E-Mail-Adresse ein.', true);
+      if (!platform) return setStatus('Bitte wähle iPhone oder Android.', true);
+      if (!f.get('consent')) return setStatus('Bitte bestätige die Einwilligung.', true);
+      button.disabled = true;
+      setStatus('Wird gesendet …');
+      const done = (text) => {
+        form.classList.add('done');
+        form.innerHTML = `<p class="beta-done">${text}</p>`;
+      };
+      try {
+        const res = await fetch('https://thkfqvvzldkfxaqehjqn.supabase.co/rest/v1/beta_signups', {
+          method: 'POST',
+          headers: {
+            apikey: 'sb_publishable_PhO6vCTfihbDamh8t6aM3Q_XcVTJp9d',
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({
+            first_name: String(f.get('first_name') || '').trim() || null,
+            email,
+            platform,
+            consent: true,
+          }),
+        });
+        if (res.status === 201) return done('Danke! Du bist dabei. Wir melden uns per Mail, sobald die Beta startet. 📚');
+        if (res.status === 409) return done('Du bist schon angemeldet. Wir melden uns, sobald die Beta startet. 📚');
+        throw new Error(String(res.status));
+      } catch {
+        button.disabled = false;
+        setStatus('Das hat leider nicht geklappt. Versuch es gleich noch einmal oder schreib an support@booksquad.de.', true);
+      }
+    });
+  }
 })();

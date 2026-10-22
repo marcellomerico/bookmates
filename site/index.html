@@ -132,10 +132,30 @@
   <div class="beta-glow" aria-hidden="true"></div>
   <h2 data-reveal>Werde Beta-Tester</h2>
   <p data-reveal style="--d:1">Booksquad startet bald. Vorher suchen wir Leserinnen und Leser, die die App zwei Wochen lang ausprobieren und uns sagen, was gut ist und was besser werden muss. Für iPhone und Android.</p>
-  <div data-reveal style="--d:2">
-    <a class="btn btn-light" href="mailto:support@booksquad.de?subject=Beta-Tester%20Booksquad&amp;body=Hallo%2C%20ich%20m%C3%B6chte%20Booksquad%20testen.%0A%0AGer%C3%A4t%20(iPhone%20oder%20Android)%3A%20%0AE-Mail%20meiner%20Apple-ID%20bzw.%20meines%20Google-Kontos%3A%20">Per E-Mail anmelden</a>
-  </div>
-  <p class="fine" data-reveal style="--d:3">Deine Angaben nutzen wir nur, um dich zum Test einzuladen. Mehr in der <a href="privacy.html">Datenschutzerklärung</a>.</p>
+  <form class="beta-form" data-reveal style="--d:2" novalidate>
+    <div class="field-row">
+      <label class="field">
+        <span>Vorname <small>(optional)</small></span>
+        <input name="first_name" type="text" maxlength="60" autocomplete="given-name">
+      </label>
+      <label class="field">
+        <span>E-Mail deiner Apple-ID bzw. deines Google-Kontos</span>
+        <input name="email" type="email" maxlength="254" autocomplete="email" required>
+      </label>
+    </div>
+    <fieldset class="platform">
+      <legend>Dein Handy</legend>
+      <label><input type="radio" name="platform" value="ios" required><span>iPhone</span></label>
+      <label><input type="radio" name="platform" value="android"><span>Android</span></label>
+    </fieldset>
+    <label class="hp" aria-hidden="true">Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+    <label class="consent">
+      <input type="checkbox" name="consent" required>
+      <span>Ich bin einverstanden, dass Booksquad meine Angaben speichert, um mich zum Beta-Test einzuladen. Widerruf jederzeit per Mail an support@booksquad.de. Details in der <a href="privacy.html#beta">Datenschutzerklärung</a>.</span>
+    </label>
+    <button class="btn btn-light" type="submit">Jetzt anmelden</button>
+    <p class="form-status" role="status" aria-live="polite"></p>
+  </form>
 </section>
 
 <section id="faq" class="faq">
