@@ -1,4 +1,3 @@
-import 'shelf_decor.dart';
 import 'verification.dart';
 
 class Profile {
@@ -11,7 +10,6 @@ class Profile {
     this.onboardingCompleted = false,
     this.verifiedAt,
     this.verifiedKind,
-    this.shelfDecor = const [],
   });
 
   final String id;
@@ -22,9 +20,6 @@ class Profile {
   final bool onboardingCompleted;
   final DateTime? verifiedAt;
   final VerificationKind? verifiedKind;
-
-  /// Decoration on the reader's shelf boards.
-  final List<DecorPiece> shelfDecor;
 
   bool get isVerified => verifiedAt != null;
 
@@ -40,7 +35,6 @@ class Profile {
           ? null
           : DateTime.parse(json['verified_at'] as String),
       verifiedKind: VerificationKind.fromDb(json['verified_kind'] as String?),
-      shelfDecor: DecorPiece.listFromJson(json['shelf_decor']),
     );
   }
 }

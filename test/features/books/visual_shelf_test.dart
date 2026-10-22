@@ -1,9 +1,6 @@
 import 'package:booksquad/features/books/presentation/visual_shelf.dart';
 import 'package:booksquad/features/books/providers/books_provider.dart';
-import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:booksquad/models/book.dart';
-import 'package:booksquad/models/profile.dart';
-import 'package:booksquad/models/shelf_decor.dart';
 import 'package:booksquad/models/user_book.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,22 +32,13 @@ final _entries = [
   _entry('6', 'Aufgegeben', BookStatus.abandoned),
 ];
 
-Future<void> _pump(
-  WidgetTester tester,
-  Widget child, {
-  List<DecorPiece> decor = const [],
-}) async {
+Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(400, 1400);
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
-        bookshelfProvider.overrideWith((ref) async => _entries),
-        currentProfileProvider.overrideWith(
-          (ref) async => Profile(id: 'me', username: 'me', shelfDecor: decor),
-        ),
-      ],
+      overrides: [bookshelfProvider.overrideWith((ref) async => _entries)],
       child: MaterialApp(
         home: Scaffold(body: SingleChildScrollView(child: child)),
       ),
@@ -131,30 +119,5 @@ void main() {
     );
     expect(find.byType(TweenAnimationBuilder<double>), findsNothing);
     expect(find.text('Gerade dran'), findsOneWidget);
-  });
-
-  testWidgets('decoration stands on the full shelf, not in filtered views', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      const ShelfView(),
-      decor: const [DecorPiece(DecorItem.plant, 0, 1)],
-    );
-    expect(find.text(DecorItem.plant.emoji), findsOneWidget);
-    await tester.ensureVisible(find.text('Gelesen  2'));
-    await tester.tap(find.text('Gelesen  2'));
-    await tester.pumpAndSettle();
-    expect(find.text(DecorItem.plant.emoji), findsNothing);
-  });
-
-  testWidgets('decorating shows the palette and free places', (tester) async {
-    await _pump(tester, const ShelfView());
-    await tester.ensureVisible(find.text('Dekorieren'));
-    await tester.tap(find.text('Dekorieren'));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Kaktus'), findsOneWidget);
-    expect(find.bySemanticsLabel('Freier Platz'), findsWidgets);
-    expect(find.text('Fertig'), findsOneWidget);
   });
 }
