@@ -3,12 +3,11 @@ class AppConfig {
   AppConfig._();
 
   static const supportEmail = 'support@booksquad.de';
-  // Live once GitHub Pages is enabled — see docs/RELEASE.md (Rechtstexte veröffentlichen).
+  // Hosted on Netlify from site/ (docs/RELEASE.md).
   static const _legalBase = 'https://booksquad.de';
   static const privacyPolicyUrl = '$_legalBase/privacy.html';
   static const termsUrl = '$_legalBase/terms.html';
   static const imprintUrl = '$_legalBase/imprint.html';
-  static const deleteAccountUrl = '$_legalBase/delete-account.html';
 
   /// Deep link Supabase redirects to after e-mail confirmation / password reset.
   /// Must also be listed under Auth → URL Configuration → Redirect URLs.
