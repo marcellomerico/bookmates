@@ -25,6 +25,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 15 | `20261022150000_reading_progress.sql` | Lesefortschritt: Seitenzahl und aktuelle Seite pro Regal-Eintrag (rein additiv, bestehende Einträge bleiben unverändert) |
 | 16 | `20261022170000_book_status_abandoned.sql` | Regal-Status „abgebrochen“ (rein additiv, bestehende Einträge bleiben unverändert) |
 | 17 | `20261022190000_favorite_books.sql` | Bis zu 3 Lieblingsbücher pro Leser fürs Profil (rein additiv, bestehende Einträge bleiben unverändert) |
+| 18 | `20261022210000_beta_signup_notify.sql` | Mail an support@ bei jeder Beta-Anmeldung (Trigger → Edge Function `beta-signup-notify`). Danach: Vault-Secrets `beta_notify_url`/`beta_notify_key` anlegen und Edge-Function-Secret `SMTP_PASSWORD` setzen; ohne sie passiert nichts |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 
