@@ -24,6 +24,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 14 | `20261022120000_beta_signups.sql` | Beta-Anmeldungen von booksquad.de: Tabelle nur zum Einfügen für die Website, Lesen nur im Dashboard, Spam-Bremse |
 | 15 | `20261022150000_reading_progress.sql` | Lesefortschritt: Seitenzahl und aktuelle Seite pro Regal-Eintrag (rein additiv, bestehende Einträge bleiben unverändert) |
 | 16 | `20261022170000_book_status_abandoned.sql` | Regal-Status „abgebrochen“ (rein additiv, bestehende Einträge bleiben unverändert) |
+| 17 | `20261022190000_favorite_books.sql` | Bis zu 3 Lieblingsbücher pro Leser fürs Profil (rein additiv, bestehende Einträge bleiben unverändert) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 
