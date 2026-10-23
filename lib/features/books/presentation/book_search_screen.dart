@@ -145,12 +145,12 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                   child: IconButton.filled(
                     onPressed: _searching ? null : _search,
                     icon: _searching
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: context.palette.onBurgundy,
                             ),
                           )
                         : const Icon(Icons.arrow_forward, size: 18),
@@ -210,8 +210,8 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                                       if (book.author != null)
                                         Text(
                                           book.author!,
-                                          style: const TextStyle(
-                                            color: AppColors.muted,
+                                          style: TextStyle(
+                                            color: context.palette.muted,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -243,13 +243,16 @@ class _BookSearchScreenState extends ConsumerState<BookSearchScreen> {
                                               child: Container(
                                                 width: 30,
                                                 height: 30,
-                                                decoration: const BoxDecoration(
-                                                  color: AppColors.burgundy,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      context.palette.burgundy,
                                                   shape: BoxShape.circle,
                                                 ),
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.add,
-                                                  color: Colors.white,
+                                                  color: context
+                                                      .palette
+                                                      .onBurgundy,
                                                   size: 18,
                                                 ),
                                               ),
@@ -283,10 +286,10 @@ class _BookCover extends StatelessWidget {
         width: 40,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.parchment,
+          color: context.palette.parchment,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.menu_book, color: AppColors.muted, size: 20),
+        child: Icon(Icons.menu_book, color: context.palette.muted, size: 20),
       );
     }
 
@@ -301,12 +304,12 @@ class _BookCover extends StatelessWidget {
             .round()
             .clamp(1, 300),
         placeholder: (_, _) =>
-            Container(width: 42, height: 60, color: AppColors.parchment),
+            Container(width: 42, height: 60, color: context.palette.parchment),
         errorWidget: (_, _, _) => Container(
           width: 42,
           height: 60,
-          color: AppColors.parchment,
-          child: const Icon(Icons.menu_book, color: AppColors.muted, size: 20),
+          color: context.palette.parchment,
+          child: Icon(Icons.menu_book, color: context.palette.muted, size: 20),
         ),
       ),
     );

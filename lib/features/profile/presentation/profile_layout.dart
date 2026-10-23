@@ -174,7 +174,7 @@ class _Header extends ConsumerWidget {
           ),
           Text(
             '@${profile.username}',
-            style: const TextStyle(color: AppColors.muted),
+            style: TextStyle(color: context.palette.muted),
           ),
           if (profile.bio?.isNotEmpty ?? false) ...[
             const SizedBox(height: 6),
@@ -184,8 +184,8 @@ class _Header extends ConsumerWidget {
             const SizedBox(height: 6),
             Text(
               genres.join(' · '),
-              style: const TextStyle(
-                color: AppColors.burgundy,
+              style: TextStyle(
+                color: context.palette.burgundy,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -221,7 +221,7 @@ class _Stat extends StatelessWidget {
           ),
           Text(
             label,
-            style: const TextStyle(color: AppColors.muted, fontSize: 13),
+            style: TextStyle(color: context.palette.muted, fontSize: 13),
           ),
         ],
       ),
@@ -249,14 +249,14 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: const DecoratedBox(
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: AppColors.line)),
+          border: Border(bottom: BorderSide(color: context.palette.line)),
         ),
         child: TabBar(
-          labelColor: AppColors.burgundy,
-          unselectedLabelColor: AppColors.muted,
-          indicatorColor: AppColors.burgundy,
+          labelColor: context.palette.burgundy,
+          unselectedLabelColor: context.palette.muted,
+          indicatorColor: context.palette.burgundy,
           indicatorSize: TabBarIndicatorSize.tab,
           dividerHeight: 0,
           tabs: [

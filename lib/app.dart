@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_mode.dart';
 import 'features/auth/providers/auth_provider.dart';
 
 /// App-wide messenger so auth link errors can be shown from outside a screen.
@@ -29,6 +30,8 @@ class BooksquadApp extends ConsumerWidget {
       title: 'Booksquad',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
       locale: const Locale('de'),
       supportedLocales: const [Locale('de')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

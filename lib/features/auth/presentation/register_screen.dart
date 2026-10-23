@@ -240,9 +240,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 12),
                   TermsLinksText(
                     before: SocialSignInButtons.termsNoticePrefix,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.palette.muted,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],

@@ -82,8 +82,8 @@ class ActivityScreen extends ConsumerWidget {
                   ),
                   subtitle: Text(
                     formatRelativeTime(item.createdAt),
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.palette.muted,
                       fontSize: 11,
                     ),
                   ),

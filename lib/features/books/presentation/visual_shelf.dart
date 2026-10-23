@@ -13,9 +13,10 @@ import 'book_spine.dart';
 import 'book_status_sheet.dart';
 
 /// Shelf wood: a warm light board with a darker front edge.
-const _boardTop = Color(0xFFE6D3B1);
-const _boardEdge = Color(0xFFC9AC80);
-const _shelfBack = Color(0xFFF1E7D6);
+Color _boardTop(BuildContext context) =>
+    Color.lerp(context.palette.shelfWood, Colors.white, 0.3)!;
+Color _boardEdge(BuildContext context) => context.palette.shelfWood;
+Color _shelfBack(BuildContext context) => context.palette.shelfBack;
 
 /// How books stand on the shelf: covers facing out or spines like a real shelf.
 enum ShelfLook { covers, spines }
@@ -147,11 +148,11 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               ),
             const SizedBox(height: 12),
             if (sorting)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 8),
                 child: Text(
                   'Buch gedrückt halten und auf den Platz eines anderen ziehen.',
-                  style: TextStyle(color: AppColors.muted, fontSize: 13),
+                  style: TextStyle(color: context.palette.muted, fontSize: 13),
                 ),
               ),
             _Shelves(
@@ -225,7 +226,7 @@ class _LookToggle extends StatelessWidget {
         icon: Icon(
           icon,
           size: 20,
-          color: selected ? AppColors.burgundy : AppColors.muted,
+          color: selected ? context.palette.burgundy : context.palette.muted,
           semanticLabel: label,
         ),
       );
@@ -426,7 +427,7 @@ class _Shelves extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 4),
       decoration: BoxDecoration(
-        color: _shelfBack,
+        color: _shelfBack(context),
         borderRadius: BorderRadius.circular(AppRadius.l),
       ),
       child: LayoutBuilder(
@@ -458,8 +459,8 @@ class _Shelves extends StatelessWidget {
                                 child: Text(
                                   emptyText!,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: AppColors.muted,
+                                  style: TextStyle(
+                                    color: context.palette.muted,
                                   ),
                                 ),
                               )
@@ -626,7 +627,9 @@ class _Sortable extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
             width: 2,
-            color: candidates.isEmpty ? Colors.transparent : AppColors.burgundy,
+            color: candidates.isEmpty
+                ? Colors.transparent
+                : context.palette.burgundy,
           ),
         ),
         child: child,
@@ -706,10 +709,10 @@ class _Board extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     height: 10,
     decoration: BoxDecoration(
-      gradient: const LinearGradient(
+      gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_boardTop, _boardEdge],
+        colors: [_boardTop(context), _boardEdge(context)],
       ),
       borderRadius: BorderRadius.circular(3),
       boxShadow: const [
@@ -782,8 +785,11 @@ class _BookCover extends ConsumerWidget {
               height: height,
               fit: BoxFit.cover,
               memCacheWidth: (width * dpr).round(),
-              placeholder: (_, _) =>
-                  Container(width: width, height: height, color: _boardTop),
+              placeholder: (_, _) => Container(
+                width: width,
+                height: height,
+                color: _boardTop(context),
+              ),
               errorWidget: (_, _, _) =>
                   _SpineFallback(title: title, width: width, height: height),
             ),
@@ -819,12 +825,12 @@ class _BookCover extends ConsumerWidget {
               children: [
                 cover,
                 if (showStatusBadge && entry.status == BookStatus.reading)
-                  const Positioned(
+                  Positioned(
                     top: 0,
                     right: 6,
                     child: Icon(
                       Icons.bookmark,
-                      color: AppColors.burgundy,
+                      color: context.palette.burgundy,
                       size: 20,
                     ),
                   ),
@@ -838,7 +844,7 @@ class _BookCover extends ConsumerWidget {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 4,
-                        color: AppColors.burgundy,
+                        color: context.palette.burgundy,
                         backgroundColor: const Color(0xCCFFFFFF),
                       ),
                     ),
@@ -864,8 +870,9 @@ class _SpineFallback extends StatelessWidget {
   final double width;
   final double height;
 
+  // Book colours, the same in both themes.
   static const _colors = [
-    AppColors.burgundy,
+    Color(0xFF7B3140),
     Color(0xFF3E5C50),
     Color(0xFF34495E),
     Color(0xFF85661A),

@@ -87,7 +87,7 @@ class _ConversationTile extends ConsumerWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: unread ? AppColors.ink : AppColors.muted,
+          color: unread ? context.palette.ink : context.palette.muted,
           fontWeight: unread ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
@@ -98,7 +98,7 @@ class _ConversationTile extends ConsumerWidget {
           if (conversation.lastMessageAt != null)
             Text(
               formatRelativeTime(conversation.lastMessageAt!),
-              style: const TextStyle(fontSize: 11, color: AppColors.muted),
+              style: TextStyle(fontSize: 11, color: context.palette.muted),
             ),
           if (unread) ...[
             const SizedBox(height: 4),

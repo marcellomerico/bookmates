@@ -92,8 +92,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _error!,
-                    style: const TextStyle(
-                      color: AppColors.burgundy,
+                    style: TextStyle(
+                      color: context.palette.burgundy,
                       fontSize: 12,
                     ),
                   ),
@@ -102,12 +102,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 ElevatedButton(
                   onPressed: _loading ? null : _save,
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: context.palette.onBurgundy,
                           ),
                         )
                       : const Text('Speichern'),

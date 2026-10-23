@@ -109,9 +109,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       ),
       if (rejected) ...[
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'Dein letzter Antrag wurde abgelehnt. Du kannst einen neuen mit einem anderen Nachweis stellen.',
-          style: TextStyle(color: AppColors.muted),
+          style: TextStyle(color: context.palette.muted),
         ),
       ],
       const SizedBox(height: 20),
@@ -154,9 +154,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         maxLines: 3,
         decoration: const InputDecoration(labelText: 'Anmerkung (optional)'),
       ),
-      const Text(
+      Text(
         'Bitte keine Ausweisdokumente. Wir speichern nur den Link und deine Anmerkung.',
-        style: TextStyle(color: AppColors.muted, fontSize: 13),
+        style: TextStyle(color: context.palette.muted, fontSize: 13),
       ),
       if (_error != null) ...[
         const SizedBox(height: 12),

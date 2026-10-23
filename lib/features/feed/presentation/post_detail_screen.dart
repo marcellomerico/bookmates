@@ -127,10 +127,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       Text('Kommentare konnten nicht geladen werden.'),
                     ],
                     data: (items) => items.isEmpty
-                        ? const [
+                        ? [
                             Text(
                               'Noch keine Kommentare.',
-                              style: TextStyle(color: AppColors.muted),
+                              style: TextStyle(color: context.palette.muted),
                             ),
                           ]
                         : items.map((comment) {
@@ -171,8 +171,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                   Text(comment.content),
                                   Text(
                                     formatRelativeTime(comment.createdAt),
-                                    style: const TextStyle(
-                                      color: AppColors.muted,
+                                    style: TextStyle(
+                                      color: context.palette.muted,
                                       fontSize: 11,
                                     ),
                                   ),

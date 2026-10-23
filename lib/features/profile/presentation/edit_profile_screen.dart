@@ -268,7 +268,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       child: IconButton.filled(
                         tooltip: 'Profilbild ändern',
                         style: IconButton.styleFrom(
-                          side: const BorderSide(color: Colors.white, width: 2),
+                          side: BorderSide(
+                            color: context.palette.card,
+                            width: 2,
+                          ),
                         ),
                         onPressed: _loading ? null : _pickAvatar,
                         icon: const Icon(Icons.camera_alt_outlined, size: 16),
@@ -333,7 +336,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               const SizedBox(height: 8),
               Text(
                 'Wähle die Genres, die dich am besten beschreiben.',
-                style: TextStyle(color: AppColors.muted),
+                style: TextStyle(color: context.palette.muted),
               ),
               const SizedBox(height: 16),
               Wrap(

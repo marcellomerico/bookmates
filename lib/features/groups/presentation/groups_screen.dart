@@ -245,13 +245,15 @@ class _GroupRow extends ConsumerWidget {
               width: 38,
               height: 52,
               decoration: BoxDecoration(
-                color: group.isPrivate ? AppColors.ink : AppColors.burgundy,
+                color: group.isPrivate
+                    ? context.palette.ink
+                    : context.palette.burgundy,
                 borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
               child: Icon(
                 group.isPrivate ? Icons.lock_outline : Icons.menu_book_outlined,
-                color: Colors.white,
+                color: context.palette.onBurgundy,
                 size: 18,
               ),
             ),
@@ -269,8 +271,8 @@ class _GroupRow extends ConsumerWidget {
                   ),
                   Text(
                     '${group.memberCount} Mitglieder${group.isPrivate ? ' • Privat' : ''}',
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.palette.muted,
                       fontSize: 11,
                     ),
                   ),

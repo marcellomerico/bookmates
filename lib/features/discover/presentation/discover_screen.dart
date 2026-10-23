@@ -312,9 +312,9 @@ class _PersonRow extends ConsumerWidget {
                     ),
                     Text(
                       '@${profile.username}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.muted,
+                        color: context.palette.muted,
                       ),
                     ),
                   ],
@@ -374,13 +374,13 @@ class _DiscoverClub extends StatelessWidget {
                 width: 38,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: AppColors.success,
+                  color: context.palette.success,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(
+                child: Icon(
                   Icons.menu_book_rounded,
-                  color: Colors.white,
+                  color: context.palette.onBurgundy,
                   size: 18,
                 ),
               ),
@@ -398,8 +398,8 @@ class _DiscoverClub extends StatelessWidget {
                     ),
                     Text(
                       meta,
-                      style: const TextStyle(
-                        color: AppColors.muted,
+                      style: TextStyle(
+                        color: context.palette.muted,
                         fontSize: 11,
                       ),
                     ),

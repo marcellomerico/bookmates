@@ -116,8 +116,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 10),
                 Text(
                   _error!,
-                  style: const TextStyle(
-                    color: AppColors.burgundy,
+                  style: TextStyle(
+                    color: context.palette.burgundy,
                     fontSize: 12,
                   ),
                 ),
@@ -126,12 +126,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ElevatedButton(
                 onPressed: _loading ? null : _signIn,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: context.palette.onBurgundy,
                         ),
                       )
                     : const Text('Anmelden'),
@@ -153,7 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   before: SocialSignInButtons.termsNoticePrefix,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                  ).textTheme.bodySmall?.copyWith(color: context.palette.muted),
                   textAlign: TextAlign.center,
                 ),
               ],

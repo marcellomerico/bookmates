@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/theme_mode.dart';
 import '../../../core/utils/launch_utils.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
@@ -157,6 +158,33 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push('/moderation/verifications'),
             ),
           ],
+          const _Header('Darstellung'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: SegmentedButton<ThemeMode>(
+              segments: const [
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  icon: Icon(Icons.brightness_auto_outlined),
+                  label: Text('System'),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  icon: Icon(Icons.light_mode_outlined),
+                  label: Text('Hell'),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  icon: Icon(Icons.dark_mode_outlined),
+                  label: Text('Dunkel'),
+                ),
+              ],
+              selected: {ref.watch(themeModeProvider)},
+              showSelectedIcon: false,
+              onSelectionChanged: (s) =>
+                  ref.read(themeModeProvider.notifier).set(s.first),
+            ),
+          ),
           const _Header('Hilfe & Rechtliches'),
           ListTile(
             leading: const Icon(Icons.mail_outline),
@@ -219,7 +247,7 @@ class _Header extends StatelessWidget {
       text,
       style: Theme.of(
         context,
-      ).textTheme.labelMedium?.copyWith(color: AppColors.muted),
+      ).textTheme.labelMedium?.copyWith(color: context.palette.muted),
     ),
   );
 }

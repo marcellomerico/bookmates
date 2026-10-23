@@ -74,19 +74,19 @@ class _DailySuggestionCardState extends ConsumerState<DailySuggestionCard> {
                       ? Container(
                           width: 72,
                           height: 108,
-                          color: AppColors.parchment,
+                          color: context.palette.parchment,
                           child: const Icon(Icons.menu_book_outlined),
                         )
                       : CachedNetworkImage(
                           placeholder: (_, _) => Container(
                             width: 72,
                             height: 108,
-                            color: AppColors.parchment,
+                            color: context.palette.parchment,
                           ),
                           errorWidget: (_, _, _) => Container(
                             width: 72,
                             height: 108,
-                            color: AppColors.parchment,
+                            color: context.palette.parchment,
                             child: const Icon(Icons.menu_book_outlined),
                           ),
                           imageUrl: book.coverUrl!,
@@ -109,7 +109,7 @@ class _DailySuggestionCardState extends ConsumerState<DailySuggestionCard> {
                             child: Text(
                               'DEIN BUCH DES TAGES',
                               style: theme.textTheme.labelMedium?.copyWith(
-                                color: AppColors.burgundy,
+                                color: context.palette.burgundy,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -138,7 +138,7 @@ class _DailySuggestionCardState extends ConsumerState<DailySuggestionCard> {
                       if (book.author != null)
                         Text(
                           book.author!,
-                          style: const TextStyle(color: AppColors.muted),
+                          style: TextStyle(color: context.palette.muted),
                         ),
                       const SizedBox(height: 6),
                       Text(suggestion.reason, style: theme.textTheme.bodySmall),
