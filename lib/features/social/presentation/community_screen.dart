@@ -60,6 +60,8 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen>
             indicatorWeight: 3,
             indicatorSize: TabBarIndicatorSize.label,
             dividerColor: p.line,
+            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+            splashFactory: NoSplash.splashFactory,
             tabs: [
               const Tab(text: 'Lesekreise'),
               Tab(

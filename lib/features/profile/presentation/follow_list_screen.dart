@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../social/providers/social_providers.dart';
@@ -55,28 +58,35 @@ class FollowListScreen extends ConsumerWidget {
                 )
               : ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final profile = items[index];
-                    return ListTile(
-                      onTap: () => context.push('/users/${profile.id}'),
-                      leading: UserAvatar(
-                        url: profile.avatarUrl,
-                        name: profile.displayName ?? profile.username,
-                      ),
-                      title: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              profile.displayName ?? profile.username,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                    return Reveal(
+                      index: math.min(index, 6),
+                      child: ListCard(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          onTap: () => context.push('/users/${profile.id}'),
+                          leading: UserAvatar(
+                            url: profile.avatarUrl,
+                            name: profile.displayName ?? profile.username,
                           ),
-                          VerifiedBadge(profile: profile),
-                        ],
+                          title: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  profile.displayName ?? profile.username,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              VerifiedBadge(profile: profile),
+                            ],
+                          ),
+                          subtitle: Text('@${profile.username}'),
+                        ),
                       ),
-                      subtitle: Text('@${profile.username}'),
                     );
                   },
                 ),

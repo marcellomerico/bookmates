@@ -8,7 +8,6 @@ import '../../../core/theme/booksquad_ui.dart';
 import '../../../models/reading_stats.dart';
 import '../../../models/user_book.dart';
 import '../../books/providers/books_provider.dart';
-import '../../feed/presentation/home_reading.dart' show Reveal;
 import '../stats_math.dart';
 
 enum _Period { week, month, year }

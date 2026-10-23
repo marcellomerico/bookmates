@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +9,7 @@ import '../../../models/reading_stats.dart';
 import '../../../models/user_book.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../books/presentation/book_detail_screen.dart' show bookCoverHeroTag;
 import '../../books/providers/books_provider.dart';
 
 const _weekdays = [
@@ -62,36 +61,6 @@ class _Grow extends StatelessWidget {
       duration: const Duration(milliseconds: 900),
       curve: Curves.easeOutCubic,
       builder: (context, v, _) => builder(context, v),
-    );
-  }
-}
-
-/// Fades and slides a card up, staggered by [index].
-class Reveal extends StatelessWidget {
-  const Reveal({super.key, required this.index, required this.child});
-
-  final int index;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    if (MediaQuery.disableAnimationsOf(context)) return child;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 420 + index * 90),
-      curve: Interval(
-        math.min(index * 0.15, 0.6),
-        1,
-        curve: Curves.easeOutBack,
-      ),
-      builder: (context, t, child) => Opacity(
-        opacity: t.clamp(0.0, 1.0),
-        child: Transform.translate(
-          offset: Offset(0, 18 * (1 - t)),
-          child: child,
-        ),
-      ),
-      child: child,
     );
   }
 }
@@ -169,14 +138,19 @@ class CurrentlyReadingCard extends ConsumerWidget {
         child: InkWell(
           onTap: workId == null
               ? null
-              : () => context.push('/books/${normalizeWorkId(workId)}'),
+              : () => context.push(
+                  '/books/${normalizeWorkId(workId)}',
+                  extra: book?.coverUrl,
+                ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: 'home-cover-${entry.id}',
+                  tag: workId == null
+                      ? 'home-cover-${entry.id}'
+                      : bookCoverHeroTag(normalizeWorkId(workId)),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(

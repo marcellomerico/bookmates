@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -205,11 +207,14 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                           : null,
                     ),
                   ]
-                : items
+                : items.indexed
                       .map(
-                        (group) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: _GroupRow(group: group, query: _query),
+                        (e) => Reveal(
+                          index: math.min(e.$1, 6),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: _GroupRow(group: e.$2, query: _query),
+                          ),
                         ),
                       )
                       .toList(),
