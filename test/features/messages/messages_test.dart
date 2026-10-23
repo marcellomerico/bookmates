@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:booksquad/features/auth/providers/auth_provider.dart';
 import 'package:booksquad/features/messages/presentation/chat_screen.dart';
 import 'package:booksquad/features/messages/presentation/inbox_screen.dart';
+import 'package:booksquad/features/social/presentation/community_screen.dart';
 import 'package:booksquad/features/messages/providers/messages_providers.dart';
 import 'package:booksquad/features/social/providers/social_providers.dart';
 import 'package:booksquad/models/message.dart';
@@ -83,7 +84,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: _overrides(_FakeMessages()),
-        child: const MaterialApp(home: InboxScreen()),
+        child: const MaterialApp(home: Scaffold(body: InboxList())),
       ),
     );
     await tester.pumpAndSettle();
@@ -127,5 +128,26 @@ void main() {
 
     expect(find.byType(TextField), findsNothing);
     expect(find.textContaining('nicht mehr gegenseitig'), findsOneWidget);
+  });
+
+  testWidgets('circles and messages share one tab, swipe switches', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          ..._overrides(_FakeMessages()),
+          groupsProvider.overrideWith((ref, _) async => []),
+        ],
+        child: const MaterialApp(home: Scaffold(body: CommunityScreen())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Noch keine Lesekreise'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Nachrichten, ungelesen')), findsOneWidget);
+
+    await tester.fling(find.byType(TabBarView), const Offset(-400, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(find.text('Lena'), findsOneWidget);
   });
 }

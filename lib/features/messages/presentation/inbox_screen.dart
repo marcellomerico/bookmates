@@ -11,48 +11,46 @@ import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/social_providers.dart';
 import '../providers/messages_providers.dart';
 
-class InboxScreen extends ConsumerWidget {
-  const InboxScreen({super.key});
+/// Conversation list; lives as the "Nachrichten" page next to the reading circles.
+class InboxList extends ConsumerWidget {
+  const InboxList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final conversations = ref.watch(conversationsProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Nachrichten')),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(conversationsProvider),
-        child: conversations.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              ErrorState(
-                message: 'Nachrichten konnten nicht geladen werden.',
-                onRetry: () => ref.invalidate(conversationsProvider),
-              ),
-            ],
-          ),
-          data: (items) => items.isEmpty
-              ? ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
-                    EmptyState(
-                      icon: Icons.mail_outline,
-                      title: 'Noch keine Nachrichten',
-                      message:
-                          'Wenn ihr euch gegenseitig folgt, kannst du über das Profil eine Nachricht schreiben.',
-                    ),
-                  ],
-                )
-              : ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, i) => _ConversationTile(items[i]),
-                ),
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(conversationsProvider),
+      child: conversations.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            ErrorState(
+              message: 'Nachrichten konnten nicht geladen werden.',
+              onRetry: () => ref.invalidate(conversationsProvider),
+            ),
+          ],
         ),
+        data: (items) => items.isEmpty
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  EmptyState(
+                    icon: Icons.mail_outline,
+                    title: 'Noch keine Nachrichten',
+                    message:
+                        'Wenn ihr euch gegenseitig folgt, kannst du über das Profil eine Nachricht schreiben.',
+                  ),
+                ],
+              )
+            : ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) => _ConversationTile(items[i]),
+              ),
       ),
     );
   }

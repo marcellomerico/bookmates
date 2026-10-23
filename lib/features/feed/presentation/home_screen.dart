@@ -8,7 +8,6 @@ import '../../../core/widgets/state_views.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../books/presentation/daily_suggestion_card.dart';
 import 'home_reading.dart';
-import '../../messages/providers/messages_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -70,24 +69,6 @@ class _HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return HomeGreeting(
       actions: [
-        Consumer(
-          builder: (context, ref, _) {
-            final unread = ref.watch(hasUnreadMessagesProvider);
-            return IconButton(
-              tooltip: unread ? 'Nachrichten, ungelesen' : 'Nachrichten',
-              onPressed: () => context.push('/messages'),
-              icon: Badge(
-                isLabelVisible: unread,
-                smallSize: 9,
-                child: Icon(
-                  Icons.mail_outline_rounded,
-                  size: 26,
-                  color: context.palette.ink,
-                ),
-              ),
-            );
-          },
-        ),
         IconButton(
           tooltip: 'Aktivität',
           onPressed: onActivity,

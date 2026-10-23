@@ -7,7 +7,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../discover/presentation/discover_screen.dart';
-import '../../groups/presentation/groups_screen.dart';
+import '../../messages/providers/messages_providers.dart';
+import '../../social/presentation/community_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 import 'create_post_screen.dart';
 import 'home_screen.dart';
@@ -152,12 +153,29 @@ class _BottomBar extends StatelessWidget {
                   ),
                 ),
               ),
-              _TabItem(
-                label: 'Lesekreise',
-                icon: Icons.groups_outlined,
-                activeIcon: Icons.groups_rounded,
-                selected: currentIndex == 3,
-                onTap: () => onSelect(3),
+              Consumer(
+                builder: (context, ref, _) {
+                  final unread = ref.watch(hasUnreadMessagesProvider);
+                  final selected = currentIndex == 3;
+                  return _TabItem(
+                    label: unread
+                        ? 'Lesekreise und Nachrichten, ungelesen'
+                        : 'Lesekreise und Nachrichten',
+                    selected: selected,
+                    onTap: () => onSelect(3),
+                    child: Badge(
+                      isLabelVisible: unread,
+                      smallSize: 9,
+                      child: Icon(
+                        selected ? Icons.forum_rounded : Icons.forum_outlined,
+                        size: 28,
+                        color: selected
+                            ? context.palette.ink
+                            : context.palette.muted,
+                      ),
+                    ),
+                  );
+                },
               ),
               _TabItem(
                 label: 'Profil',
@@ -291,9 +309,11 @@ List<StatefulShellBranch> buildMainShellBranches() {
       routes: [
         GoRoute(
           path: '/groups',
-          pageBuilder: (_, state) => const NoTransitionPage(
-            key: ValueKey('groups'),
-            child: GroupsScreen(),
+          pageBuilder: (_, state) => NoTransitionPage(
+            key: const ValueKey('groups'),
+            child: CommunityScreen(
+              showMessages: state.uri.queryParameters['tab'] == 'messages',
+            ),
           ),
         ),
       ],

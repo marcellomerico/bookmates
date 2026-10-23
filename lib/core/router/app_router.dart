@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/messages/presentation/chat_screen.dart';
 import '../../features/stats/presentation/stats_screen.dart';
-import '../../features/messages/presentation/inbox_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
@@ -82,11 +81,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) =>
             slidePushPage(key: state.pageKey, child: const StatsScreen()),
       ),
-      GoRoute(
-        path: '/messages',
-        pageBuilder: (context, state) =>
-            slidePushPage(key: state.pageKey, child: const InboxScreen()),
-      ),
+      GoRoute(path: '/messages', redirect: (_, _) => '/groups?tab=messages'),
       GoRoute(
         path: '/messages/:conversationId',
         pageBuilder: (context, state) => slidePushPage(
