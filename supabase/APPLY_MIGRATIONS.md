@@ -30,6 +30,7 @@ Supabase Dashboard → **SQL** → **New query**
 | 20 | `20261023120000_book_dismissals.sql` | „Kein Interesse“ bei Buchvorschlägen (eigene Tabelle, nur eigene Einträge) |
 | 21 | `20261023140000_shelf_decor.sql` | Spalte für Regal-Deko (`shelf_decor`, max. 16 Teile, serverseitig geprüft; additiv). Die App nutzt sie derzeit nicht (#79) |
 | 22 | `20261023160000_shelf_order.sql` | Eigene Reihenfolge im Regal (`user_books.shelf_position`, RPC `reorder_shelf`; additiv) |
+| 23 | `20261023180000_private_accounts.sql` | Private Konten mit Folgeanfragen (`profiles.is_private`, Tabelle `follow_requests`, RPCs `follow_user`/`respond_follow_request`, RLS für Regal und Beiträge; additiv, alle bleiben öffentlich) |
 
 Jeweils **gesamten Dateiinhalt** kopieren → **Run**.
 

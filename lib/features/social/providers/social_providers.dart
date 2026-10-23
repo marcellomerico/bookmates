@@ -74,15 +74,21 @@ final userGenresByIdProvider = FutureProvider.autoDispose
       return ref.watch(profileRepositoryProvider).getUserGenreNames(userId);
     });
 
-final isFollowingProvider = FutureProvider.autoDispose.family<bool, String>((
+final followStateProvider = FutureProvider.autoDispose
+    .family<FollowState, String>((ref, targetUserId) async {
+      final user = ref.watch(currentUserProvider);
+      if (user == null || user.id == targetUserId) return FollowState.none;
+      return ref
+          .watch(followRepositoryProvider)
+          .followState(followerId: user.id, followingId: targetUserId);
+    });
+
+final followRequestsProvider = FutureProvider.autoDispose<List<Profile>>((
   ref,
-  targetUserId,
 ) async {
   final user = ref.watch(currentUserProvider);
-  if (user == null || user.id == targetUserId) return false;
-  return ref
-      .watch(followRepositoryProvider)
-      .isFollowing(followerId: user.id, followingId: targetUserId);
+  if (user == null) return [];
+  return ref.watch(followRepositoryProvider).getFollowRequests(user.id);
 });
 
 final isBlockedProvider = FutureProvider.autoDispose.family<bool, String>((

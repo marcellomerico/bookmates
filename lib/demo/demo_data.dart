@@ -24,6 +24,9 @@ class DemoStore {
   final groups = <BookGroup>[];
   final groupMembers = <String, Set<String>>{};
   final following = <String, Set<String>>{};
+
+  /// requester -> private accounts asked.
+  final followRequests = <String, Set<String>>{};
   final likes = <String, Set<String>>{};
   final genres = <String, List<String>>{};
   final activity = <ActivityItem>[];
@@ -44,6 +47,7 @@ class DemoStore {
       String bio,
       List<String> g, [
       VerificationKind? verified,
+      bool private = false,
     ]) {
       profiles[id] = Profile(
         id: id,
@@ -53,6 +57,7 @@ class DemoStore {
         onboardingCompleted: true,
         verifiedAt: verified == null ? null : DateTime(2026, 10, 1),
         verifiedKind: verified,
+        isPrivate: private,
       );
       genres[id] = g;
     }
@@ -106,6 +111,8 @@ class DemoStore {
       'Hanna',
       'Lese meinen Kindern vor und mir selbst nachts.',
       ['Jugendbuch', 'Fantasy'],
+      null,
+      true,
     );
     person(
       'u-clara',

@@ -10,6 +10,7 @@ class Profile {
     this.onboardingCompleted = false,
     this.verifiedAt,
     this.verifiedKind,
+    this.isPrivate = false,
   });
 
   final String id;
@@ -20,6 +21,9 @@ class Profile {
   final bool onboardingCompleted;
   final DateTime? verifiedAt;
   final VerificationKind? verifiedKind;
+
+  /// Private accounts show shelf and posts only to accepted followers.
+  final bool isPrivate;
 
   bool get isVerified => verifiedAt != null;
 
@@ -35,6 +39,7 @@ class Profile {
           ? null
           : DateTime.parse(json['verified_at'] as String),
       verifiedKind: VerificationKind.fromDb(json['verified_kind'] as String?),
+      isPrivate: json['is_private'] as bool? ?? false,
     );
   }
 }

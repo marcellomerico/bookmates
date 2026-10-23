@@ -571,5 +571,55 @@ do $$ declare rid uuid; begin
 end $$;
 reset role;
 
+-- Private accounts (#12): carol goes private; erin only sees her shelf/posts after acceptance.
+insert into public.books (id, title) values ('00000000-0000-4000-8000-0000000004c0', 'Privatbuch');
+insert into public.user_books (user_id, book_id) values
+  ('00000000-0000-4000-8000-00000000000c', '00000000-0000-4000-8000-0000000004c0');
+insert into public.posts (id, author_id, group_id, content) values
+  ('00000000-0000-4000-8000-0000000002c1', '00000000-0000-4000-8000-00000000000c', null, 'privat');
+update public.profiles set is_private = true where id = '00000000-0000-4000-8000-00000000000c';
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000e","role":"authenticated"}', true);
+do $$ begin
+  if exists (select 1 from public.user_books where user_id = '00000000-0000-4000-8000-00000000000c') then
+    raise exception 'FAIL: stranger sees private shelf'; end if;
+  if exists (select 1 from public.posts where id = '00000000-0000-4000-8000-0000000002c1') then
+    raise exception 'FAIL: stranger sees private post'; end if;
+  if not exists (select 1 from public.profiles where id = '00000000-0000-4000-8000-00000000000c') then
+    raise exception 'FAIL: private profile card hidden'; end if;
+  begin
+    insert into public.follows (follower_id, following_id)
+      values ('00000000-0000-4000-8000-00000000000e', '00000000-0000-4000-8000-00000000000c');
+    raise exception 'FAIL: direct follow of private account';
+  exception when insufficient_privilege then null;
+  end;
+  if public.follow_user('00000000-0000-4000-8000-00000000000c') <> 'requested' then
+    raise exception 'FAIL: follow_user did not request'; end if;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+do $$ begin
+  perform public.respond_follow_request('00000000-0000-4000-8000-00000000000e', true);
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000e","role":"authenticated"}', true);
+do $$ begin
+  if not exists (select 1 from public.user_books where user_id = '00000000-0000-4000-8000-00000000000c') then
+    raise exception 'FAIL: follower misses private shelf'; end if;
+  if not exists (select 1 from public.posts where id = '00000000-0000-4000-8000-0000000002c1') then
+    raise exception 'FAIL: follower misses private post'; end if;
+end $$;
+-- going public accepts open requests
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000b","role":"authenticated"}', true);
+do $$ begin perform public.follow_user('00000000-0000-4000-8000-00000000000c'); end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+update public.profiles set is_private = false where id = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  if not exists (select 1 from public.follows where follower_id = '00000000-0000-4000-8000-00000000000b'
+                 and following_id = '00000000-0000-4000-8000-00000000000c') then
+    raise exception 'FAIL: going public did not accept requests'; end if;
+  if exists (select 1 from public.follow_requests) then
+    raise exception 'FAIL: requests left after going public'; end if;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

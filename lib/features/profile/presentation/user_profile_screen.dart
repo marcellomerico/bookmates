@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/moderation_actions.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../../repositories/follow_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
 import '../../social/providers/paged_posts.dart';
@@ -18,16 +19,17 @@ class UserProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String currentUserId,
-    bool following,
+    FollowState state,
   ) async {
     final repo = ref.read(followRepositoryProvider);
     try {
-      if (following) {
-        await repo.unfollow(followerId: currentUserId, followingId: userId);
-      } else {
+      if (state == FollowState.none) {
         await repo.follow(followerId: currentUserId, followingId: userId);
+      } else {
+        await repo.unfollow(followerId: currentUserId, followingId: userId);
       }
-      ref.invalidate(isFollowingProvider(userId));
+      ref.invalidate(followStateProvider(userId));
+      ref.invalidate(bookshelfByUserProvider(userId));
       ref.invalidate(profileStatsProvider(userId));
       ref.invalidate(pagedPostsProvider);
       ref.invalidate(activityProvider);
@@ -43,7 +45,7 @@ class UserProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileByIdProvider(userId));
     final currentUser = ref.watch(currentUserProvider);
-    final following = ref.watch(isFollowingProvider(userId));
+    final following = ref.watch(followStateProvider(userId));
     final blocked = ref.watch(isBlockedProvider(userId));
     final ownProfile = currentUser?.id == userId;
 
@@ -103,6 +105,10 @@ class UserProfileScreen extends ConsumerWidget {
               return ProfileLayout(
                 profile: data,
                 own: ownProfile,
+                locked:
+                    data.isPrivate &&
+                    !ownProfile &&
+                    following.valueOrNull != FollowState.following,
                 onRefresh: () async {
                   ref.invalidate(profileByIdProvider(userId));
                   ref.invalidate(profileStatsProvider(userId));
@@ -122,22 +128,10 @@ class UserProfileScreen extends ConsumerWidget {
                           child: Center(child: CircularProgressIndicator()),
                         ),
                         error: (_, _) => const SizedBox.shrink(),
-                        data: (value) => SizedBox(
+                        data: (state) => SizedBox(
                           width: double.infinity,
-                          child: value
-                              ? OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size(0, 40),
-                                  ),
-                                  onPressed: () => _toggleFollow(
-                                    context,
-                                    ref,
-                                    currentUser.id,
-                                    value,
-                                  ),
-                                  child: const Text('Folgst du'),
-                                )
-                              : FilledButton(
+                          child: state == FollowState.none
+                              ? FilledButton(
                                   style: FilledButton.styleFrom(
                                     minimumSize: const Size(0, 40),
                                   ),
@@ -145,9 +139,29 @@ class UserProfileScreen extends ConsumerWidget {
                                     context,
                                     ref,
                                     currentUser.id,
-                                    value,
+                                    state,
                                   ),
-                                  child: const Text('Folgen'),
+                                  child: Text(
+                                    data.isPrivate
+                                        ? 'Folgen anfragen'
+                                        : 'Folgen',
+                                  ),
+                                )
+                              : OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(0, 40),
+                                  ),
+                                  onPressed: () => _toggleFollow(
+                                    context,
+                                    ref,
+                                    currentUser.id,
+                                    state,
+                                  ),
+                                  child: Text(
+                                    state == FollowState.requested
+                                        ? 'Angefragt'
+                                        : 'Folgst du',
+                                  ),
                                 ),
                         ),
                       ),

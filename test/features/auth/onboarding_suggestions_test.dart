@@ -17,12 +17,13 @@ class FakeFollowRepository extends FollowRepository {
   bool fail = false;
 
   @override
-  Future<void> follow({
+  Future<FollowState> follow({
     required String followerId,
     required String followingId,
   }) async {
     calls.add('follow $followingId');
     if (fail) throw Exception('network');
+    return FollowState.following;
   }
 }
 
