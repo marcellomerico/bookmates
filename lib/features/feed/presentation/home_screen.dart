@@ -7,6 +7,7 @@ import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../social/providers/paged_posts.dart';
 import '../../books/presentation/daily_suggestion_card.dart';
+import 'home_reading.dart';
 import '../../messages/providers/messages_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -22,8 +23,17 @@ class HomeScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           _HomeHeader(onActivity: () => context.push('/activity')),
-          const SizedBox(height: 12),
-          const DailySuggestionCard(),
+          const SizedBox(height: 18),
+          const Reveal(index: 0, child: CurrentlyReadingCard()),
+          const Reveal(index: 1, child: ReadingStatsRow()),
+          const Reveal(index: 2, child: DailySuggestionCard()),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 8, 2, 10),
+            child: Text(
+              'Aus deiner Squad',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
           ...pagedPostListItems(
             ref,
             PostSource.feed,
@@ -58,20 +68,8 @@ class _HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(
-              'Booksquad',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ),
-        ),
+    return HomeGreeting(
+      actions: [
         Consumer(
           builder: (context, ref, _) {
             final unread = ref.watch(hasUnreadMessagesProvider);

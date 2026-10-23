@@ -675,5 +675,28 @@ do $$ begin
 end $$;
 reset role;
 
+-- Reading stats (#90): progress logs a private reading day; finishing counts toward the goal.
+insert into public.books (id, title) values ('00000000-0000-4000-8000-0000000004d0', 'Streakbuch');
+insert into public.user_books (id, user_id, book_id, status, current_page, page_count) values
+  ('00000000-0000-4000-8000-0000000005d0', '00000000-0000-4000-8000-00000000000e', '00000000-0000-4000-8000-0000000004d0', 'reading', 10, 300);
+insert into public.reading_days (user_id, day, pages) values
+  ('00000000-0000-4000-8000-00000000000e', private.berlin_today() - 1, 20);
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000e","role":"authenticated"}', true);
+do $$ declare s record; begin
+  update public.user_books set current_page = 40 where id = '00000000-0000-4000-8000-0000000005d0';
+  select * into s from public.my_reading_stats();
+  if s.streak <> 2 or not s.week[7] then raise exception 'FAIL: reading day not logged'; end if;
+  update public.user_books set status = 'read' where id = '00000000-0000-4000-8000-0000000005d0';
+  if (select finished_this_year from public.my_reading_stats()) <> 1 then
+    raise exception 'FAIL: finished book not counted'; end if;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000b","role":"authenticated"}', true);
+do $$ begin
+  if exists (select 1 from public.reading_days where user_id = '00000000-0000-4000-8000-00000000000e') then
+    raise exception 'FAIL: others see reading days'; end if;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

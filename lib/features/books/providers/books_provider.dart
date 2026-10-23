@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../models/reading_stats.dart';
 import '../../../models/book.dart';
 import '../../../models/user_book.dart';
 import '../../../repositories/book_repository.dart';
@@ -105,4 +106,13 @@ final dailySuggestionProvider = FutureProvider<BookSuggestion?>((ref) async {
     },
   );
   return pickForDay(ranked, DateTime.now(), user.id);
+});
+
+/// Streak and yearly goal. Refetches whenever the shelf reloads (progress, status changes).
+final readingStatsProvider = FutureProvider.autoDispose<ReadingStats>((
+  ref,
+) async {
+  if (ref.watch(currentUserProvider) == null) return ReadingStats.empty;
+  await ref.watch(bookshelfProvider.future);
+  return ref.watch(bookRepositoryProvider).getReadingStats();
 });

@@ -67,6 +67,13 @@ class ProfileRepository {
         .eq('id', userId);
   }
 
+  Future<void> setReadingGoal(String userId, int? goal) async {
+    await _client
+        .from('profiles')
+        .update({'reading_goal': goal})
+        .eq('id', userId);
+  }
+
   Future<bool> isUsernameAvailable(String username) async {
     final trimmed = username.trim().toLowerCase();
     if (trimmed.isEmpty) return false;
