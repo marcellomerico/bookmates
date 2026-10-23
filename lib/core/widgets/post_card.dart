@@ -49,7 +49,7 @@ class PostCard extends ConsumerWidget {
     return SoftCard(
       child: InkWell(
         onTap: () => context.push('/posts/${post.id}'),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

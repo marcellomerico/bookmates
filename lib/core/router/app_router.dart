@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/messages/presentation/chat_screen.dart';
+import '../../features/stats/presentation/stats_screen.dart';
 import '../../features/messages/presentation/inbox_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
@@ -75,6 +76,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const ForgotPasswordScreen(),
         ),
+      ),
+      GoRoute(
+        path: '/stats',
+        pageBuilder: (context, state) =>
+            slidePushPage(key: state.pageKey, child: const StatsScreen()),
       ),
       GoRoute(
         path: '/messages',

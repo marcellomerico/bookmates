@@ -116,3 +116,14 @@ final readingStatsProvider = FutureProvider.autoDispose<ReadingStats>((
   await ref.watch(bookshelfProvider.future);
   return ref.watch(bookRepositoryProvider).getReadingStats();
 });
+
+/// This year's reading days for the statistics screen.
+final readingDaysProvider = FutureProvider.autoDispose<Map<DateTime, int>>((
+  ref,
+) async {
+  if (ref.watch(currentUserProvider) == null) return {};
+  await ref.watch(bookshelfProvider.future);
+  return ref
+      .watch(bookRepositoryProvider)
+      .getReadingDays(DateTime(DateTime.now().year));
+});

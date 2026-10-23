@@ -329,6 +329,22 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? c.ink : c.card,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? c.cream : c.ink,
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: c.line)),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: c.burgundy,
@@ -365,7 +381,7 @@ class AppTheme {
         elevation: 0,
         color: c.card,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         margin: EdgeInsets.zero,
       ),
       bottomSheetTheme: BottomSheetThemeData(

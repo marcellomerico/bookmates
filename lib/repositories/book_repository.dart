@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../features/stats/stats_math.dart' show dayOnly;
 import '../models/reading_stats.dart';
 import '../models/book.dart';
 import '../models/user_book.dart';
@@ -142,6 +143,18 @@ class BookRepository {
     return rows.isEmpty
         ? ReadingStats.empty
         : ReadingStats.fromJson(rows.first as Map<String, dynamic>);
+  }
+
+  /// Own reading days since [from]: date -> pages (RLS keeps them private).
+  Future<Map<DateTime, int>> getReadingDays(DateTime from) async {
+    final rows = await _client
+        .from('reading_days')
+        .select('day, pages')
+        .gte('day', from.toIso8601String().substring(0, 10));
+    return {
+      for (final r in rows as List)
+        dayOnly(DateTime.parse(r['day'] as String)): r['pages'] as int? ?? 0,
+    };
   }
 
   /// Saves page numbers; [status] lets the caller move "unread" to "reading" in the same write.
