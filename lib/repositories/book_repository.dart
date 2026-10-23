@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/reading_stats.dart';
 import '../models/book.dart';
 import '../models/user_book.dart';
 import 'open_library_repository.dart';
@@ -134,6 +135,13 @@ class BookRepository {
         .from('user_books')
         .update({'rating': rating})
         .eq('id', userBookId);
+  }
+
+  Future<ReadingStats> getReadingStats() async {
+    final rows = await _client.rpc('my_reading_stats') as List;
+    return rows.isEmpty
+        ? ReadingStats.empty
+        : ReadingStats.fromJson(rows.first as Map<String, dynamic>);
   }
 
   /// Saves page numbers; [status] lets the caller move "unread" to "reading" in the same write.

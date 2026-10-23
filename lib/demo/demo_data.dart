@@ -32,6 +32,7 @@ class DemoStore {
   /// conversation id -> (other reader, messages oldest first).
   final chats = <String, (String, List<Message>)>{};
   final chatRead = <String>{};
+  int? readingGoal = 30;
   final likes = <String, Set<String>>{};
   final genres = <String, List<String>>{};
   final activity = <ActivityItem>[];

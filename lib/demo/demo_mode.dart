@@ -15,6 +15,7 @@ import '../models/moderation_report.dart';
 import '../models/post.dart';
 import '../models/profile.dart';
 import '../models/profile_stats.dart';
+import '../models/reading_stats.dart';
 import '../models/user_book.dart';
 import '../repositories/activity_repository.dart';
 import '../repositories/book_repository.dart';
@@ -446,6 +447,14 @@ class _DemoBooks extends BookRepository {
   _DemoBooks(super.client);
 
   @override
+  Future<ReadingStats> getReadingStats() async => ReadingStats(
+    streak: 12,
+    week: const [true, true, true, true, true, true, false],
+    finishedThisYear: 18,
+    goal: _store.readingGoal,
+  );
+
+  @override
   Future<Book> upsertFromOpenLibrary(OpenLibraryBook result) async {
     final id = normalizeWorkId(result.openLibraryId);
     final existing = await getByOpenLibraryId(id);
@@ -595,6 +604,10 @@ class _DemoBooks extends BookRepository {
 
 class _DemoProfiles extends ProfileRepository {
   _DemoProfiles(super.client);
+
+  @override
+  Future<void> setReadingGoal(String userId, int? goal) async =>
+      _store.readingGoal = goal;
 
   @override
   Future<List<String>> getUserGenreNames(String userId) async =>
