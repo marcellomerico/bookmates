@@ -15,14 +15,12 @@ import 'book_status_sheet.dart';
 /// Shelf wood: a warm light board with a darker front edge.
 Color _boardTop(BuildContext context) =>
     Color.lerp(context.palette.shelfWood, Colors.white, 0.3)!;
-Color _boardEdge(BuildContext context) => context.palette.shelfWood;
-Color _shelfBack(BuildContext context) => context.palette.shelfBack;
 
 /// How books stand on the shelf: covers facing out or spines like a real shelf.
 enum ShelfLook { covers, spines }
 
 /// Kept for the session; shared by the own and other readers' shelves.
-final shelfLookProvider = StateProvider<ShelfLook>((ref) => ShelfLook.covers);
+final shelfLookProvider = StateProvider<ShelfLook>((ref) => ShelfLook.spines);
 
 AsyncValue<List<UserBook>> _entries(WidgetRef ref, String? userId) =>
     userId == null
@@ -165,6 +163,8 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               minRows: 2,
               onMove: sorting ? (from, to) => _move(shelf, from, to) : null,
               spines: look == ShelfLook.spines,
+              grouped: _filter == null,
+              label: _filter?.label,
               showStatusBadge: _filter == null,
               emptyText: shelf.isEmpty
                   ? (own
@@ -412,6 +412,8 @@ class _Shelves extends StatelessWidget {
     this.emptyText,
     this.onMove,
     this.spines = false,
+    this.grouped = false,
+    this.label,
   });
 
   final List<UserBook> entries;
@@ -426,108 +428,46 @@ class _Shelves extends StatelessWidget {
   /// Spines instead of covers (ignored while sorting).
   final bool spines;
 
+  /// "Alle": one shelf section per status, each under a brass plate.
+  final bool grouped;
+
+  /// Plate under the first board when not grouped (the filter's name).
+  final String? label;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 4),
-      decoration: BoxDecoration(
-        color: _shelfBack(context),
-        borderRadius: BorderRadius.circular(AppRadius.l),
-      ),
+    return _Bookcase(
       child: LayoutBuilder(
         builder: (context, c) {
-          const gap = 10.0;
+          const gap = 10.0, wallPadding = 8.0;
+          final inner = c.maxWidth - 2 * wallPadding;
           final cols = c.maxWidth >= 560 ? 6 : 4;
-          final w = (c.maxWidth - gap * (cols - 1)) / cols;
-          if (spines && onMove == null && entries.isNotEmpty) {
-            return _spineShelves(context, c.maxWidth, w * 1.5);
-          }
-          final rows = <List<UserBook>>[
-            for (var i = 0; i < entries.length; i += cols)
-              entries.sublist(i, (i + cols).clamp(0, entries.length)),
-          ];
-          while (rows.length < minRows) {
-            rows.add(const []);
-          }
-          return Column(
-            children: [
-              for (var r = 0; r < rows.length; r++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: w * 1.5,
-                        child: entries.isEmpty && r == 0 && emptyText != null
-                            ? Center(
-                                child: Text(
-                                  emptyText!,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: context.palette.muted,
-                                  ),
-                                ),
-                              )
-                            : Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  for (var i = 0; i < rows[r].length; i++) ...[
-                                    if (i > 0) const SizedBox(width: gap),
-                                    _Arrive(
-                                      // Re-run when the shown books change (filter switch).
-                                      key: ValueKey(rows[r][i].id),
-                                      order: r * cols + i,
-                                      child: onMove == null
-                                          ? _BookCover(
-                                              entry: rows[r][i],
-                                              width: w,
-                                              editable: editable,
-                                              showStatusBadge: showStatusBadge,
-                                            )
-                                          : _Sortable(
-                                              entry: rows[r][i],
-                                              width: w,
-                                              onMove: onMove!,
-                                              child: _BookCover(
-                                                entry: rows[r][i],
-                                                width: w,
-                                                editable: false,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ],
-                              ),
+          final w = (inner - gap * (cols - 1)) / cols;
+          final rowHeight = w * 1.5;
+          final useSpines = spines && onMove == null;
+          final groups = grouped && onMove == null && entries.isNotEmpty
+              ? [
+                  for (final status in BookStatus.shelf)
+                    if (entries.any((e) => e.status == status))
+                      (
+                        status.label.toUpperCase(),
+                        entries.where((e) => e.status == status).toList(),
                       ),
-                      const _Board(),
-                    ],
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
+                ]
+              : [(label?.toUpperCase(), entries)];
 
-extension on _Shelves {
-  Widget _spineShelves(BuildContext context, double width, double rowHeight) {
-    final rows = spineRows(entries, width, rowHeight);
-    while (rows.length < minRows) {
-      rows.add([]);
-    }
-    var order = 0;
-    return Column(
-      children: [
-        for (final row in rows)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: rowHeight,
-                  child: Row(
+          var order = 0;
+          final shelves = <Widget>[];
+          void addRow(Widget row, String? plate) => shelves
+            ..add(_BackWall(height: rowHeight, child: row))
+            ..add(_Board(label: plate));
+
+          for (final (plate, items) in groups) {
+            var first = true;
+            if (useSpines) {
+              for (final row in spineRows(items, inner, rowHeight)) {
+                addRow(
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       for (final (entry, size) in row) ...[
@@ -544,14 +484,178 @@ extension on _Shelves {
                       ],
                     ],
                   ),
-                ),
-                const _Board(),
-              ],
-            ),
-          ),
-      ],
+                  first ? plate : null,
+                );
+                first = false;
+              }
+            } else {
+              for (var i = 0; i < items.length; i += cols) {
+                final chunk = items.sublist(
+                  i,
+                  (i + cols).clamp(0, items.length),
+                );
+                addRow(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (var j = 0; j < chunk.length; j++) ...[
+                        if (j > 0) const SizedBox(width: gap),
+                        _Arrive(
+                          // Re-run when the shown books change (filter switch).
+                          key: ValueKey(chunk[j].id),
+                          order: order++,
+                          child: onMove == null
+                              ? _BookCover(
+                                  entry: chunk[j],
+                                  width: w,
+                                  editable: editable,
+                                  showStatusBadge: showStatusBadge,
+                                )
+                              : _Sortable(
+                                  entry: chunk[j],
+                                  width: w,
+                                  onMove: onMove!,
+                                  child: _BookCover(
+                                    entry: chunk[j],
+                                    width: w,
+                                    editable: false,
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  first ? plate : null,
+                );
+                first = false;
+              }
+            }
+          }
+          while (shelves.length < minRows * 2) {
+            addRow(
+              entries.isEmpty && shelves.isEmpty && emptyText != null
+                  ? Center(
+                      child: Text(
+                        emptyText!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Color(0xFFE9DDC8)),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+              null,
+            );
+          }
+          return Column(children: shelves);
+        },
+      ),
     );
   }
+}
+
+/// Walnut library case: crown, side panels and plinth. Same in light and dark,
+/// like a real piece of furniture.
+class _Bookcase extends StatelessWidget {
+  const _Bookcase({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: const BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(6)),
+      boxShadow: [
+        BoxShadow(
+          color: Color(0x59000000),
+          blurRadius: 30,
+          offset: Offset(0, 18),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          height: 16,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF6A4630), Color(0xFF4A3122), Color(0xFF3A2619)],
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4A3122), Color(0xFF5A3B28), Color(0xFF4A3122)],
+            ),
+          ),
+          child: child,
+        ),
+        Container(
+          height: 14,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(6)),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF3A2619), Color(0xFF24170F)],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Dark back panel of one compartment, lit from above like by a reading lamp.
+class _BackWall extends StatelessWidget {
+  const _BackWall({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: height + 14,
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0, 0.35, 1],
+        colors: [Color(0xFF140D09), Color(0xFF2A1C14), Color(0xFF221710)],
+      ),
+    ),
+    child: DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment(0, -1.3),
+          radius: 1.1,
+          colors: [Color(0x52FFC46E), Color(0x00FFC46E)],
+        ),
+      ),
+      child: DecoratedBox(
+        // Side shade where the panels meet the back wall.
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            stops: [0, 0.06, 0.94, 1],
+            colors: [
+              Color(0x73000000),
+              Color(0x00000000),
+              Color(0x00000000),
+              Color(0x73000000),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Align(alignment: Alignment.bottomLeft, child: child),
+        ),
+      ),
+    ),
+  );
 }
 
 /// A spine that opens the book and, on your own shelf, changes its status.
@@ -707,26 +811,59 @@ class _PressScaleState extends State<_PressScale> {
 }
 
 class _Board extends StatelessWidget {
-  const _Board();
+  const _Board({this.label});
+
+  /// Engraved brass plate on the front edge, e.g. "GELESEN".
+  final String? label;
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 10,
-    decoration: BoxDecoration(
+    height: 18,
+    decoration: const BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [_boardTop(context), _boardEdge(context)],
+        stops: [0, 0.35, 1],
+        colors: [Color(0xFF7A5238), Color(0xFF5E3E2A), Color(0xFF3E281A)],
       ),
-      borderRadius: BorderRadius.circular(3),
-      boxShadow: const [
+      boxShadow: [
         BoxShadow(
-          color: Color(0x22000000),
-          blurRadius: 6,
-          offset: Offset(0, 4),
+          color: Color(0x80000000),
+          blurRadius: 8,
+          offset: Offset(0, 6),
         ),
       ],
     ),
+    alignment: Alignment.center,
+    child: label == null
+        ? null
+        : Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFE6C77A), Color(0xFFB48A3A)],
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x80000000),
+                  blurRadius: 1,
+                  offset: Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Text(
+              label!,
+              style: const TextStyle(
+                color: Color(0xFF2A1A10),
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.4,
+              ),
+            ),
+          ),
   );
 }
 
