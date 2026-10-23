@@ -105,6 +105,8 @@ void main() {
   ) async {
     final semantics = tester.ensureSemantics();
     await _pump(tester, const ShelfView());
+    await tester.tap(find.byTooltip('Cover-Ansicht'));
+    await tester.pumpAndSettle();
     // Only the "reading" book gets a bar; finished books don't.
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
     expect(
@@ -173,6 +175,11 @@ void main() {
 
   testWidgets('spine view shows books from the side', (tester) async {
     await _pump(tester, const ShelfView());
+    // Spines are the default look; covers are one tap away.
+    expect(find.byType(BookSpine), findsNWidgets(4));
+    expect(find.text('LESE ICH'), findsOneWidget);
+    await tester.tap(find.byTooltip('Cover-Ansicht'));
+    await tester.pumpAndSettle();
     expect(find.byType(BookSpine), findsNothing);
     await tester.tap(find.byTooltip('Buchrücken-Ansicht'));
     await tester.pumpAndSettle();
