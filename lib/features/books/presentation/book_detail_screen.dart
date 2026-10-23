@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/widgets/paged_post_list.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../models/book.dart';
@@ -14,10 +15,16 @@ import '../providers/books_provider.dart';
 import 'book_status_sheet.dart';
 import 'reading_progress_sheet.dart';
 
+/// Shared by the cover that opens a book and the book page, so it flies across.
+String bookCoverHeroTag(String workId) => 'cover-$workId';
+
 class BookDetailScreen extends ConsumerStatefulWidget {
-  const BookDetailScreen({super.key, required this.workId});
+  const BookDetailScreen({super.key, required this.workId, this.coverUrl});
 
   final String workId;
+
+  /// Cover known by the opening screen: shown at once so the transition lands.
+  final String? coverUrl;
 
   @override
   ConsumerState<BookDetailScreen> createState() => _BookDetailScreenState();
@@ -144,7 +151,26 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Buchdetails')),
       body: workAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => widget.coverUrl == null
+            ? const Center(child: CircularProgressIndicator())
+            : Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Hero(
+                    tag: bookCoverHeroTag(widget.workId),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.s),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.coverUrl!,
+                        width: 120,
+                        height: 180,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
         error: (_, _) => ErrorState(
           message: 'Buchdetails konnten nicht geladen werden.',
           onRetry: () => ref.invalidate(openLibraryWorkProvider(widget.workId)),
@@ -155,12 +181,12 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
-              _Header(work: work, book: book),
+              _Header(work: work, book: book, workId: widget.workId),
               const SizedBox(height: AppSpacing.l),
-              _shelfControl(work, book),
+              Reveal(index: 1, child: _shelfControl(work, book)),
               if (work.description != null) ...[
                 const SizedBox(height: AppSpacing.l),
-                _description(work.description!),
+                Reveal(index: 2, child: _description(work.description!)),
               ],
               if (work.subjects.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.l),
@@ -281,7 +307,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
       borderRadius: BorderRadius.circular(12),
       onTap: _busy ? null : () => _editProgress(entry),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -338,55 +364,63 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
         ],
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OutlinedButton(
-          onPressed: _busy ? null : () => _pick(work, book, entry),
-          child: Row(
-            children: [
-              Icon(entry.status.icon, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  entry.status.onShelf
-                      ? 'Im Regal · ${entry.status.label}'
-                      : 'Auf deiner Wunschliste',
-                ),
-              ),
-              const Icon(Icons.expand_more, size: 20),
-            ],
-          ),
-        ),
-        if (entry.status.onShelf) ...[
-          const SizedBox(height: 4),
-          _progress(entry),
-        ],
-        if (entry.status == BookStatus.read) ...[
-          const SizedBox(height: 8),
-          Semantics(
-            label: '${entry.rating ?? 0} von 5 Sternen',
+    return SoftCard(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.ink,
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+            ),
+            onPressed: _busy ? null : () => _pick(work, book, entry),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var star = 1; star <= 5; star++)
-                  IconButton(
-                    tooltip:
-                        'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'}',
-                    onPressed: _busy ? null : () => _rate(entry, star),
-                    icon: Icon(
-                      star <= (entry.rating ?? 0)
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
-                      color: context.palette.gold,
-                      size: 30,
-                    ),
+                Icon(entry.status.icon, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    entry.status.onShelf
+                        ? 'Im Regal · ${entry.status.label}'
+                        : 'Auf deiner Wunschliste',
                   ),
+                ),
+                const Icon(Icons.expand_more, size: 20),
               ],
             ),
           ),
+          if (entry.status.onShelf) ...[
+            const SizedBox(height: 4),
+            _progress(entry),
+          ],
+          if (entry.status == BookStatus.read) ...[
+            const SizedBox(height: 8),
+            Semantics(
+              label: '${entry.rating ?? 0} von 5 Sternen',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var star = 1; star <= 5; star++)
+                    IconButton(
+                      tooltip:
+                          'Bewertung: $star ${star == 1 ? 'Stern' : 'Sterne'}',
+                      onPressed: _busy ? null : () => _rate(entry, star),
+                      icon: Icon(
+                        star <= (entry.rating ?? 0)
+                            ? Icons.star_rounded
+                            : Icons.star_outline_rounded,
+                        color: context.palette.gold,
+                        size: 30,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -411,8 +445,9 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({required this.work, required this.book});
+  const _Header({required this.work, required this.book, required this.workId});
 
+  final String workId;
   final OpenLibraryWork work;
   final Book? book;
 
@@ -432,20 +467,23 @@ class _Header extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.s),
-          child: work.coverUrl == null
-              ? placeholder
-              : CachedNetworkImage(
-                  imageUrl: work.coverUrl!,
-                  width: w,
-                  height: h,
-                  fit: BoxFit.cover,
-                  memCacheWidth: (w * MediaQuery.devicePixelRatioOf(context))
-                      .round(),
-                  placeholder: (_, _) => placeholder,
-                  errorWidget: (_, _, _) => placeholder,
-                ),
+        Hero(
+          tag: bookCoverHeroTag(workId),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.s),
+            child: work.coverUrl == null
+                ? placeholder
+                : CachedNetworkImage(
+                    imageUrl: work.coverUrl!,
+                    width: w,
+                    height: h,
+                    fit: BoxFit.cover,
+                    memCacheWidth: (w * MediaQuery.devicePixelRatioOf(context))
+                        .round(),
+                    placeholder: (_, _) => placeholder,
+                    errorWidget: (_, _, _) => placeholder,
+                  ),
+          ),
         ),
         const SizedBox(width: AppSpacing.l),
         Expanded(

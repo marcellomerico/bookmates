@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/booksquad_ui.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
@@ -61,41 +64,49 @@ class ActivityScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: requests.length + items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                if (index < requests.length) {
-                  return _FollowRequestTile(profile: requests[index]);
-                }
-                final item = items[index - requests.length];
-                final name = item.actor.displayName ?? item.actor.username;
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (context, index) => Reveal(
+                index: math.min(index, 6),
+                child: ListCard(
+                  child: Builder(
+                    builder: (context) {
+                      if (index < requests.length) {
+                        return _FollowRequestTile(profile: requests[index]);
+                      }
+                      final item = items[index - requests.length];
+                      final name =
+                          item.actor.displayName ?? item.actor.username;
 
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: UserAvatar(
-                    url: item.actor.avatarUrl,
-                    name: name,
-                    radius: 20,
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: UserAvatar(
+                          url: item.actor.avatarUrl,
+                          name: name,
+                          radius: 20,
+                        ),
+                        title: Text(
+                          item.message(name),
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        subtitle: Text(
+                          formatRelativeTime(item.createdAt),
+                          style: TextStyle(
+                            color: context.palette.muted,
+                            fontSize: 11,
+                          ),
+                        ),
+                        onTap: () {
+                          if (item.postId != null) {
+                            context.push('/posts/${item.postId}');
+                          } else {
+                            context.push('/users/${item.actor.id}');
+                          }
+                        },
+                      );
+                    },
                   ),
-                  title: Text(
-                    item.message(name),
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  subtitle: Text(
-                    formatRelativeTime(item.createdAt),
-                    style: TextStyle(
-                      color: context.palette.muted,
-                      fontSize: 11,
-                    ),
-                  ),
-                  onTap: () {
-                    if (item.postId != null) {
-                      context.push('/posts/${item.postId}');
-                    } else {
-                      context.push('/users/${item.actor.id}');
-                    }
-                  },
-                );
-              },
+                ),
+              ),
             );
           },
         ),

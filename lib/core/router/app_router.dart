@@ -152,6 +152,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: BookDetailScreen(
             workId: normalizeWorkId(state.pathParameters['workId']!),
+            coverUrl: state.extra is String ? state.extra as String : null,
           ),
         ),
       ),

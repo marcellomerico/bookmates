@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
@@ -136,6 +138,77 @@ class TinyPill extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 48),
         child: Center(widthFactor: 1, child: pill),
+      ),
+    );
+  }
+}
+
+/// Fades and slides a card up, staggered by [index].
+class Reveal extends StatelessWidget {
+  const Reveal({super.key, required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 420 + index * 90),
+      curve: Interval(
+        math.min(index * 0.15, 0.6),
+        1,
+        curve: Curves.easeOutBack,
+      ),
+      builder: (context, t, child) => Opacity(
+        opacity: t.clamp(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(0, 18 * (1 - t)),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// A tappable list row as a card (messages, activity, followers): same look as
+/// [SoftCard], but on a Material so ink splashes stay visible.
+class ListCard extends StatelessWidget {
+  const ListCard({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: dark
+            ? null
+            : const [
+                BoxShadow(
+                  color: Color(0x145B3C1E),
+                  blurRadius: 20,
+                  offset: Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Material(
+        color: context.palette.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: dark
+              ? BorderSide(color: context.palette.line)
+              : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          child: child,
+        ),
       ),
     );
   }
