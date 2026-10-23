@@ -1,3 +1,4 @@
+import '../models/message.dart';
 import '../models/activity_item.dart';
 import '../models/book.dart';
 import '../models/group.dart';
@@ -27,6 +28,10 @@ class DemoStore {
 
   /// requester -> private accounts asked.
   final followRequests = <String, Set<String>>{};
+
+  /// conversation id -> (other reader, messages oldest first).
+  final chats = <String, (String, List<Message>)>{};
+  final chatRead = <String>{};
   final likes = <String, Set<String>>{};
   final genres = <String, List<String>>{};
   final activity = <ActivityItem>[];
@@ -275,6 +280,35 @@ class DemoStore {
     following['u-sophie'] = {meId};
     following['u-amir'] = {meId, 'u-jonas'};
     following['u-hanna'] = {meId};
+
+    Message msg(String c, String from, String body, int minutesAgo) => Message(
+      id: '$c-$minutesAgo',
+      conversationId: c,
+      senderId: from,
+      body: body,
+      createdAt: ago(minutes: minutesAgo),
+    );
+    chats['c-jonas'] = (
+      'u-jonas',
+      [
+        msg('c-jonas', 'u-jonas', 'Hast du „Der Schwarm“ schon durch?', 95),
+        msg(
+          'c-jonas',
+          meId,
+          'Fast! Noch 80 Seiten. Das Ende soll heftig sein.',
+          90,
+        ),
+        msg('c-jonas', 'u-jonas', 'Sag Bescheid, dann reden wir drüber 🙂', 12),
+      ],
+    );
+    chats['c-lena'] = (
+      'u-lena',
+      [
+        msg('c-lena', 'u-lena', 'Danke für den Tipp mit Tschick!', 60 * 26),
+        msg('c-lena', meId, 'Gern! Wie fandest du das Ende?', 60 * 25),
+      ],
+    );
+    chatRead.add('c-lena');
 
     void group(
       String id,

@@ -621,5 +621,59 @@ do $$ begin
 end $$;
 reset role;
 
+-- Direct messages (#13): only mutual followers chat; a block ends it. b/c follow each other here.
+insert into public.follows (follower_id, following_id) values
+  ('00000000-0000-4000-8000-00000000000c', '00000000-0000-4000-8000-00000000000b')
+on conflict do nothing;
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000e","role":"authenticated"}', true);
+do $$ begin
+  begin
+    perform public.start_conversation('00000000-0000-4000-8000-00000000000b');
+    raise exception 'FAIL: chat without mutual follow';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000b","role":"authenticated"}', true);
+do $$ declare cid uuid; begin
+  cid := public.start_conversation('00000000-0000-4000-8000-00000000000c');
+  insert into public.messages (conversation_id, body) values (cid, 'Hallo Carol');
+  if (select count(*) from public.my_conversations()) <> 1 then
+    raise exception 'FAIL: inbox misses conversation'; end if;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000e","role":"authenticated"}', true);
+do $$ begin
+  if exists (select 1 from public.messages) or exists (select 1 from public.conversations) then
+    raise exception 'FAIL: outsider reads messages'; end if;
+end $$;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+do $$ begin
+  if not (select unread from public.my_conversations() limit 1) then
+    raise exception 'FAIL: new message not unread'; end if;
+  perform public.mark_conversation_read((select conversation_id from public.my_conversations() limit 1));
+  if (select unread from public.my_conversations() limit 1) then
+    raise exception 'FAIL: read marker ignored'; end if;
+end $$;
+-- carol blocks bob: history hidden, sending refused
+insert into public.blocks (blocker_id, blocked_id) values
+  ('00000000-0000-4000-8000-00000000000c', '00000000-0000-4000-8000-00000000000b');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000b","role":"authenticated"}', true);
+do $$ begin
+  if exists (select 1 from public.messages) then
+    raise exception 'FAIL: blocked user still reads chat'; end if;
+  begin
+    insert into public.messages (conversation_id, body)
+      select id, 'noch da?' from public.conversations;
+    if found then raise exception 'FAIL: blocked user sends'; end if;
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.start_conversation('00000000-0000-4000-8000-00000000000c');
+    raise exception 'FAIL: chat restarted after block';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

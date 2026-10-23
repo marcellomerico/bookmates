@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/messages/presentation/chat_screen.dart';
+import '../../features/messages/presentation/inbox_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
@@ -72,6 +74,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => slidePushPage(
           key: state.pageKey,
           child: const ForgotPasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/messages',
+        pageBuilder: (context, state) =>
+            slidePushPage(key: state.pageKey, child: const InboxScreen()),
+      ),
+      GoRoute(
+        path: '/messages/:conversationId',
+        pageBuilder: (context, state) => slidePushPage(
+          key: state.pageKey,
+          child: ChatScreen(
+            conversationId: state.pathParameters['conversationId']!,
+            otherId: state.uri.queryParameters['with'] ?? '',
+          ),
         ),
       ),
       GoRoute(
