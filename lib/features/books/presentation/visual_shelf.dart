@@ -9,12 +9,19 @@ import '../../../models/user_book.dart';
 import '../../../repositories/open_library_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/books_provider.dart';
+import 'book_spine.dart';
 import 'book_status_sheet.dart';
 
 /// Shelf wood: a warm light board with a darker front edge.
 const _boardTop = Color(0xFFE6D3B1);
 const _boardEdge = Color(0xFFC9AC80);
 const _shelfBack = Color(0xFFF1E7D6);
+
+/// How books stand on the shelf: covers facing out or spines like a real shelf.
+enum ShelfLook { covers, spines }
+
+/// Kept for the session; shared by the own and other readers' shelves.
+final shelfLookProvider = StateProvider<ShelfLook>((ref) => ShelfLook.covers);
 
 AsyncValue<List<UserBook>> _entries(WidgetRef ref, String? userId) =>
     userId == null
@@ -94,6 +101,7 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
             .where((e) => BookStatus.shelf.contains(e.status))
             .toList();
         final sorting = own && _sorting;
+        final look = ref.watch(shelfLookProvider);
         final shown = sorting
             ? (_ordered ?? shelf)
             : _filter == null
@@ -104,25 +112,38 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
           children: [
             // Sorting works on the full shelf, so the filters step aside.
             if (!sorting)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _FilterChip(
-                      label: 'Alle',
-                      count: shelf.length,
-                      selected: _filter == null,
-                      onTap: () => setState(() => _filter = null),
-                    ),
-                    for (final status in BookStatus.shelf)
-                      _FilterChip(
-                        label: status.label,
-                        count: shelf.where((e) => e.status == status).length,
-                        selected: _filter == status,
-                        onTap: () => setState(() => _filter = status),
+              Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _FilterChip(
+                            label: 'Alle',
+                            count: shelf.length,
+                            selected: _filter == null,
+                            onTap: () => setState(() => _filter = null),
+                          ),
+                          for (final status in BookStatus.shelf)
+                            _FilterChip(
+                              label: status.label,
+                              count: shelf
+                                  .where((e) => e.status == status)
+                                  .length,
+                              selected: _filter == status,
+                              onTap: () => setState(() => _filter = status),
+                            ),
+                        ],
                       ),
-                  ],
-                ),
+                    ),
+                  ),
+                  _LookToggle(
+                    look: look,
+                    onChanged: (l) =>
+                        ref.read(shelfLookProvider.notifier).state = l,
+                  ),
+                ],
               ),
             const SizedBox(height: 12),
             if (sorting)
@@ -138,6 +159,7 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
               editable: own,
               minRows: 2,
               onMove: sorting ? (from, to) => _move(shelf, from, to) : null,
+              spines: look == ShelfLook.spines,
               showStatusBadge: _filter == null,
               emptyText: shelf.isEmpty
                   ? (own
@@ -180,6 +202,41 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
           ],
         );
       },
+    );
+  }
+}
+
+/// Covers or spines, as two small icon buttons.
+class _LookToggle extends StatelessWidget {
+  const _LookToggle({required this.look, required this.onChanged});
+
+  final ShelfLook look;
+  final ValueChanged<ShelfLook> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget button(ShelfLook value, IconData icon, String label) {
+      final selected = look == value;
+      return IconButton(
+        tooltip: label,
+        isSelected: selected,
+        visualDensity: VisualDensity.compact,
+        onPressed: () => onChanged(value),
+        icon: Icon(
+          icon,
+          size: 20,
+          color: selected ? AppColors.burgundy : AppColors.muted,
+          semanticLabel: label,
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        button(ShelfLook.covers, Icons.grid_view_rounded, 'Cover-Ansicht'),
+        button(ShelfLook.spines, Icons.view_week_rounded, 'Buchrücken-Ansicht'),
+      ],
     );
   }
 }
@@ -349,6 +406,7 @@ class _Shelves extends StatelessWidget {
     this.showStatusBadge = false,
     this.emptyText,
     this.onMove,
+    this.spines = false,
   });
 
   final List<UserBook> entries;
@@ -359,6 +417,9 @@ class _Shelves extends StatelessWidget {
 
   /// Sort mode: drag a cover onto another to move it there.
   final void Function(String fromId, String toId)? onMove;
+
+  /// Spines instead of covers (ignored while sorting).
+  final bool spines;
 
   @override
   Widget build(BuildContext context) {
@@ -373,6 +434,9 @@ class _Shelves extends StatelessWidget {
           const gap = 10.0;
           final cols = c.maxWidth >= 560 ? 6 : 4;
           final w = (c.maxWidth - gap * (cols - 1)) / cols;
+          if (spines && onMove == null && entries.isNotEmpty) {
+            return _spineShelves(context, c.maxWidth, w * 1.5);
+          }
           final rows = <List<UserBook>>[
             for (var i = 0; i < entries.length; i += cols)
               entries.sublist(i, (i + cols).clamp(0, entries.length)),
@@ -437,6 +501,90 @@ class _Shelves extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+extension on _Shelves {
+  Widget _spineShelves(BuildContext context, double width, double rowHeight) {
+    final rows = spineRows(entries, width, rowHeight);
+    while (rows.length < minRows) {
+      rows.add([]);
+    }
+    var order = 0;
+    return Column(
+      children: [
+        for (final row in rows)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: rowHeight,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (final (entry, size) in row) ...[
+                        if (entry != row.first.$1) const SizedBox(width: 2),
+                        _Arrive(
+                          key: ValueKey('spine-${entry.id}'),
+                          order: order++,
+                          child: _SpineTile(
+                            entry: entry,
+                            size: size,
+                            editable: editable,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const _Board(),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// A spine that opens the book and, on your own shelf, changes its status.
+class _SpineTile extends ConsumerWidget {
+  const _SpineTile({
+    required this.entry,
+    required this.size,
+    required this.editable,
+  });
+
+  final UserBook entry;
+  final Size size;
+  final bool editable;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final book = entry.book;
+    final workId = book?.openLibraryId;
+    // Same actions as the cover; reuse its status sheet handling.
+    final cover = _BookCover(
+      entry: entry,
+      width: size.width,
+      editable: editable,
+    );
+    return Semantics(
+      button: true,
+      label:
+          '${book?.title ?? 'Buch'}${book?.author == null ? '' : ' von ${book!.author}'}, ${entry.status.label}',
+      hint: editable ? 'Lange drücken zum Ändern' : null,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: workId == null
+            ? null
+            : () => context.push('/books/${normalizeWorkId(workId)}'),
+        onLongPress: editable ? () => cover._edit(context, ref) : null,
+        child: _PressScale(
+          child: BookSpine(entry: entry, size: size),
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:booksquad/features/books/presentation/book_spine.dart';
 import 'package:booksquad/features/books/presentation/visual_shelf.dart';
 import 'package:booksquad/features/books/providers/books_provider.dart';
 import 'package:booksquad/models/book.dart';
@@ -168,5 +169,32 @@ void main() {
     await gesture.up();
     await tester.pumpAndSettle();
     expect(books.saved, ['3', '1', '2', '4']);
+  });
+
+  testWidgets('spine view shows books from the side', (tester) async {
+    await _pump(tester, const ShelfView());
+    expect(find.byType(BookSpine), findsNothing);
+    await tester.tap(find.byTooltip('Buchrücken-Ansicht'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BookSpine), findsNWidgets(4));
+    // Title printed on the spine, readable by screen readers via the tile label.
+    expect(find.text('Gerade dran'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('^Schon durch')), findsOneWidget);
+  });
+
+  test('thicker books get wider spines, sizes stay stable per book', () {
+    UserBook e(int? pages) => UserBook(
+      id: 'x',
+      userId: 'me',
+      bookId: 'b-same',
+      status: BookStatus.read,
+      pageCount: pages,
+    );
+    expect(
+      spineSize(e(800), 100).width,
+      greaterThan(spineSize(e(150), 100).width),
+    );
+    expect(spineSize(e(null), 100), spineSize(e(null), 100));
+    expect(spineSize(e(null), 100).height, inInclusiveRange(80, 100));
   });
 }
