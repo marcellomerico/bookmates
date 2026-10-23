@@ -2,6 +2,9 @@
 [build]
   publish = "site"
   command = ""
+  # Skip the deploy (and its credits) unless the website itself changed.
+  # Exit 0 = nothing relevant changed = skip. First deploy has no cached ref: build.
+  ignore = "test -n \"$CACHED_COMMIT_REF\" && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- site/ netlify.toml"
 
 [[headers]]
   for = "/*"
