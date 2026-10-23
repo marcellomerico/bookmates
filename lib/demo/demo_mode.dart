@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../features/auth/providers/auth_provider.dart';
 import '../features/books/providers/books_provider.dart';
+import '../features/messages/providers/messages_providers.dart';
 import '../features/social/providers/social_providers.dart';
 import '../models/activity_item.dart';
 import '../models/book.dart';
@@ -17,6 +19,8 @@ import '../models/user_book.dart';
 import '../repositories/activity_repository.dart';
 import '../repositories/book_repository.dart';
 import '../repositories/follow_repository.dart';
+import '../repositories/message_repository.dart';
+import '../models/message.dart';
 import '../repositories/group_repository.dart';
 import '../repositories/moderation_repository.dart';
 import '../repositories/open_library_repository.dart';
@@ -64,6 +68,7 @@ List<Override> demoOverrides() => [
   activityRepositoryProvider.overrideWithValue(_DemoActivity(_client)),
   bookRepositoryProvider.overrideWithValue(_DemoBooks(_client)),
   profileRepositoryProvider.overrideWithValue(_DemoProfiles(_client)),
+  messageRepositoryProvider.overrideWithValue(_DemoMessages(_client)),
   onboardingSuggestionsProvider.overrideWith(
     (ref) async => OnboardingSuggestions(
       people: _store.profiles.values
@@ -688,4 +693,76 @@ class _DemoProfiles extends ProfileRepository {
       );
     return others.take(limit).toList();
   }
+}
+
+class _DemoMessages extends MessageRepository {
+  _DemoMessages(super.client);
+
+  final _live = <String, StreamController<List<Message>>>{};
+
+  @override
+  Future<List<ConversationSummary>> getConversations() async {
+    final rows = [
+      for (final e in _store.chats.entries)
+        if (e.value.$2.isNotEmpty)
+          ConversationSummary(
+            id: e.key,
+            otherId: e.value.$1,
+            lastBody: e.value.$2.last.body,
+            lastSenderId: e.value.$2.last.senderId,
+            lastMessageAt: e.value.$2.last.createdAt,
+            unread:
+                !_store.chatRead.contains(e.key) &&
+                e.value.$2.last.senderId != DemoStore.meId,
+            canSend: true,
+          ),
+    ];
+    rows.sort((a, b) => b.lastMessageAt!.compareTo(a.lastMessageAt!));
+    return rows;
+  }
+
+  @override
+  Future<String> startConversation(String otherId) async {
+    for (final e in _store.chats.entries) {
+      if (e.value.$1 == otherId) return e.key;
+    }
+    final id = 'c-$otherId';
+    _store.chats[id] = (otherId, []);
+    return id;
+  }
+
+  @override
+  Stream<List<Message>> watchMessages(String conversationId) {
+    final c = _live.putIfAbsent(conversationId, StreamController.broadcast);
+    return Stream.value(
+      List.of(_store.chats[conversationId]?.$2 ?? const <Message>[]),
+    ).asyncExpand((first) async* {
+      yield first;
+      yield* c.stream;
+    });
+  }
+
+  @override
+  Future<void> send(String conversationId, String body) async {
+    final list = _store.chats[conversationId]!.$2;
+    list.add(
+      Message(
+        id: '$conversationId-${list.length}',
+        conversationId: conversationId,
+        senderId: DemoStore.meId,
+        body: body.trim(),
+        createdAt: DateTime.now(),
+      ),
+    );
+    _live[conversationId]?.add(List.of(list));
+  }
+
+  @override
+  Future<void> markRead(String conversationId) async =>
+      _store.chatRead.add(conversationId);
+
+  @override
+  Future<bool> isMutual(String me, String other) async =>
+      (_store.following[me]?.contains(other) ?? false) &&
+      (_store.following[other]?.contains(me) ?? false);
 }

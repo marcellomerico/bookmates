@@ -14,6 +14,9 @@ Future<void> showReportDialog(
   String? reportedUserId,
   String? postId,
   String? commentId,
+
+  /// Reported private message: quoted into the reason, since admins can't read chats.
+  String? quote,
 }) async {
   final controller = TextEditingController();
   final reason = await showDialog<String>(
@@ -52,7 +55,9 @@ Future<void> showReportDialog(
         .read(moderationRepositoryProvider)
         .reportContent(
           reporterId: user.id,
-          reason: reason,
+          reason: quote == null
+              ? reason
+              : _clip('$reason\n\nGemeldete Nachricht: „$quote“', 1000),
           reportedUserId: reportedUserId,
           postId: postId,
           commentId: commentId,
@@ -68,6 +73,9 @@ Future<void> showReportDialog(
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
+
+String _clip(String s, int max) =>
+    s.length <= max ? s : '${s.substring(0, max - 1)}…';
 
 Future<void> _blockUser(
   BuildContext context,
