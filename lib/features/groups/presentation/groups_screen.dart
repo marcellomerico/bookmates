@@ -163,12 +163,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Lesekreise',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ),
+              const Spacer(),
               TextButton(onPressed: _joinWithCode, child: const Text('Code')),
               const SizedBox(width: 8),
               ElevatedButton(

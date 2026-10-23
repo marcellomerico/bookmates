@@ -332,12 +332,10 @@ class AppTheme {
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith(
-            (states) =>
-                states.contains(WidgetState.selected) ? c.ink : c.card,
+            (states) => states.contains(WidgetState.selected) ? c.ink : c.card,
           ),
           foregroundColor: WidgetStateProperty.resolveWith(
-            (states) =>
-                states.contains(WidgetState.selected) ? c.cream : c.ink,
+            (states) => states.contains(WidgetState.selected) ? c.cream : c.ink,
           ),
           side: WidgetStatePropertyAll(BorderSide(color: c.line)),
           textStyle: const WidgetStatePropertyAll(
