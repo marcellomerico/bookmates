@@ -60,6 +60,13 @@ class ProfileRepository {
         );
   }
 
+  Future<void> setPrivate(String userId, bool isPrivate) async {
+    await _client
+        .from('profiles')
+        .update({'is_private': isPrivate})
+        .eq('id', userId);
+  }
+
   Future<bool> isUsernameAvailable(String username) async {
     final trimmed = username.trim().toLowerCase();
     if (trimmed.isEmpty) return false;

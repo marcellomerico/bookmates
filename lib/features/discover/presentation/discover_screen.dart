@@ -11,6 +11,7 @@ import '../../../models/profile.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../books/providers/books_provider.dart';
 import '../../social/providers/paged_posts.dart';
+import '../../../repositories/follow_repository.dart';
 import '../../social/providers/social_providers.dart';
 import '../../../core/widgets/verified_badge.dart';
 
@@ -85,7 +86,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         await repo.follow(followerId: user.id, followingId: userId);
       }
       ref.invalidate(discoverPeopleProvider);
-      ref.invalidate(isFollowingProvider(userId));
+      ref.invalidate(followStateProvider(userId));
       ref.invalidate(pagedPostsProvider);
     } catch (e) {
       _showError(e);
@@ -274,7 +275,7 @@ class _PersonRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final following = ref.watch(isFollowingProvider(profile.id));
+    final following = ref.watch(followStateProvider(profile.id));
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -326,10 +327,15 @@ class _PersonRow extends ConsumerWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 error: (_, _) => const SizedBox.shrink(),
-                data: (value) => TinyPill(
-                  onTap: () => onToggleFollow(profile.id, value),
-                  label: value ? 'Entfolgen' : 'Folgen',
-                  filled: value,
+                data: (state) => TinyPill(
+                  onTap: () =>
+                      onToggleFollow(profile.id, state != FollowState.none),
+                  label: switch (state) {
+                    FollowState.following => 'Entfolgen',
+                    FollowState.requested => 'Angefragt',
+                    FollowState.none => 'Folgen',
+                  },
+                  filled: state != FollowState.none,
                 ),
               ),
             ],

@@ -231,22 +231,39 @@ class _DemoFollows extends FollowRepository {
   Set<String> _of(String id) => _store.following.putIfAbsent(id, () => {});
 
   @override
-  Future<bool> isFollowing({
+  Future<FollowState> followState({
     required String followerId,
     required String followingId,
-  }) async => _of(followerId).contains(followingId);
+  }) async => _of(followerId).contains(followingId)
+      ? FollowState.following
+      : (_store.followRequests[followerId]?.contains(followingId) ?? false)
+      ? FollowState.requested
+      : FollowState.none;
 
   @override
-  Future<void> follow({
+  Future<FollowState> follow({
     required String followerId,
     required String followingId,
-  }) async => _of(followerId).add(followingId);
+  }) async {
+    if (_store.profiles[followingId]?.isPrivate ?? false) {
+      _store.followRequests.putIfAbsent(followerId, () => {}).add(followingId);
+      return FollowState.requested;
+    }
+    _of(followerId).add(followingId);
+    return FollowState.following;
+  }
+
+  @override
+  Future<List<Profile>> getFollowRequests(String userId) async => [];
 
   @override
   Future<void> unfollow({
     required String followerId,
     required String followingId,
-  }) async => _of(followerId).remove(followingId);
+  }) async {
+    _of(followerId).remove(followingId);
+    _store.followRequests[followerId]?.remove(followingId);
+  }
 
   @override
   Future<List<String>> getFollowingIds(String userId) async =>
@@ -594,8 +611,27 @@ class _DemoProfiles extends ProfileRepository {
       bio: bio,
       avatarUrl: p.avatarUrl,
       onboardingCompleted: true,
+      verifiedAt: p.verifiedAt,
+      verifiedKind: p.verifiedKind,
+      isPrivate: p.isPrivate,
     );
     _store.genres[userId] = genres.toList();
+  }
+
+  @override
+  Future<void> setPrivate(String userId, bool isPrivate) async {
+    final p = _store.profiles[userId]!;
+    _store.profiles[userId] = Profile(
+      id: p.id,
+      username: p.username,
+      displayName: p.displayName,
+      bio: p.bio,
+      avatarUrl: p.avatarUrl,
+      onboardingCompleted: p.onboardingCompleted,
+      verifiedAt: p.verifiedAt,
+      verifiedKind: p.verifiedKind,
+      isPrivate: isPrivate,
+    );
   }
 
   @override

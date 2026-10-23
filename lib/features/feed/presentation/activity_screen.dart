@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../models/profile.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../social/providers/social_providers.dart';
 
 class ActivityScreen extends ConsumerWidget {
@@ -14,11 +16,15 @@ class ActivityScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activity = ref.watch(activityProvider);
+    final requests = ref.watch(followRequestsProvider).valueOrNull ?? [];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Aktivität')),
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(activityProvider),
+        onRefresh: () async {
+          ref.invalidate(activityProvider);
+          ref.invalidate(followRequestsProvider);
+        },
         child: activity.when(
           loading: () => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -37,7 +43,7 @@ class ActivityScreen extends ConsumerWidget {
             ],
           ),
           data: (items) {
-            if (items.isEmpty) {
+            if (items.isEmpty && requests.isEmpty) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: const [
@@ -54,10 +60,13 @@ class ActivityScreen extends ConsumerWidget {
             return ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
-              itemCount: items.length,
+              itemCount: requests.length + items.length,
               separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final item = items[index];
+                if (index < requests.length) {
+                  return _FollowRequestTile(profile: requests[index]);
+                }
+                final item = items[index - requests.length];
                 final name = item.actor.displayName ?? item.actor.username;
 
                 return ListTile(
@@ -90,6 +99,60 @@ class ActivityScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _FollowRequestTile extends ConsumerWidget {
+  const _FollowRequestTile({required this.profile});
+
+  final Profile profile;
+
+  Future<void> _respond(
+    BuildContext context,
+    WidgetRef ref,
+    bool accept,
+  ) async {
+    try {
+      await ref
+          .read(followRepositoryProvider)
+          .respondToRequest(profile.id, accept: accept);
+      ref.invalidate(followRequestsProvider);
+      if (accept) ref.invalidate(activityProvider);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final name = profile.displayName ?? profile.username;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: UserAvatar(url: profile.avatarUrl, name: name, radius: 20),
+      title: Text(
+        '$name möchte dir folgen.',
+        style: const TextStyle(fontSize: 13),
+      ),
+      onTap: () => context.push('/users/${profile.id}'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Ablehnen',
+            icon: const Icon(Icons.close),
+            onPressed: () => _respond(context, ref, false),
+          ),
+          IconButton.filled(
+            tooltip: 'Annehmen',
+            icon: const Icon(Icons.check),
+            onPressed: () => _respond(context, ref, true),
+          ),
+        ],
       ),
     );
   }

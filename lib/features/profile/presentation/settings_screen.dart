@@ -6,6 +6,7 @@ import '../../../core/constants/app_config.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/launch_utils.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../books/providers/books_provider.dart';
 import '../../social/providers/social_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -71,8 +72,51 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _setPrivate(
+    BuildContext context,
+    WidgetRef ref,
+    String userId,
+    bool value,
+  ) async {
+    if (!value) {
+      final open = (await ref.read(followRequestsProvider.future)).length;
+      if (open > 0 && context.mounted) {
+        final ok = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog.adaptive(
+            title: const Text('Konto öffentlich machen?'),
+            content: Text(
+              open == 1
+                  ? 'Deine offene Folgeanfrage wird automatisch angenommen.'
+                  : 'Deine $open offenen Folgeanfragen werden automatisch angenommen.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Abbrechen'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Öffentlich machen'),
+              ),
+            ],
+          ),
+        );
+        if (ok != true) return;
+      }
+    }
+    try {
+      await ref.read(profileRepositoryProvider).setPrivate(userId, value);
+      ref.invalidate(currentProfileProvider);
+      ref.invalidate(followRequestsProvider);
+    } catch (e) {
+      if (context.mounted) _snack(context, authErrorMessage(e));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(currentProfileProvider).valueOrNull;
     final isAdmin = ref.watch(isAdminProvider).valueOrNull == true;
     final error = Theme.of(context).colorScheme.error;
 
@@ -86,6 +130,16 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Profil bearbeiten'),
             onTap: () => context.push('/profile/edit'),
           ),
+          if (profile != null)
+            SwitchListTile.adaptive(
+              secondary: const Icon(Icons.lock_outline),
+              title: const Text('Privates Konto'),
+              subtitle: const Text(
+                'Regal, Beiträge und Wunschliste sehen nur Leute, deren Folgeanfrage du annimmst.',
+              ),
+              value: profile.isPrivate,
+              onChanged: (v) => _setPrivate(context, ref, profile.id, v),
+            ),
           ListTile(
             leading: const Icon(Icons.verified_outlined),
             title: const Text('Verifizieren lassen'),

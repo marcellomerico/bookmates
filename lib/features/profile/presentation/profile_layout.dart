@@ -22,10 +22,14 @@ class ProfileLayout extends ConsumerWidget {
     required this.own,
     required this.actions,
     required this.onRefresh,
+    this.locked = false,
   });
 
   final Profile profile;
   final bool own;
+
+  /// Private account the viewer doesn't follow: only the header is shown.
+  final bool locked;
 
   /// Buttons under the bio (edit profile / follow).
   final Widget actions;
@@ -34,6 +38,23 @@ class ProfileLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shelfUserId = own ? null : profile.id;
+    if (locked) {
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            _Header(profile: profile, own: own, actions: actions),
+            const EmptyState(
+              icon: Icons.lock_outline,
+              title: 'Dieses Konto ist privat',
+              message:
+                  'Folge diesem Konto, um Regal, Beiträge und Wunschliste zu sehen.',
+            ),
+          ],
+        ),
+      );
+    }
     return DefaultTabController(
       length: 3,
       child: NestedScrollView(
