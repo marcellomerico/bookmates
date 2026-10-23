@@ -52,6 +52,7 @@ class UserBook {
     this.currentPage,
     this.favoriteRank,
     this.shelfPosition,
+    this.finishedAt,
   });
 
   final String id;
@@ -68,6 +69,9 @@ class UserBook {
 
   /// Place in the reader's own shelf order; null = not sorted yet (goes last).
   final int? shelfPosition;
+
+  /// Set by the server when the book is marked read; null for older entries.
+  final DateTime? finishedAt;
 
   /// 0..1 once both page numbers are known, else null.
   double? get progress => pageCount == null || currentPage == null
@@ -91,6 +95,7 @@ class UserBook {
     currentPage: currentPage == null ? this.currentPage : currentPage(),
     favoriteRank: favoriteRank == null ? this.favoriteRank : favoriteRank(),
     shelfPosition: shelfPosition,
+    finishedAt: finishedAt,
   );
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -106,6 +111,9 @@ class UserBook {
       currentPage: json['current_page'] as int?,
       favoriteRank: json['favorite_rank'] as int?,
       shelfPosition: json['shelf_position'] as int?,
+      finishedAt: json['finished_at'] == null
+          ? null
+          : DateTime.parse(json['finished_at'] as String).toLocal(),
     );
   }
 }

@@ -33,6 +33,30 @@ class DemoStore {
   final chats = <String, (String, List<Message>)>{};
   final chatRead = <String>{};
   int? readingGoal = 30;
+
+  /// Pages per day this year: most days read, a few gaps, the last 12 in a row.
+  late final Map<DateTime, int> readingDays = () {
+    final today = DateTime.now();
+    final start = DateTime(today.year);
+    final days = <DateTime, int>{};
+    for (
+      var d = start;
+      !d.isAfter(today);
+      d = DateTime(d.year, d.month, d.day + 1)
+    ) {
+      final key = DateTime.utc(d.year, d.month, d.day);
+      final back = DateTime(
+        today.year,
+        today.month,
+        today.day,
+      ).difference(key).inDays;
+      if (back == 0) continue;
+      if (back <= 12 || (key.day * 7 + key.month) % 5 != 0) {
+        days[key] = 18 + (key.day * 13 + key.month * 7) % 47;
+      }
+    }
+    return days;
+  }();
   final likes = <String, Set<String>>{};
   final genres = <String, List<String>>{};
   final activity = <ActivityItem>[];
@@ -239,6 +263,10 @@ class DemoStore {
               currentPage: progress?.$1,
               pageCount: progress?.$2,
               favoriteRank: favorite,
+              // Spread finished books over the past months for the stats screen.
+              finishedAt: status == BookStatus.read
+                  ? ago(days: 9 + 23 * (n % 9))
+                  : null,
             ),
           );
     }

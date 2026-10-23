@@ -58,11 +58,22 @@ class SoftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Light: lifted by a warm shadow. Dark: shadows vanish, a hairline edge does the job.
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
         color: context.palette.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.palette.line),
+        borderRadius: BorderRadius.circular(22),
+        border: dark ? Border.all(color: context.palette.line) : null,
+        boxShadow: dark
+            ? null
+            : const [
+                BoxShadow(
+                  color: Color(0x145B3C1E),
+                  blurRadius: 20,
+                  offset: Offset(0, 6),
+                ),
+              ],
       ),
       child: Padding(padding: padding, child: child),
     );

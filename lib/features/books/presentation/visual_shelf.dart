@@ -147,6 +147,10 @@ class _ShelfViewState extends ConsumerState<ShelfView> {
                 ],
               ),
             const SizedBox(height: 12),
+            if (own && !sorting && _filter == BookStatus.read)
+              const _YearGoalStrip(),
+            if (!sorting && _filter == BookStatus.unread && shown.isNotEmpty)
+              _ToReadStack(entries: shown),
             if (sorting)
               Padding(
                 padding: EdgeInsets.only(bottom: 8),
@@ -893,4 +897,151 @@ class _SpineFallback extends StatelessWidget {
       style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.2),
     ),
   );
+}
+
+/// "2026 · 18 / 30" above the read books, filling like on the Home ring.
+class _YearGoalStrip extends ConsumerWidget {
+  const _YearGoalStrip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(readingStatsProvider).valueOrNull;
+    if (stats == null) return const SizedBox.shrink();
+    final p = context.palette;
+    final goal = stats.goal;
+    final done = stats.finishedThisYear;
+    final fraction = goal == null ? 0.0 : (done / goal).clamp(0.0, 1.0);
+    return Semantics(
+      label: goal == null
+          ? '$done Bücher in diesem Jahr gelesen'
+          : 'Jahresziel: $done von $goal Büchern',
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            Text(
+              '${DateTime.now().year}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(
+                  begin: MediaQuery.disableAnimationsOf(context) ? fraction : 0,
+                  end: fraction,
+                ),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, v, _) => ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: v,
+                    minHeight: 8,
+                    color: p.goldText,
+                    backgroundColor: p.parchment,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              goal == null ? '$done gelesen' : '$done / $goal',
+              style: TextStyle(color: p.muted, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The to-read pile: books lying on top of each other, slightly askew.
+class _ToReadStack extends StatelessWidget {
+  const _ToReadStack({required this.entries});
+
+  final List<UserBook> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final pile = entries.take(6).toList();
+    final pages = entries.fold<int>(0, (sum, e) => sum + (e.pageCount ?? 0));
+    final still = MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      label:
+          '${entries.length} ungelesene Bücher${pages > 0 ? ', zusammen etwa $pages Seiten' : ''}',
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(
+              width: 150,
+              child: Column(
+                children: [
+                  for (final (i, e) in pile.reversed.indexed)
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: still ? 1 : 0, end: 1),
+                      duration: Duration(milliseconds: 350 + i * 90),
+                      curve: Curves.easeOutBack,
+                      builder: (context, t, child) => Transform.translate(
+                        offset: Offset(0, -30 * (1 - t)),
+                        child: Opacity(
+                          opacity: t.clamp(0.0, 1.0),
+                          child: child,
+                        ),
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(
+                          ((e.bookId.hashCode % 13) - 6).toDouble(),
+                          0,
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          width: 118.0 + (e.bookId.hashCode % 26),
+                          height:
+                              16.0 + ((e.pageCount ?? 250) / 90).clamp(0, 10),
+                          decoration: BoxDecoration(
+                            color: spineColor(e.bookId),
+                            borderRadius: BorderRadius.circular(3),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x22000000),
+                                blurRadius: 2,
+                                offset: Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entries.length == 1
+                        ? '1 Buch wartet'
+                        : '${entries.length} Bücher warten',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (pages > 0)
+                    Text(
+                      'zusammen etwa $pages Seiten',
+                      style: TextStyle(color: p.muted, fontSize: 13),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

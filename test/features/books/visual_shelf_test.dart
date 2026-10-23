@@ -182,6 +182,15 @@ void main() {
     expect(find.bySemanticsLabel(RegExp('^Schon durch')), findsOneWidget);
   });
 
+  testWidgets('unread filter shows the to-read pile', (tester) async {
+    await _pump(tester, const ShelfView());
+    expect(find.text('1 Buch wartet'), findsNothing);
+    await tester.ensureVisible(find.textContaining('Ungelesen'));
+    await tester.tap(find.textContaining('Ungelesen'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 Buch wartet'), findsOneWidget);
+  });
+
   test('thicker books get wider spines, sizes stay stable per book', () {
     UserBook e(int? pages) => UserBook(
       id: 'x',

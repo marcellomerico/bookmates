@@ -303,82 +303,91 @@ class _StreakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final days = stats.streak == 1 ? 'Tag' : 'Tage';
-    return Semantics(
-      label:
-          'Lese-Serie: ${stats.streak} $days in Folge, ${stats.week.where((d) => d).length} der letzten 7 Tage gelesen',
-      excludeSemantics: true,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: p.accentSurface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.local_fire_department_rounded,
-                  size: 16,
-                  color: p.gold,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'LESE-SERIE',
-                  style: TextStyle(
-                    color: p.onAccentSurface,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ],
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => context.push('/stats'),
+        child: Semantics(
+          button: true,
+          hint: 'Statistik öffnen',
+          label:
+              'Lese-Serie: ${stats.streak} $days in Folge, ${stats.week.where((d) => d).length} der letzten 7 Tage gelesen',
+          excludeSemantics: true,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: p.accentSurface,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 10),
-            _Grow(
-              to: stats.streak.toDouble(),
-              builder: (context, v) => Text.rich(
-                TextSpan(
-                  text: '${v.round()} ',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    TextSpan(
-                      text: days,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                    Icon(
+                      Icons.local_fire_department_rounded,
+                      size: 16,
+                      color: p.gold,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'LESE-SERIE',
+                      style: TextStyle(
+                        color: p.onAccentSurface,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1,
                       ),
                     ),
                   ],
                 ),
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  color: p.onAccentSurface,
-                  height: 1,
-                ),
-              ),
-            ),
-            const Spacer(),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                for (final (i, read) in stats.week.indexed) ...[
-                  if (i > 0) const SizedBox(width: 4),
-                  Expanded(
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 300 + i * 60),
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: read
-                            ? p.gold
-                            : p.onAccentSurface.withValues(alpha: 0.28),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
+                const SizedBox(height: 10),
+                _Grow(
+                  to: stats.streak.toDouble(),
+                  builder: (context, v) => Text.rich(
+                    TextSpan(
+                      text: '${v.round()} ',
+                      children: [
+                        TextSpan(
+                          text: days,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: p.onAccentSurface,
+                      height: 1,
                     ),
                   ),
-                ],
+                ),
+                const Spacer(),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    for (final (i, read) in stats.week.indexed) ...[
+                      if (i > 0) const SizedBox(width: 4),
+                      Expanded(
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300 + i * 60),
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: read
+                                ? p.gold
+                                : p.onAccentSurface.withValues(alpha: 0.28),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

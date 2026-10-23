@@ -18,32 +18,10 @@ Future<void> showReportDialog(
   /// Reported private message: quoted into the reason, since admins can't read chats.
   String? quote,
 }) async {
-  final controller = TextEditingController();
   final reason = await showDialog<String>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Inhalt melden'),
-      content: TextField(
-        controller: controller,
-        maxLength: AppLimits.reportReason,
-        maxLines: 3,
-        decoration: const InputDecoration(
-          hintText: 'Warum möchtest du das melden?',
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, controller.text.trim()),
-          child: const Text('Melden'),
-        ),
-      ],
-    ),
+    builder: (_) => const _ReportDialog(),
   );
-  controller.dispose();
   if (reason == null || reason.isEmpty) return;
 
   final user = ref.read(currentUserProvider);
@@ -345,4 +323,45 @@ Future<void> showCommentActionsMenu(
       postId: postId,
     );
   }
+}
+
+/// Owns its controller so it outlives the closing animation.
+class _ReportDialog extends StatefulWidget {
+  const _ReportDialog();
+
+  @override
+  State<_ReportDialog> createState() => _ReportDialogState();
+}
+
+class _ReportDialogState extends State<_ReportDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Inhalt melden'),
+    content: TextField(
+      controller: _controller,
+      maxLength: AppLimits.reportReason,
+      maxLines: 3,
+      decoration: const InputDecoration(
+        hintText: 'Warum möchtest du das melden?',
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Abbrechen'),
+      ),
+      ElevatedButton(
+        onPressed: () => Navigator.pop(context, _controller.text.trim()),
+        child: const Text('Melden'),
+      ),
+    ],
+  );
 }

@@ -19,6 +19,10 @@ const _spineColors = [
 ];
 
 /// Stable per book, so a spine keeps its look between visits.
+/// Stable cloth colour for a book, shared by spines and the to-read stack.
+Color spineColor(String bookId) =>
+    _spineColors[_hash(bookId) % _spineColors.length];
+
 int _hash(String s) {
   var h = 0;
   for (final u in s.codeUnits) {
@@ -48,7 +52,7 @@ class BookSpine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final h = _hash(entry.bookId);
-    final base = _spineColors[h % _spineColors.length];
+    final base = spineColor(entry.bookId);
     final light = base.computeLuminance() > 0.45;
     final ink = light ? const Color(0xFF2B2321) : const Color(0xFFE9D9A6);
     final title = entry.book?.title ?? 'Buch';

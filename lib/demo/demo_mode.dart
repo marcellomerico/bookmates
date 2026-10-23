@@ -447,6 +447,12 @@ class _DemoBooks extends BookRepository {
   _DemoBooks(super.client);
 
   @override
+  Future<Map<DateTime, int>> getReadingDays(DateTime from) async => {
+    for (final e in _store.readingDays.entries)
+      if (!e.key.isBefore(from)) e.key: e.value,
+  };
+
+  @override
   Future<ReadingStats> getReadingStats() async => ReadingStats(
     streak: 12,
     week: const [true, true, true, true, true, true, false],
