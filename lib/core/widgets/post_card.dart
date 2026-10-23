@@ -100,8 +100,8 @@ class PostCard extends ConsumerWidget {
                                 handle,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.muted,
+                                style: TextStyle(
+                                  color: context.palette.muted,
                                   fontSize: 12,
                                 ),
                               ),
@@ -109,8 +109,8 @@ class PostCard extends ConsumerWidget {
                             Text(
                               ' · ${formatRelativeTime(post.createdAt)}',
                               maxLines: 1,
-                              style: const TextStyle(
-                                color: AppColors.muted,
+                              style: TextStyle(
+                                color: context.palette.muted,
                                 fontSize: 12,
                               ),
                             ),
@@ -122,9 +122,9 @@ class PostCard extends ConsumerWidget {
                 ),
                 IconButton(
                   tooltip: 'Optionen',
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.more_horiz,
-                    color: AppColors.muted,
+                    color: context.palette.muted,
                     size: 20,
                   ),
                   onPressed: () => showPostActionsMenu(context, ref, post),
@@ -204,14 +204,14 @@ class PostCard extends ConsumerWidget {
                                   : Icons.favorite_border,
                               size: 22,
                               color: like.liked
-                                  ? AppColors.burgundy
-                                  : AppColors.muted,
+                                  ? context.palette.burgundy
+                                  : context.palette.muted,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${like.count}',
-                              style: const TextStyle(
-                                color: AppColors.muted,
+                              style: TextStyle(
+                                color: context.palette.muted,
                                 fontSize: 13,
                               ),
                             ),
@@ -238,16 +238,16 @@ class PostCard extends ConsumerWidget {
                         widthFactor: 1,
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.chat_bubble_outline,
                               size: 22,
-                              color: AppColors.muted,
+                              color: context.palette.muted,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${post.commentCount}',
-                              style: const TextStyle(
-                                color: AppColors.muted,
+                              style: TextStyle(
+                                color: context.palette.muted,
                                 fontSize: 13,
                               ),
                             ),
@@ -284,9 +284,9 @@ class _BookChip extends StatelessWidget {
     final chip = Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.cream,
+        color: context.palette.cream,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: context.palette.line),
       ),
       child: Row(
         children: [
@@ -306,13 +306,13 @@ class _BookChip extends StatelessWidget {
               width: 42,
               height: 58,
               decoration: BoxDecoration(
-                color: AppColors.burgundy,
+                color: context.palette.burgundy,
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.menu_book_rounded,
-                color: Colors.white,
+                color: context.palette.onBurgundy,
                 size: 18,
               ),
             ),
@@ -332,8 +332,8 @@ class _BookChip extends StatelessWidget {
                 if (author != null)
                   Text(
                     author!,
-                    style: const TextStyle(
-                      color: AppColors.muted,
+                    style: TextStyle(
+                      color: context.palette.muted,
                       fontSize: 12,
                     ),
                   ),
@@ -359,14 +359,14 @@ class HiddenContentHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        Icon(Icons.visibility_off, size: 14, color: AppColors.muted),
+        Icon(Icons.visibility_off, size: 14, color: context.palette.muted),
         SizedBox(width: 6),
         Expanded(
           child: Text(
             'Ausgeblendet nach Meldungen – nur für dich sichtbar',
-            style: TextStyle(color: AppColors.muted, fontSize: 11),
+            style: TextStyle(color: context.palette.muted, fontSize: 11),
           ),
         ),
       ],
@@ -382,8 +382,8 @@ class _TypeLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     type.label.toUpperCase(),
-    style: const TextStyle(
-      color: AppColors.burgundy,
+    style: TextStyle(
+      color: context.palette.burgundy,
       fontSize: 11,
       fontWeight: FontWeight.w700,
       letterSpacing: 1.1,
@@ -399,17 +399,17 @@ class _QuoteText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.only(left: 12),
-    decoration: const BoxDecoration(
-      border: Border(left: BorderSide(color: AppColors.gold, width: 3)),
+    decoration: BoxDecoration(
+      border: Border(left: BorderSide(color: context.palette.gold, width: 3)),
     ),
     child: Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'SourceSerif4',
         fontStyle: FontStyle.italic,
         fontSize: 17,
         height: 1.45,
-        color: AppColors.ink,
+        color: context.palette.ink,
       ),
     ),
   );

@@ -217,7 +217,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   ),
                 ),
               ],
-              const Divider(color: AppColors.line),
+              Divider(color: context.palette.line),
               const SizedBox(height: 8),
               DropdownButtonFormField<PostType>(
                 initialValue: _postType,
@@ -255,12 +255,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         ElevatedButton(
           onPressed: _saving ? null : _share,
           child: _saving
-              ? const SizedBox(
+              ? SizedBox(
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: context.palette.onBurgundy,
                   ),
                 )
               : const Text('Teilen'),

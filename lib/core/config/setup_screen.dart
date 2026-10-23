@@ -17,14 +17,14 @@ class SetupScreen extends StatelessWidget {
               Text(
                 'Booksquad Setup',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppColors.burgundy,
+                  color: context.palette.burgundy,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Supabase ist noch nicht konfiguriert. Bitte folge diesen Schritte:',
-                style: TextStyle(color: AppColors.muted, height: 1.5),
+                style: TextStyle(color: context.palette.muted, height: 1.5),
               ),
               const SizedBox(height: 24),
               _Step(
@@ -92,10 +92,10 @@ class _Step extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 14,
-            backgroundColor: AppColors.burgundy,
+            backgroundColor: context.palette.burgundy,
             child: Text(
               '$number',
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: context.palette.onBurgundy, fontSize: 13),
             ),
           ),
           const SizedBox(width: 12),
@@ -110,7 +110,7 @@ class _Step extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   body,
-                  style: const TextStyle(color: AppColors.muted, height: 1.4),
+                  style: TextStyle(color: context.palette.muted, height: 1.4),
                 ),
               ],
             ),

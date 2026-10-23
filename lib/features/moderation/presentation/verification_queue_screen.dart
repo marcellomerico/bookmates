@@ -82,15 +82,15 @@ class _VerificationQueueScreenState
                             ),
                             Text(
                               '@${r.username ?? '?'} · ${r.kind.label} · ${formatRelativeTime(r.createdAt)}',
-                              style: const TextStyle(color: AppColors.muted),
+                              style: TextStyle(color: context.palette.muted),
                             ),
                             const SizedBox(height: 8),
                             InkWell(
                               onTap: () => openExternalUrl(r.link),
                               child: Text(
                                 r.link,
-                                style: const TextStyle(
-                                  color: AppColors.burgundy,
+                                style: TextStyle(
+                                  color: context.palette.burgundy,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),

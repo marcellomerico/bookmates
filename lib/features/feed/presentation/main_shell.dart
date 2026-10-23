@@ -108,9 +108,11 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.line, width: 0.5)),
+      decoration: BoxDecoration(
+        color: context.palette.card,
+        border: Border(
+          top: BorderSide(color: context.palette.line, width: 0.5),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -140,12 +142,12 @@ class _BottomBar extends StatelessWidget {
                   width: 44,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.burgundy,
+                    color: context.palette.burgundy,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.add_rounded,
-                    color: Colors.white,
+                    color: context.palette.onBurgundy,
                     size: 24,
                   ),
                 ),
@@ -208,7 +210,9 @@ class _TabItem extends StatelessWidget {
                     Icon(
                       selected ? activeIcon : icon,
                       size: 28,
-                      color: selected ? AppColors.ink : AppColors.muted,
+                      color: selected
+                          ? context.palette.ink
+                          : context.palette.muted,
                     ),
               ),
             ),
@@ -232,7 +236,7 @@ class _ProfileTabIcon extends ConsumerWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? AppColors.ink : Colors.transparent,
+          color: selected ? context.palette.ink : Colors.transparent,
           width: 1.5,
         ),
       ),

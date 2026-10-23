@@ -139,7 +139,7 @@ class _ProgressFormState extends State<_ProgressForm> {
               max: total.toDouble(),
               divisions: total,
               label: '${current.clamp(0, total)}',
-              activeColor: AppColors.burgundy,
+              activeColor: context.palette.burgundy,
               onChanged: (v) => setState(() {
                 _current.text = v.round().toString();
                 _error = null;

@@ -81,10 +81,10 @@ class _HomeHeader extends StatelessWidget {
               icon: Badge(
                 isLabelVisible: unread,
                 smallSize: 9,
-                child: const Icon(
+                child: Icon(
                   Icons.mail_outline_rounded,
                   size: 26,
-                  color: AppColors.ink,
+                  color: context.palette.ink,
                 ),
               ),
             );
@@ -93,10 +93,10 @@ class _HomeHeader extends StatelessWidget {
         IconButton(
           tooltip: 'Aktivität',
           onPressed: onActivity,
-          icon: const Icon(
+          icon: Icon(
             Icons.favorite_border_rounded,
             size: 26,
-            color: AppColors.ink,
+            color: context.palette.ink,
           ),
         ),
       ],

@@ -37,7 +37,7 @@ class BooksquadWordmark extends StatelessWidget {
       child: Text(
         'BOOKSQUAD',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: AppColors.goldText,
+          color: context.palette.goldText,
           letterSpacing: 2.6,
           fontWeight: FontWeight.w700,
         ),
@@ -60,9 +60,9 @@ class SoftCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: context.palette.line),
       ),
       child: Padding(padding: padding, child: child),
     );
@@ -85,15 +85,21 @@ class TinyPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected || filled ? AppColors.burgundy : Colors.white;
-    final fg = selected || filled ? Colors.white : AppColors.ink;
+    final bg = selected || filled
+        ? context.palette.burgundy
+        : context.palette.card;
+    final fg = selected || filled
+        ? context.palette.onBurgundy
+        : context.palette.ink;
 
     final pill = Material(
       color: bg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: selected || filled ? AppColors.burgundy : AppColors.line,
+          color: selected || filled
+              ? context.palette.burgundy
+              : context.palette.line,
         ),
       ),
       child: InkWell(

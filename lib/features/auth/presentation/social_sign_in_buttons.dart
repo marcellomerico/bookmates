@@ -59,7 +59,10 @@ class _SocialSignInButtonsState extends ConsumerState<SocialSignInButtons> {
               const Expanded(child: Divider()),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text('oder', style: TextStyle(color: AppColors.muted)),
+                child: Text(
+                  'oder',
+                  style: TextStyle(color: context.palette.muted),
+                ),
               ),
               const Expanded(child: Divider()),
             ],

@@ -42,7 +42,7 @@ class _TermsLinksTextState extends State<TermsLinksText> {
   Widget build(BuildContext context) {
     final base = widget.style ?? Theme.of(context).textTheme.bodySmall;
     final link = base?.copyWith(
-      color: AppColors.burgundy,
+      color: context.palette.burgundy,
       decoration: TextDecoration.underline,
     );
     return Text.rich(

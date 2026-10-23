@@ -33,11 +33,11 @@ class UserAvatar extends StatelessWidget {
       label: label,
       image: true,
       excludeSemantics: true,
-      child: _build(px),
+      child: _build(context, px),
     );
   }
 
-  Widget _build(int px) {
+  Widget _build(BuildContext context, int px) {
     final initial = (name == null || name!.trim().isEmpty)
         ? '?'
         : name!.trim().characters.first.toUpperCase();
@@ -45,18 +45,18 @@ class UserAvatar extends StatelessWidget {
     if (url != null && url!.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: AppColors.parchment,
+        backgroundColor: context.palette.parchment,
         backgroundImage: CachedNetworkImageProvider(url!, maxWidth: px),
       );
     }
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: AppColors.parchment,
+      backgroundColor: context.palette.parchment,
       child: Text(
         initial,
         style: TextStyle(
-          color: AppColors.burgundy,
+          color: context.palette.burgundy,
           fontSize: radius * 0.85,
           fontWeight: FontWeight.w700,
         ),

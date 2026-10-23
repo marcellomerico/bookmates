@@ -123,7 +123,7 @@ class _FavoriteCover extends StatelessWidget {
     final fallback = Container(
       width: width,
       height: height,
-      color: AppColors.parchment,
+      color: context.palette.parchment,
       padding: const EdgeInsets.all(6),
       alignment: Alignment.center,
       child: Text(
@@ -201,7 +201,7 @@ class _FavoritePickerState extends State<FavoritePicker> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
               'Aus deinen gelesenen Büchern · ${_picked.length} von 3',
-              style: const TextStyle(color: AppColors.muted),
+              style: TextStyle(color: context.palette.muted),
             ),
           ),
           Flexible(
@@ -211,7 +211,7 @@ class _FavoritePickerState extends State<FavoritePicker> {
                 for (final entry in widget.readBooks)
                   CheckboxListTile(
                     value: _picked.contains(entry.id),
-                    activeColor: AppColors.burgundy,
+                    activeColor: context.palette.burgundy,
                     title: Text(entry.book?.title ?? 'Buch'),
                     subtitle: entry.book?.author == null
                         ? null

@@ -8,15 +8,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
-  ProviderScope(
-    overrides: [currentUserProvider.overrideWithValue(null)],
-    child: MaterialApp(
-      theme: AppTheme.light,
-      home: Scaffold(body: child),
-    ),
-  ),
-);
+Future<void> _pump(WidgetTester tester, Widget child, {bool dark = false}) =>
+    tester.pumpWidget(
+      ProviderScope(
+        overrides: [currentUserProvider.overrideWithValue(null)],
+        child: MaterialApp(
+          theme: dark ? AppTheme.dark : AppTheme.light,
+          home: Scaffold(body: child),
+        ),
+      ),
+    );
 
 Future<void> _expectAccessible(WidgetTester tester) async {
   final handle = tester.ensureSemantics();
@@ -44,6 +45,25 @@ void main() {
       commentCount: 2,
     );
     await _pump(tester, PostCard(post: post));
+    await _expectAccessible(tester);
+  });
+
+  testWidgets('LoginScreen meets a11y guidelines (dunkel)', (tester) async {
+    await _pump(tester, const LoginScreen(), dark: true);
+    await _expectAccessible(tester);
+  });
+
+  testWidgets('PostCard meets a11y guidelines (dunkel)', (tester) async {
+    final post = Post(
+      id: 'p1',
+      authorId: 'u1',
+      content: 'Ein toller Beitrag',
+      postType: PostType.discussion,
+      createdAt: DateTime(2026, 1, 1),
+      likeCount: 3,
+      commentCount: 2,
+    );
+    await _pump(tester, PostCard(post: post), dark: true);
     await _expectAccessible(tester);
   });
 }

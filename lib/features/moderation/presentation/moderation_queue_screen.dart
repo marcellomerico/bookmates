@@ -115,18 +115,18 @@ class _ModerationQueueScreenState extends ConsumerState<ModerationQueueScreen> {
           data: (items) => items.isEmpty
               ? ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
+                  children: [
                     SizedBox(height: 160),
                     Icon(
                       Icons.check_circle_outline,
                       size: 48,
-                      color: AppColors.muted,
+                      color: context.palette.muted,
                     ),
                     SizedBox(height: 12),
                     Center(
                       child: Text(
                         'Keine offenen Meldungen',
-                        style: TextStyle(color: AppColors.muted),
+                        style: TextStyle(color: context.palette.muted),
                       ),
                     ),
                   ],
@@ -160,7 +160,7 @@ class _ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = const TextStyle(color: AppColors.muted, fontSize: 12);
+    final muted = TextStyle(color: context.palette.muted, fontSize: 12);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(

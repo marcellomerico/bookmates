@@ -50,13 +50,13 @@ Future<BookStatusChoice?> showBookStatusSheet(
     showDragHandle: true,
     builder: (context) {
       Widget option(BookStatus status) => ListTile(
-        leading: Icon(status.icon, color: AppColors.burgundy),
+        leading: Icon(status.icon, color: context.palette.burgundy),
         title: Text(status.label),
         subtitle: Text(status.hint),
         trailing: status == current
-            ? const Icon(
+            ? Icon(
                 Icons.check,
-                color: AppColors.burgundy,
+                color: context.palette.burgundy,
                 semanticLabel: 'Ausgewählt',
               )
             : null,
@@ -121,10 +121,10 @@ class _SectionLabel extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
     child: Text(
       text.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         letterSpacing: 1.2,
-        color: AppColors.muted,
+        color: context.palette.muted,
         fontWeight: FontWeight.w600,
       ),
     ),

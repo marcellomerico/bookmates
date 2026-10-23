@@ -107,12 +107,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
           if (canSend == false)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(16),
               child: Text(
                 'Ihr folgt euch nicht mehr gegenseitig. Neue Nachrichten sind erst wieder möglich, wenn ihr euch beide folgt.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.muted, fontSize: 13),
+                style: TextStyle(color: context.palette.muted, fontSize: 13),
               ),
             )
           else
@@ -182,7 +182,9 @@ class _Bubble extends ConsumerWidget {
           ),
           child: Text(
             message.body,
-            style: TextStyle(color: mine ? scheme.onPrimary : AppColors.ink),
+            style: TextStyle(
+              color: mine ? scheme.onPrimary : context.palette.ink,
+            ),
           ),
         ),
       ),

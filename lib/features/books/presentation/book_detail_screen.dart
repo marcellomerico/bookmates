@@ -298,8 +298,8 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                 child: LinearProgressIndicator(
                   value: value,
                   minHeight: 8,
-                  color: AppColors.burgundy,
-                  backgroundColor: AppColors.parchment,
+                  color: context.palette.burgundy,
+                  backgroundColor: context.palette.parchment,
                   semanticsLabel: 'Lesefortschritt',
                   semanticsValue: '${(value * 100).round()}',
                 ),
@@ -378,7 +378,7 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
                       star <= (entry.rating ?? 0)
                           ? Icons.star_rounded
                           : Icons.star_outline_rounded,
-                      color: AppColors.gold,
+                      color: context.palette.gold,
                       size: 30,
                     ),
                   ),
@@ -426,8 +426,8 @@ class _Header extends ConsumerWidget {
     final placeholder = Container(
       width: w,
       height: h,
-      color: AppColors.parchment,
-      child: const Icon(Icons.menu_book, color: AppColors.muted, size: 40),
+      color: context.palette.parchment,
+      child: Icon(Icons.menu_book, color: context.palette.muted, size: 40),
     );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,7 +458,7 @@ class _Header extends ConsumerWidget {
                 Text(
                   book!.author!,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],
@@ -471,7 +471,7 @@ class _Header extends ConsumerWidget {
                       ? '1 Leser hat es im Regal'
                       : '$readers Leser haben es im Regal',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],

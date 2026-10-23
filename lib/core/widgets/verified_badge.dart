@@ -23,7 +23,7 @@ class VerifiedBadge extends StatelessWidget {
         child: Icon(
           Icons.verified,
           size: size,
-          color: AppColors.burgundy,
+          color: context.palette.burgundy,
           semanticLabel: 'Verifiziert',
         ),
       ),
